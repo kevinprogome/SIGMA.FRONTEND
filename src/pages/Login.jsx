@@ -2,13 +2,37 @@ import { useState } from "react";
 import { login as loginService } from "../services/authService";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const redirectByRole = (role) => {
+    switch (role) {
+      case "SUPERADMIN":
+        navigate("/admin", { replace: true });
+        break;
+      case "SECRETARY":
+        navigate("/secretary", { replace: true });
+        break;
+      case "COUNCIL":
+        navigate("/council", { replace: true });
+        break;
+      case "STUDENT":
+        navigate("/student", { replace: true });
+        break;
+      case "PROJECT_DIRECTOR":
+        navigate("/project-director", { replace: true });
+        break;
+      default:
+        navigate("/login", { replace: true });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,19 +41,36 @@ function Login() {
     try {
       const response = await loginService({ email, password });
 
-      // 🧠 Soportamos ambos formatos
+      // 🔹 soporta string o { token }
       const token =
         typeof response === "string" ? response : response?.token;
 
-      if (!token) {
-        throw new Error("Token inválido");
-      }
+      if (!token) throw new Error("Token inválido");
 
-      // Guardamos en contexto + localStorage
+      // 🔐 guardamos token
       login(token);
 
-      // Redirección limpia
-      navigate("/student", { replace: true });
+      // 🔎 decodificamos JWT
+      const decoded = jwtDecode(token);
+      console.log("JWT DECODED 👉", decoded);
+
+      let role = null;
+
+      // ✅ Opción 1: role directo
+      if (decoded.role) {
+        role = decoded.role;
+      }
+
+      // ✅ Opción 2: authorities (Spring Security)
+      else if (decoded.authorities?.length) {
+        role = decoded.authorities[0].replace("ROLE_", "");
+      }
+
+      if (!role) {
+        throw new Error("Rol no encontrado en el token");
+      }
+
+      redirectByRole(role);
 
     } catch (err) {
       console.error("Login error:", err);
