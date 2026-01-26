@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getStudentsPendingModalities } from "../../services/secretaryService";
 
 export default function StudentsPending() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -55,9 +58,8 @@ export default function StudentsPending() {
                 <td>
                   <button
                     onClick={() =>
-                      console.log(
-                        "Ver perfil del studentModalityId:",
-                        s.studentModalityId
+                      navigate(
+                        `/secretary/students/${s.studentModalityId}`
                       )
                     }
                   >
