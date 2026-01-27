@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { register } from "../services/authService";
+import "../styles/register.css";
 
 function Register() {
   const [form, setForm] = useState({
@@ -19,34 +20,74 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = await register(form);
-      localStorage.setItem("token", token);
+      await register(form);
       alert("Registro exitoso");
-      localStorage.setItem(
-      "studentBasicInfo",
-      JSON.stringify({
-        firstName: res.firstName,
-        lastName: res.lastName,
-        email: res.email,
-      })
-    );
-
     } catch (error) {
       alert(error.response?.data || "Error al registrarse");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Registro SIGMA</h2>
+    <div className="register-container">
+      <div className="register-card">
 
-      <input name="name" placeholder="Nombre" onChange={handleChange} />
-      <input name="lastName" placeholder="Apellido" onChange={handleChange} />
-      <input name="email" placeholder="Correo institucional" onChange={handleChange} />
-      <input type="password" name="password" placeholder="Contraseña" onChange={handleChange} />
+        <div className="register-header">
+          <h1>Registro</h1>
+          <p>Crea tu cuenta para acceder al sistema SIGMA</p>
+        </div>
 
-      <button type="submit">Registrarse</button>
-    </form>
+        <div className="register-body">
+          <form className="register-form" onSubmit={handleSubmit}>
+
+            <div className="register-group full">
+              <input
+                name="name"
+                placeholder="Nombre"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="register-group full">
+              <input
+                name="lastName"
+                placeholder="Apellido"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="register-group full">
+              <input
+                name="email"
+                placeholder="Correo institucional"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="register-group full">
+              <input
+                type="password"
+                name="password"
+                placeholder="Contraseña"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <button className="register-button" type="submit">
+              Registrarse
+            </button>
+          </form>
+
+          <div className="register-footer">
+            ¿Ya tienes cuenta? <a href="/login">Iniciar sesión</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 }
 

@@ -1,0 +1,113 @@
+/* CONTENEDOR GENERAL */
+.register-container {
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+/* TARJETA */
+.register-card {
+  width: 100%;
+  max-width: 520px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+/* HEADER */
+.register-header {
+  background-color: #7A1117;
+  color: white;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.register-header h1 {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.register-header p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* BODY */
+.register-body {
+  padding: 2rem 1.8rem;
+}
+
+/* FORM GRID */
+.register-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+/* INPUT GROUP */
+.register-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.register-group.full {
+  grid-column: span 2;
+}
+
+.register-group input {
+  width: 85%;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.register-group input:focus {
+  outline: none;
+  border-color: #7A1117;
+}
+
+/* BOTÓN */
+.register-button {
+  grid-column: span 2;
+  margin-top: 1.5rem;
+  padding: 0.95rem;
+  background-color: #7A1117;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: bold;
+}
+
+.register-button:hover {
+  background-color: #741015;
+}
+
+/* FOOTER */
+.register-footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.register-footer a {
+  color: #7A1117;
+  font-weight: 500;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .register-form {
+    grid-template-columns: 1fr;
+  }
+
+  .register-group.full {
+    grid-column: span 1;
+  }
+}
