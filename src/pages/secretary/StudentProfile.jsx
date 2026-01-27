@@ -4,6 +4,7 @@ import {
   getStudentModalityProfile,
   reviewDocument,
   approveSecretary,
+  getDocumentBlobUrl,
 } from "../../services/secretaryService";
 
 export default function StudentProfileSecretary() {
@@ -17,6 +18,7 @@ export default function StudentProfileSecretary() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loadingDoc, setLoadingDoc] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -39,6 +41,29 @@ export default function StudentProfileSecretary() {
       fetchProfile();
     }
   }, [studentModalityId]);
+
+  const handleViewDocument = async (studentDocumentId) => {
+    console.log("📄 Intentando ver documento:", studentDocumentId);
+    setLoadingDoc(studentDocumentId);
+    
+    try {
+      const blobUrl = await getDocumentBlobUrl(studentDocumentId);
+      console.log("✅ Abriendo documento en nueva pestaña");
+      window.open(blobUrl, "_blank");
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 60000);
+      
+    } catch (err) {
+      console.error("❌ Error al cargar documento:", err);
+      alert(
+        err.response?.data?.message || "Error al cargar el documento"
+      );
+    } finally {
+      setLoadingDoc(null);
+    }
+  };
 
   const handleReviewDocument = async (studentDocumentId) => {
     if (!selectedStatus) {
@@ -103,7 +128,7 @@ export default function StudentProfileSecretary() {
     try {
       await approveSecretary(studentModalityId);
       alert("Estudiante enviado al Consejo de Facultad exitosamente");
-      navigate("/secretary/students");
+      navigate("/secretary");
     } catch (err) {
       console.error(err);
       alert(
@@ -113,10 +138,6 @@ export default function StudentProfileSecretary() {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const getDocumentUrl = (studentDocumentId) => {
-    return `http://localhost:8080/documents/${studentDocumentId}/download`;
   };
 
   if (loading) return <p>Cargando perfil del estudiante...</p>;
@@ -193,15 +214,13 @@ export default function StudentProfileSecretary() {
                   </td>
                   <td>
                     <button
-                      onClick={() =>
-                        window.open(
-                          getDocumentUrl(doc.studentDocumentId),
-                          "_blank"
-                        )
-                      }
+                      onClick={() => handleViewDocument(doc.studentDocumentId)}
+                      disabled={loadingDoc === doc.studentDocumentId}
                       style={{ marginRight: "10px" }}
                     >
-                      Ver documento
+                      {loadingDoc === doc.studentDocumentId
+                        ? "Cargando..."
+                        : "Ver documento"}
                     </button>
                     <button
                       onClick={() => {
@@ -330,7 +349,7 @@ export default function StudentProfileSecretary() {
       )}
 
       <div style={{ marginTop: "30px" }}>
-        <button onClick={() => navigate("/secretary/students")}>
+        <button onClick={() => navigate("/secretary")}>
           Volver al listado
         </button>
       </div>

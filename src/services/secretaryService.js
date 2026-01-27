@@ -5,12 +5,35 @@ export const getStudentsPendingModalities = async () => {
   return response.data;
 };
 
-// ✅ CORREGIDO: ahora recibe studentModalityId
 export const getStudentModalityProfile = async (studentModalityId) => {
   const response = await axios.get(
     `/modalities/students/${studentModalityId}`
   );
   return response.data;
+};
+
+// ✅ CORRECTO: Usar el endpoint que devuelve el PDF
+export const getDocumentBlobUrl = async (studentDocumentId) => {
+  console.log("🔍 Descargando documento ID:", studentDocumentId);
+  
+  try {
+    const response = await axios.get(
+      `/modalities/student/${studentDocumentId}/view`,
+      {
+        responseType: "blob",
+      }
+    );
+    
+    console.log("✅ PDF recibido, tamaño:", response.data.size);
+    
+    const blob = response.data;
+    const url = window.URL.createObjectURL(blob);
+    
+    return url;
+  } catch (error) {
+    console.error("❌ Error al descargar:", error);
+    throw error;
+  }
 };
 
 export const reviewDocument = async (studentDocumentId, data) => {
