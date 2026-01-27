@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "../styles/navbar.css";
 
 export default function Navbar() {
   const { logout } = useAuth();
@@ -11,11 +12,20 @@ export default function Navbar() {
   };
 
   return (
-    <nav style={{ display: "flex", gap: "15px", padding: "15px", background: "#1e293b", color: "white" }}>
-      <Link to="/student" style={{ color: "white" }}>Perfil</Link>
-      <Link to="/student/modalities" style={{ color: "white" }}>Modalidades</Link>
-      <Link to="/student/status" style={{ color: "white" }}>Estado</Link>
-      <button onClick={handleLogout}>Cerrar sesión</button>
+    <nav className="navbar-wrapper">
+      <div className="navbar">
+        <div className="navbar-brand">SIGMA</div>
+
+        <ul className="navbar-links">
+          <li><Link to="/student">Perfil</Link></li>
+          <li><Link to="/student/modalities">Modalidades</Link></li>
+          <li><Link to="/student/status">Estado</Link></li>
+        </ul>
+
+        <button className="navbar-logout" onClick={handleLogout}>
+          Cerrar sesión
+        </button>
+      </div>
     </nav>
   );
 }

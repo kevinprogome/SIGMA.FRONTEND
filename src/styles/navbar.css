@@ -1,0 +1,87 @@
+/* CONTENEDOR EXTERNO (evita overflow) */
+.navbar-wrapper {
+  width: 100%;
+  padding: 1rem;
+  background-color: #f4f4f4;
+  box-sizing: border-box;
+}
+
+/* NAVBAR CARD */
+.navbar {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  background-color: #7A1117;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0.8rem 1.5rem;
+  border-radius: 14px;            /* 🔥 redondeado */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* BRAND */
+.navbar-brand {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.4rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* LINKS */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 1.8rem;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.2rem 0;
+}
+
+.navbar-links a:hover {
+  border-bottom: 2px solid white;
+}
+
+/* LOGOUT */
+.navbar-logout {
+  background-color: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;           /* 🔥 full rounded */
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.navbar-logout:hover {
+  background-color: rgba(255, 255, 255, 0.22);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1rem;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+  }
+}

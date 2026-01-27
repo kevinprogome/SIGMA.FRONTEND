@@ -1,0 +1,123 @@
+/* CONTENEDOR */
+.profile-container {
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+/* TARJETA */
+.profile-card {
+  width: 100%;
+  max-width: 700px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+/* HEADER */
+.profile-header {
+  background-color: #7A1117;
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.profile-header h1 {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.profile-header p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* BODY */
+.profile-body {
+  padding: 2rem;
+}
+
+/* INFO */
+.profile-info {
+  background-color: #f8f8f8;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* MENSAJE */
+.profile-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.8rem;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+/* INPUTS */
+.profile-group {
+  margin-bottom: 1.3rem;
+}
+
+.profile-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.profile-group input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.profile-group input:focus {
+  outline: none;
+  border-color: #7A1117;
+}
+
+/* BOTÓN */
+.profile-button {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.95rem;
+  background-color: #7A1117;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.profile-button:hover {
+  background-color: #741015;
+}
+
+/* LOADING */
+.profile-loading {
+  text-align: center;
+  margin-top: 4rem;
+  font-size: 1.1rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .profile-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .profile-body {
+    padding: 1.5rem;
+  }
+}

@@ -3,8 +3,9 @@ import {
   getStudentProfile,
   saveStudentProfile,
 } from "../../services/studentService";
+import "../../styles/student/studentProfile.css";
 
-export default function Profile() {
+export default function StudentProfile() {
   const [profile, setProfile] = useState({
     approvedCredits: "",
     gpa: "",
@@ -62,7 +63,7 @@ export default function Profile() {
 
     try {
       await saveStudentProfile(profile);
-      setMessage("Perfil actualizado correctamente ✅");
+      setMessage("Perfil actualizado correctamente");
     } catch (err) {
       console.error(err);
       setMessage(
@@ -71,78 +72,84 @@ export default function Profile() {
     }
   };
 
-  if (loading) return <p>Cargando perfil...</p>;
+  if (loading) {
+    return <p className="profile-loading">Cargando perfil...</p>;
+  }
 
   return (
-    <div>
-      <h2>Perfil del Estudiante</h2>
+    <div className="profile-container">
+      <div className="profile-card">
+        <div className="profile-header">
+          <h1>Perfil del Estudiante</h1>
+          <p>Consulta y actualiza tu información académica</p>
+        </div>
 
-      <p>
-        <strong>Nombre:</strong> {userInfo.name} {userInfo.lastname}
-      </p>
-      <p>
-        <strong>Email:</strong> {userInfo.email}
-      </p>
+        <div className="profile-body">
+          {/* INFO USUARIO */}
+          <div className="profile-info">
+            <p>
+              <strong>Nombre:</strong> {userInfo.name} {userInfo.lastname}
+            </p>
+            <p>
+              <strong>Email:</strong> {userInfo.email}
+            </p>
+          </div>
 
-      {message && <p>{message}</p>}
+          {message && <div className="profile-message">{message}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <label>
-          Créditos aprobados:
-          <input
-            type="number"
-            name="approvedCredits"
-            value={profile.approvedCredits}
-            onChange={handleChange}
-            required
-          />
-        </label>
+          {/* FORM */}
+          <form onSubmit={handleSubmit}>
+            <div className="profile-group">
+              <label>Créditos aprobados</label>
+              <input
+                type="number"
+                name="approvedCredits"
+                value={profile.approvedCredits}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <br />
+            <div className="profile-group">
+              <label>Promedio (GPA)</label>
+              <input
+                type="number"
+                step="0.01"
+                name="gpa"
+                value={profile.gpa}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <label>
-          Promedio (GPA):
-          <input
-            type="number"
-            step="0.01"
-            name="gpa"
-            value={profile.gpa}
-            onChange={handleChange}
-            required
-          />
-        </label>
+            <div className="profile-group">
+              <label>Semestre</label>
+              <input
+                type="number"
+                name="semester"
+                value={profile.semester}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <br />
+            <div className="profile-group">
+              <label>Código estudiantil</label>
+              <input
+                type="text"
+                name="studentCode"
+                value={profile.studentCode}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <label>
-          Semestre:
-          <input
-            type="number"
-            name="semester"
-            value={profile.semester}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <br />
-
-        <label>
-          Código estudiantil:
-          <input
-            type="text"
-            name="studentCode"
-            value={profile.studentCode}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <br />
-        <br />
-
-        <button type="submit">Guardar perfil</button>
-      </form>
+            <button className="profile-button" type="submit">
+              Guardar perfil
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,14 +1,17 @@
 import { useState } from "react";
 import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/forgotpassword.css";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(false);
 
     try {
       await api.post("/auth/forgot-password", { email });
@@ -19,26 +22,49 @@ export default function ForgotPassword() {
       }, 1500);
     } catch (err) {
       setMsg("Error enviando el correo");
+      setError(true);
     }
   };
 
   return (
-    <div>
-      <h2>Recuperar contraseña</h2>
+    <div className="forgot-container">
+      <div className="forgot-card">
 
-      {msg && <p>{msg}</p>}
+        <div className="forgot-header">
+          <h1>Recuperar contraseña</h1>
+          <p>Ingresa tu correo institucional</p>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <div className="forgot-body">
 
-        <button type="submit">Enviar código</button>
-      </form>
+          {msg && (
+            <div className={`forgot-msg ${error ? "error" : ""}`}>
+              {msg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div className="forgot-group">
+              <input
+                type="email"
+                placeholder="Correo institucional"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <button className="forgot-button" type="submit">
+              Enviar código
+            </button>
+          </form>
+
+          <div className="forgot-footer">
+            <Link to="/login">Volver al inicio de sesión</Link>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }

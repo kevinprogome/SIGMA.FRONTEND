@@ -1,0 +1,417 @@
+/* ========================================
+   STUDENTS PENDING - SECRETARY DASHBOARD
+   ======================================== */
+
+.students-pending-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.students-pending-header {
+  background-color: #7A1117;
+  color: white;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+}
+
+.students-pending-title {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 2rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.students-pending-subtitle {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  opacity: 0.95;
+}
+
+/* ========================================
+   LOADING STATE
+   ======================================== */
+
+.students-pending-loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* ========================================
+   MESSAGES
+   ======================================== */
+
+.students-pending-message {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  animation: slideDown 0.3s ease-out;
+}
+
+.students-pending-message.error {
+  background-color: #fde1e1;
+  color: #7A1117;
+  border-left: 4px solid #7A1117;
+}
+
+.students-pending-message.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+
+/* ========================================
+   EMPTY STATE
+   ======================================== */
+
+.students-pending-empty {
+  background: white;
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.students-pending-empty-icon {
+  font-size: 4.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.students-pending-empty-text {
+  font-size: 1.3rem;
+  color: #28a745;
+  font-weight: 600;
+  margin: 0;
+}
+
+.students-pending-empty-subtext {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* ========================================
+   TABLE CONTAINER
+   ======================================== */
+
+.students-pending-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.students-pending-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* ========================================
+   TABLE HEADER
+   ======================================== */
+
+.students-pending-table thead {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+}
+
+.students-pending-table th {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 3px solid #5d0d12;
+}
+
+/* ========================================
+   TABLE BODY
+   ======================================== */
+
+.students-pending-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.students-pending-table tbody tr:hover {
+  background-color: #f9f9f9;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.1);
+}
+
+.students-pending-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.students-pending-table td {
+  padding: 1.25rem 1.5rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* ========================================
+   TABLE CELLS STYLING
+   ======================================== */
+
+.student-name {
+  font-weight: 600;
+  color: #7A1117;
+  font-size: 1.1rem;
+}
+
+.modality-name {
+  color: #555;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Status badge colors */
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.status-badge.in-review {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #17a2b8;
+}
+
+.status-badge.approved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #28a745;
+}
+
+.status-badge.rejected {
+  background-color: #fde1e1;
+  color: #7A1117;
+  border: 1px solid #7A1117;
+}
+
+/* ========================================
+   ACTION BUTTON
+   ======================================== */
+
+.view-profile-button {
+  padding: 0.65rem 1.5rem;
+  background-color: #7A1117;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(122, 17, 23, 0.3);
+  white-space: nowrap;
+}
+
+.view-profile-button:hover {
+  background-color: #741015;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(122, 17, 23, 0.4);
+}
+
+.view-profile-button:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   STATS SUMMARY (OPCIONAL)
+   ======================================== */
+
+.students-pending-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-top: 4px solid #7A1117;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #7A1117;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .students-pending-table-container {
+    overflow-x: auto;
+  }
+
+  .students-pending-table {
+    min-width: 700px;
+  }
+}
+
+@media (max-width: 768px) {
+  .students-pending-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .students-pending-header {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .students-pending-title {
+    font-size: 1.5rem;
+  }
+
+  .students-pending-table th,
+  .students-pending-table td {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .view-profile-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .students-pending-header {
+    padding: 1.25rem;
+  }
+
+  .students-pending-title {
+    font-size: 1.3rem;
+  }
+
+  .students-pending-table {
+    min-width: 600px;
+  }
+
+  .students-pending-table th,
+  .students-pending-table td {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* ========================================
+   MOBILE TABLE ALTERNATIVE (CARDS)
+   ======================================== */
+
+@media (max-width: 640px) {
+  .students-pending-table-container.mobile-cards {
+    overflow-x: visible;
+  }
+
+  .students-pending-table.mobile-cards {
+    min-width: 100%;
+  }
+
+  .students-pending-table.mobile-cards thead {
+    display: none;
+  }
+
+  .students-pending-table.mobile-cards tbody,
+  .students-pending-table.mobile-cards tr,
+  .students-pending-table.mobile-cards td {
+    display: block;
+    width: 100%;
+  }
+
+  .students-pending-table.mobile-cards tr {
+    margin-bottom: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .students-pending-table.mobile-cards td {
+    text-align: left;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+    padding-left: 40%;
+  }
+
+  .students-pending-table.mobile-cards td:last-child {
+    border-bottom: none;
+  }
+
+  .students-pending-table.mobile-cards td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1.25rem;
+    font-weight: 700;
+    color: #7A1117;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+}

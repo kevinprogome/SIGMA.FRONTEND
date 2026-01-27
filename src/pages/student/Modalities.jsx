@@ -5,16 +5,14 @@ import {
   getStudentProfile,
 } from "../../services/studentService";
 import StudentModalityDocuments from "../student/StudentModalityDocuments";
+import "../../styles/student/modalities.css"; // 👈 Importa el CSS
 
 export default function Modalities() {
   const [modalities, setModalities] = useState([]);
   const [profile, setProfile] = useState(null);
-
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [sendingId, setSendingId] = useState(null);
-
-  // 🔹 flujo modalidad
   const [studentModalityId, setStudentModalityId] = useState(null);
   const [selectedModalityId, setSelectedModalityId] = useState(null);
 
@@ -25,7 +23,6 @@ export default function Modalities() {
           getModalidades(),
           getStudentProfile(),
         ]);
-
         setModalities(modalitiesRes);
         setProfile(profileRes);
       } catch (err) {
@@ -35,16 +32,12 @@ export default function Modalities() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  // 🔒 valida si el perfil está completo
   const isProfileComplete = () => {
     if (!profile) return false;
-
     const { approvedCredits, gpa, semester, studentCode } = profile;
-
     return (
       approvedCredits !== null &&
       gpa !== null &&
@@ -53,15 +46,11 @@ export default function Modalities() {
     );
   };
 
-  // 🔥 solo valida requisitos y crea StudentModality
   const handleSelectModality = async (modalityId) => {
     try {
       setSendingId(modalityId);
       setMessage("");
-
       const res = await startModality(modalityId);
-
-      // backend manda todo
       setStudentModalityId(res.studentModalityId);
       setSelectedModalityId(modalityId);
       setMessage(res.message);
@@ -75,47 +64,58 @@ export default function Modalities() {
     }
   };
 
-  if (loading) return <p>Cargando modalidades...</p>;
+  if (loading) return <div className="modalities-loading">Cargando modalidades...</div>;
 
   return (
-    <div>
-      <h2>Modalidades disponibles</h2>
+    <div className="modalities-container">
+      <div className="modalities-header">
+        <h2 className="modalities-title">Modalidades de Grado</h2>
+        <p className="modalities-subtitle">Selecciona la modalidad que mejor se ajuste a tu perfil académico</p>
+      </div>
 
-      {message && <p>{message}</p>}
+      {message && (
+        <div className={`modalities-message ${message.includes("Error") || message.includes("No se pudo") ? "error" : "success"}`}>
+          {message}
+        </div>
+      )}
 
-      {/* ⚠️ PERFIL INCOMPLETO */}
       {!isProfileComplete() && (
-        <div
-          style={{
-            padding: "15px",
-            background: "#fff3cd",
-            marginBottom: "20px",
-            borderRadius: "5px",
-          }}
-        >
-          <strong>⚠️ Perfil incompleto</strong>
-          <p>
-            Debes completar tu perfil académico antes de iniciar una modalidad
-            de grado.
+        <div className="profile-warning">
+          <div className="profile-warning-title">
+            <span className="profile-warning-icon">⚠️</span>
+            Perfil incompleto
+          </div>
+          <p className="profile-warning-text">
+            Debes completar tu perfil académico antes de iniciar una modalidad de grado.
           </p>
         </div>
       )}
 
       {modalities.length === 0 ? (
-        <p>No hay modalidades disponibles</p>
+        <div className="modalities-empty">
+          <div className="modalities-empty-icon">📚</div>
+          <p className="modalities-empty-text">No hay modalidades disponibles</p>
+        </div>
       ) : (
-        <ul>
+        <ul className="modalities-list">
           {modalities.map((m) => (
-            <li key={m.id} style={{ marginBottom: "25px" }}>
-              <strong>{m.name}</strong>
+            <li 
+              key={m.id} 
+              className={`modality-card ${!isProfileComplete() ? "disabled" : ""}`}
+            >
+              <h3 className="modality-name">{m.name}</h3>
+              
+              {m.description && (
+                <p className="modality-description">{m.description}</p>
+              )}
 
-              {m.description && <p>{m.description}</p>}
-
-              <p>
-                <strong>Créditos requeridos:</strong> {m.creditsRequired}
-              </p>
+              <div className="modality-requirements">
+                <span className="modality-requirements-label">Créditos requeridos:</span>
+                <span className="modality-requirements-value">{m.creditsRequired}</span>
+              </div>
 
               <button
+                className={`modality-button ${sendingId === m.id ? "loading" : ""}`}
                 onClick={() => handleSelectModality(m.id)}
                 disabled={sendingId === m.id || !isProfileComplete()}
               >
@@ -128,12 +128,13 @@ export default function Modalities() {
         </ul>
       )}
 
-      {/* 🔥 SOLO SI PASÓ LA VALIDACIÓN */}
       {studentModalityId && selectedModalityId && (
-        <StudentModalityDocuments
-          studentModalityId={studentModalityId}
-          modalityId={selectedModalityId}
-        />
+        <div className="documents-section">
+          <StudentModalityDocuments
+            studentModalityId={studentModalityId}
+            modalityId={selectedModalityId}
+          />
+        </div>
       )}
     </div>
   );

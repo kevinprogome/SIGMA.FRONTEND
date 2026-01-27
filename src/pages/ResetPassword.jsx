@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import "../styles/resetpassword.css";
 
 export default function ResetPassword() {
   const [token, setToken] = useState("");
@@ -34,44 +35,62 @@ export default function ResetPassword() {
   };
 
   return (
-    <div>
-      <h2>Restablecer contraseña</h2>
+    <div className="reset-container">
+      <div className="reset-card">
 
-      <p>
-        Te enviamos un <b>código</b> a tu correo.  
-        Cópialo y pégalo aquí 👇
-      </p>
+        <div className="reset-header">
+          <h1>Restablecer contraseña</h1>
+          <p>Cambia tu contraseña de acceso</p>
+        </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
+        <div className="reset-body">
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Código recibido"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          required
-        />
+          <p className="reset-info">
+            Te enviamos un <b>código</b> a tu correo.
+            Cópialo y pégalo a continuación
+          </p>
 
-        <input
-          type="password"
-          placeholder="Nueva contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          {error && <div className="reset-msg error">{error}</div>}
+          {success && <div className="reset-msg success">{success}</div>}
 
-        <input
-          type="password"
-          placeholder="Confirmar contraseña"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          required
-        />
+          <form onSubmit={handleSubmit}>
+            <div className="reset-group">
+              <input
+                type="text"
+                placeholder="Código recibido"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                required
+              />
+            </div>
 
-        <button type="submit">Cambiar contraseña</button>
-      </form>
+            <div className="reset-group">
+              <input
+                type="password"
+                placeholder="Nueva contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="reset-group">
+              <input
+                type="password"
+                placeholder="Confirmar contraseña"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                required
+              />
+            </div>
+
+            <button className="reset-button" type="submit">
+              Cambiar contraseña
+            </button>
+          </form>
+
+        </div>
+      </div>
     </div>
   );
 }
