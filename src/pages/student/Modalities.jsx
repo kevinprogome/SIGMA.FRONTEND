@@ -3,9 +3,11 @@ import {
   getModalidades,
   startModality,
   getStudentProfile,
+  getCurrentModalityStatus,
+  getModalityById, // 👈 Si tienes este servicio
 } from "../../services/studentService";
 import StudentModalityDocuments from "../student/StudentModalityDocuments";
-import "../../styles/student/modalities.css"; // 👈 Importa el CSS
+import "../../styles/student/modalities.css";
 
 export default function Modalities() {
   const [modalities, setModalities] = useState([]);
@@ -25,6 +27,60 @@ export default function Modalities() {
         ]);
         setModalities(modalitiesRes);
         setProfile(profileRes);
+
+        // 🔥 Verificar si el estudiante ya tiene una modalidad activa
+        try {
+          const currentModality = await getCurrentModalityStatus();
+          console.log("📌 MODALIDAD ACTUAL COMPLETA:", currentModality);
+          
+          if (currentModality) {
+            const smId = currentModality.studentModalityId || currentModality.id;
+            
+            if (smId) {
+              setStudentModalityId(smId);
+              
+              // 🔍 OPCIÓN 1: Buscar por nombre de modalidad
+              if (currentModality.modalityName) {
+                const foundModality = modalitiesRes.find(
+                  m => m.name === currentModality.modalityName
+                );
+                if (foundModality) {
+                  console.log("✅ Modalidad encontrada por nombre:", foundModality.id);
+                  setSelectedModalityId(foundModality.id);
+                  
+                  // Scroll automático
+                  setTimeout(() => {
+                    const documentsSection = document.querySelector('.documents-container');
+                    if (documentsSection) {
+                      documentsSection.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                      });
+                    }
+                  }, 500);
+                }
+              }
+              // 🔍 OPCIÓN 2: Si viene modalityId directamente
+              else if (currentModality.modalityId) {
+                console.log("✅ ModalityId directo:", currentModality.modalityId);
+                setSelectedModalityId(currentModality.modalityId);
+                
+                setTimeout(() => {
+                  const documentsSection = document.querySelector('.documents-container');
+                  if (documentsSection) {
+                    documentsSection.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start' 
+                    });
+                  }
+                }, 500);
+              }
+            }
+          }
+        } catch (err) {
+          console.log("ℹ️ No hay modalidad activa:", err);
+        }
+        
       } catch (err) {
         console.error(err);
         setMessage("Error al cargar la información");
@@ -51,9 +107,22 @@ export default function Modalities() {
       setSendingId(modalityId);
       setMessage("");
       const res = await startModality(modalityId);
+      
       setStudentModalityId(res.studentModalityId);
       setSelectedModalityId(modalityId);
       setMessage(res.message);
+      
+      // 🔥 Scroll automático suave hacia la sección de documentos
+      setTimeout(() => {
+        const documentsSection = document.querySelector('.documents-container');
+        if (documentsSection) {
+          documentsSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 400);
+      
     } catch (err) {
       console.error(err);
       setMessage(
@@ -101,7 +170,7 @@ export default function Modalities() {
           {modalities.map((m) => (
             <li 
               key={m.id} 
-              className={`modality-card ${!isProfileComplete() ? "disabled" : ""}`}
+              className={`modality-card ${!isProfileComplete() || studentModalityId ? "disabled" : ""}`}
             >
               <h3 className="modality-name">{m.name}</h3>
               
@@ -117,9 +186,11 @@ export default function Modalities() {
               <button
                 className={`modality-button ${sendingId === m.id ? "loading" : ""}`}
                 onClick={() => handleSelectModality(m.id)}
-                disabled={sendingId === m.id || !isProfileComplete()}
+                disabled={sendingId === m.id || !isProfileComplete() || studentModalityId}
               >
-                {sendingId === m.id
+                {studentModalityId 
+                  ? "Ya tienes una modalidad activa"
+                  : sendingId === m.id
                   ? "Validando requisitos..."
                   : "Seleccionar modalidad"}
               </button>
@@ -129,12 +200,10 @@ export default function Modalities() {
       )}
 
       {studentModalityId && selectedModalityId && (
-        <div className="documents-section">
-          <StudentModalityDocuments
-            studentModalityId={studentModalityId}
-            modalityId={selectedModalityId}
-          />
-        </div>
+        <StudentModalityDocuments
+          studentModalityId={studentModalityId}
+          modalityId={selectedModalityId}
+        />
       )}
     </div>
   );

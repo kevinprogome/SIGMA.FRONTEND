@@ -1,10 +1,9 @@
-// src/pages/student/StudentModalityDocuments.jsx
 import { useEffect, useState } from "react";
 import {
   getModalityById,
   uploadStudentDocument,
 } from "../../services/studentService";
-import "../../styles/student/studentmodalitydocuments.css"; // 👈 Importa el CSS
+import "../../styles/student/studentmodalitydocuments.css";
 
 export default function StudentModalityDocuments({
   studentModalityId,
@@ -27,7 +26,6 @@ export default function StudentModalityDocuments({
         setMessageType("error");
       }
     };
-
     fetchDocuments();
   }, [modalityId]);
 
@@ -45,13 +43,11 @@ export default function StudentModalityDocuments({
     try {
       setSendingDocId(documentId);
       setMessage("");
-
       const res = await uploadStudentDocument(
         studentModalityId,
         documentId,
         file
       );
-
       setMessage(res.message || "Documento enviado correctamente");
       setMessageType("success");
       
@@ -94,7 +90,6 @@ export default function StudentModalityDocuments({
             {documents.map((doc) => (
               <li key={doc.id} className="document-card">
                 <h4 className="document-name">{doc.documentName}</h4>
-                
                 {doc.description && (
                   <p className="document-description">{doc.description}</p>
                 )}
@@ -102,11 +97,15 @@ export default function StudentModalityDocuments({
                 <div className="document-requirements">
                   <div className="document-requirement">
                     <span className="document-requirement-label">Formato:</span>
-                    <span className="document-requirement-value">{doc.allowedFormat}</span>
+                    <span className="document-requirement-value">
+                      {doc.allowedFormat}
+                    </span>
                   </div>
                   <div className="document-requirement">
                     <span className="document-requirement-label">Tamaño máx:</span>
-                    <span className="document-requirement-value">{doc.maxFileSizeMB} MB</span>
+                    <span className="document-requirement-value">
+                      {doc.maxFileSizeMB} MB
+                    </span>
                   </div>
                 </div>
 
@@ -121,12 +120,10 @@ export default function StudentModalityDocuments({
                       className="document-file-input"
                     />
                   </div>
-
                   <button
                     onClick={() => handleUpload(doc.id)}
                     disabled={
-                      !selectedFiles[doc.id] ||
-                      sendingDocId === doc.id
+                      !selectedFiles[doc.id] || sendingDocId === doc.id
                     }
                     className={`document-upload-button ${
                       sendingDocId === doc.id ? "loading" : ""

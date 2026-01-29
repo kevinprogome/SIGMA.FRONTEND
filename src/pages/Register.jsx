@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
 import "../styles/register.css";
 
 function Register() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     lastName: "",
@@ -21,7 +23,8 @@ function Register() {
     e.preventDefault();
     try {
       await register(form);
-      alert("Registro exitoso");
+      alert("Registro exitoso.");
+      navigate("/login");
     } catch (error) {
       alert(error.response?.data || "Error al registrarse");
     }

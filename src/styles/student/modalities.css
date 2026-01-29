@@ -255,6 +255,27 @@
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 
+/* Botón para volver a modalidades */
+.back-to-modalities-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+}
+
+.back-to-modalities-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
+}
+
 .modalities-empty-icon {
   font-size: 4rem;
   margin-bottom: 1rem;

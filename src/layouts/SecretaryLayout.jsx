@@ -1,10 +1,14 @@
 import { Outlet } from "react-router-dom";
+import Navbar from "../components/NavbarAdmin";
+
 
 export default function SecretaryLayout() {
   return (
-    <div>
-      <h1></h1>
-      <Outlet />
-    </div>
+    <>
+      <Navbar />
+      <main style={{ padding: "20px" }}>
+        <Outlet />
+      </main>
+    </>
   );
 }
