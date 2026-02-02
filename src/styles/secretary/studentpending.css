@@ -1,13 +1,18 @@
 /* ========================================
-   STUDENTS PENDING - SECRETARY DASHBOARD
+   STUDENTS PENDING - CONTAINER
    ======================================== */
 
 .students-pending-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
-  background-color: #f4f4f4;
-  min-height: 100vh;
+}
+
+.students-pending-loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.1rem;
+  color: #666;
 }
 
 /* ========================================
@@ -15,36 +20,23 @@
    ======================================== */
 
 .students-pending-header {
-  background-color: #7A1117;
-  color: white;
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e0e0e0;
 }
 
 .students-pending-title {
-  font-family: "Georgia", "Times New Roman", serif;
   font-size: 2rem;
-  margin: 0;
-  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-weight: 700;
 }
 
 .students-pending-subtitle {
+  color: #ffffff;
+  margin: 0;
   font-size: 1rem;
-  margin-top: 0.5rem;
-  opacity: 0.95;
-}
-
-/* ========================================
-   LOADING STATE
-   ======================================== */
-
-.students-pending-loading {
-  text-align: center;
-  padding: 4rem 2rem;
-  font-size: 1.1rem;
-  color: #666;
 }
 
 /* ========================================
@@ -52,24 +44,172 @@
    ======================================== */
 
 .students-pending-message {
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
   margin-bottom: 1.5rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  animation: slideDown 0.3s ease-out;
+  font-weight: 500;
 }
 
 .students-pending-message.error {
-  background-color: #fde1e1;
+  background: #fde1e1;
   color: #7A1117;
   border-left: 4px solid #7A1117;
 }
 
-.students-pending-message.info {
-  background-color: #d1ecf1;
-  color: #0c5460;
-  border-left: 4px solid #17a2b8;
+/* ========================================
+   FILTROS (NUEVO)
+   ======================================== */
+
+.students-pending-filters {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+/* Búsqueda por nombre */
+.search-form {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 500px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 3px rgba(122, 17, 23, 0.1);
+}
+
+.search-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.search-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+}
+
+/* Checkboxes de estados */
+.status-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.checkbox-label:hover {
+  background: white;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #7A1117;
+}
+
+/* Botón limpiar filtros */
+.clear-filters-button {
+  padding: 0.75rem 1.5rem;
+  background: #f5f5f5;
+  color: #7A1117;
+  border: 2px solid #7A1117;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.clear-filters-button:hover {
+  background: #7A1117;
+  color: white;
+}
+
+/* Filtros activos */
+.active-filters {
+  background: #e8f5e9;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.active-filters strong {
+  color: #2e7d32;
+}
+
+.filter-tag {
+  display: inline-block;
+  padding: 0.4rem 0.85rem;
+  background: white;
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Contador de resultados */
+.results-count {
+  margin-bottom: 1rem;
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 /* ========================================
@@ -77,51 +217,45 @@
    ======================================== */
 
 .students-pending-empty {
+  text-align: center;
+  padding: 4rem 2rem;
   background: white;
   border-radius: 12px;
-  padding: 4rem 2rem;
-  text-align: center;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .students-pending-empty-icon {
-  font-size: 4.5rem;
-  margin-bottom: 1.5rem;
+  font-size: 4rem;
+  margin-bottom: 1rem;
 }
 
 .students-pending-empty-text {
-  font-size: 1.3rem;
-  color: #28a745;
+  font-size: 1.25rem;
+  color: #333;
   font-weight: 600;
-  margin: 0;
+  margin-bottom: 0.5rem;
 }
 
 .students-pending-empty-subtext {
-  font-size: 1rem;
   color: #666;
-  margin-top: 0.5rem;
+  font-size: 1rem;
 }
 
 /* ========================================
-   TABLE CONTAINER
+   TABLE
    ======================================== */
 
 .students-pending-table-container {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  animation: fadeIn 0.4s ease-out;
 }
 
 .students-pending-table {
   width: 100%;
   border-collapse: collapse;
 }
-
-/* ========================================
-   TABLE HEADER
-   ======================================== */
 
 .students-pending-table thead {
   background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
@@ -131,97 +265,93 @@
 .students-pending-table th {
   padding: 1.25rem 1.5rem;
   text-align: left;
-  font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 3px solid #5d0d12;
+  font-size: 0.85rem;
 }
-
-/* ========================================
-   TABLE BODY
-   ======================================== */
 
 .students-pending-table tbody tr {
   border-bottom: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
+  transition: background 0.2s;
 }
 
 .students-pending-table tbody tr:hover {
-  background-color: #f9f9f9;
-  transform: scale(1.01);
-  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.1);
-}
-
-.students-pending-table tbody tr:last-child {
-  border-bottom: none;
+  background: #f9f9f9;
 }
 
 .students-pending-table td {
   padding: 1.25rem 1.5rem;
-  font-size: 0.95rem;
   color: #333;
 }
 
-/* ========================================
-   TABLE CELLS STYLING
-   ======================================== */
-
+/* Estilos específicos de celdas */
 .student-name {
   font-weight: 600;
   color: #7A1117;
-  font-size: 1.1rem;
+}
+
+.student-email {
+  color: #666;
+  font-size: 0.9rem;
 }
 
 .modality-name {
-  color: #555;
+  color: #333;
   font-weight: 500;
-  font-size: 0.95rem;
 }
 
+.last-updated {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Status badges */
 .status-badge {
   display: inline-block;
   padding: 0.4rem 1rem;
   border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-/* Status badge colors */
 .status-badge.pending {
-  background-color: #fff3cd;
+  background: #fff3cd;
   color: #856404;
-  border: 1px solid #ffc107;
+}
+
+.status-badge.corrections {
+  background: #fde1e1;
+  color: #7A1117;
+}
+
+.status-badge.ready {
+  background: #cfe2ff;
+  color: #084298;
 }
 
 .status-badge.in-review {
-  background-color: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #17a2b8;
+  background: #e7f3ff;
+  color: #0c5da5;
 }
 
 .status-badge.approved {
-  background-color: #d4edda;
+  background: #d4edda;
   color: #155724;
-  border: 1px solid #28a745;
 }
 
-.status-badge.rejected {
-  background-color: #fde1e1;
-  color: #7A1117;
-  border: 1px solid #7A1117;
+.status-badge.cancelled {
+  background: #f8d7da;
+  color: #721c24;
 }
 
-/* ========================================
-   ACTION BUTTON
-   ======================================== */
-
+/* Botón ver perfil */
 .view-profile-button {
-  padding: 0.65rem 1.5rem;
-  background-color: #7A1117;
+  padding: 0.65rem 1.25rem;
+  background: #7A1117;
   color: white;
   border: none;
   border-radius: 8px;
@@ -229,189 +359,65 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(122, 17, 23, 0.3);
   white-space: nowrap;
 }
 
 .view-profile-button:hover {
-  background-color: #741015;
+  background: #5d0d12;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(122, 17, 23, 0.4);
-}
-
-.view-profile-button:active {
-  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
 }
 
 /* ========================================
-   STATS SUMMARY (OPCIONAL)
+   RESPONSIVE
    ======================================== */
-
-.students-pending-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  border-top: 4px solid #7A1117;
-}
-
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #7A1117;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  color: #666;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* ========================================
-   ANIMATIONS
-   ======================================== */
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
-
-@media (max-width: 1024px) {
-  .students-pending-table-container {
-    overflow-x: auto;
-  }
-
-  .students-pending-table {
-    min-width: 700px;
-  }
-}
 
 @media (max-width: 768px) {
   .students-pending-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .students-pending-header {
-    padding: 1.5rem 1.5rem;
+    padding: 1rem;
   }
 
   .students-pending-title {
     font-size: 1.5rem;
   }
 
-  .students-pending-table th,
-  .students-pending-table td {
-    padding: 1rem;
-    font-size: 0.9rem;
+  .search-form {
+    flex-direction: column;
   }
 
-  .view-profile-button {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .students-pending-header {
-    padding: 1.25rem;
+  .status-checkboxes {
+    grid-template-columns: 1fr;
   }
 
-  .students-pending-title {
-    font-size: 1.3rem;
+  .students-pending-table-container {
+    overflow-x: auto;
   }
 
-  .students-pending-table {
-    min-width: 600px;
-  }
-
-  .students-pending-table th,
-  .students-pending-table td {
-    padding: 0.75rem;
-    font-size: 0.85rem;
-  }
-}
-
-/* ========================================
-   MOBILE TABLE ALTERNATIVE (CARDS)
-   ======================================== */
-
-@media (max-width: 640px) {
-  .students-pending-table-container.mobile-cards {
-    overflow-x: visible;
-  }
-
-  .students-pending-table.mobile-cards {
-    min-width: 100%;
-  }
-
-  .students-pending-table.mobile-cards thead {
+  .students-pending-table thead {
     display: none;
   }
 
-  .students-pending-table.mobile-cards tbody,
-  .students-pending-table.mobile-cards tr,
-  .students-pending-table.mobile-cards td {
+  .students-pending-table tbody tr {
     display: block;
-    width: 100%;
-  }
-
-  .students-pending-table.mobile-cards tr {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
   }
 
-  .students-pending-table.mobile-cards td {
-    text-align: left;
-    padding: 1rem 1.25rem;
+  .students-pending-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid #f0f0f0;
-    position: relative;
-    padding-left: 40%;
   }
 
-  .students-pending-table.mobile-cards td:last-child {
+  .students-pending-table td:last-child {
     border-bottom: none;
   }
 
-  .students-pending-table.mobile-cards td::before {
+  .students-pending-table td::before {
     content: attr(data-label);
-    position: absolute;
-    left: 1.25rem;
-    font-weight: 700;
+    font-weight: 600;
     color: #7A1117;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
   }
 }

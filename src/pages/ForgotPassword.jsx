@@ -21,7 +21,9 @@ export default function ForgotPassword() {
         navigate("/reset-password");
       }, 1500);
     } catch (err) {
-      setMsg("Error enviando el correo");
+      // El backend ya maneja este mensaje:
+      // - "No se encontró un usuario con el correo proporcionado."
+      setMsg(err.response?.data || "Error al enviar el correo");
       setError(true);
     }
   };

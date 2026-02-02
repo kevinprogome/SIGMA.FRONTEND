@@ -4,7 +4,6 @@ import {
   startModality,
   getStudentProfile,
   getCurrentModalityStatus,
-  getModalityById, // 👈 Si tienes este servicio
 } from "../../services/studentService";
 import StudentModalityDocuments from "../student/StudentModalityDocuments";
 import "../../styles/student/modalities.css";
@@ -28,7 +27,7 @@ export default function Modalities() {
         setModalities(modalitiesRes);
         setProfile(profileRes);
 
-        // 🔥 Verificar si el estudiante ya tiene una modalidad activa
+        // Verificar si el estudiante ya tiene una modalidad activa
         try {
           const currentModality = await getCurrentModalityStatus();
           console.log("📌 MODALIDAD ACTUAL COMPLETA:", currentModality);
@@ -39,7 +38,7 @@ export default function Modalities() {
             if (smId) {
               setStudentModalityId(smId);
               
-              // 🔍 OPCIÓN 1: Buscar por nombre de modalidad
+              // Buscar por nombre de modalidad
               if (currentModality.modalityName) {
                 const foundModality = modalitiesRes.find(
                   m => m.name === currentModality.modalityName
@@ -48,7 +47,6 @@ export default function Modalities() {
                   console.log("✅ Modalidad encontrada por nombre:", foundModality.id);
                   setSelectedModalityId(foundModality.id);
                   
-                  // Scroll automático
                   setTimeout(() => {
                     const documentsSection = document.querySelector('.documents-container');
                     if (documentsSection) {
@@ -60,7 +58,7 @@ export default function Modalities() {
                   }, 500);
                 }
               }
-              // 🔍 OPCIÓN 2: Si viene modalityId directamente
+              // Si viene modalityId directamente
               else if (currentModality.modalityId) {
                 console.log("✅ ModalityId directo:", currentModality.modalityId);
                 setSelectedModalityId(currentModality.modalityId);
@@ -83,7 +81,7 @@ export default function Modalities() {
         
       } catch (err) {
         console.error(err);
-        setMessage("Error al cargar la información");
+        setMessage(err.response?.data || "Error al cargar la información");
       } finally {
         setLoading(false);
       }
@@ -110,9 +108,9 @@ export default function Modalities() {
       
       setStudentModalityId(res.studentModalityId);
       setSelectedModalityId(modalityId);
+      // El backend devuelve: "Modalidad iniciada correctamente. Puedes subir los documentos."
       setMessage(res.message);
       
-      // 🔥 Scroll automático suave hacia la sección de documentos
       setTimeout(() => {
         const documentsSection = document.querySelector('.documents-container');
         if (documentsSection) {
@@ -125,9 +123,12 @@ export default function Modalities() {
       
     } catch (err) {
       console.error(err);
-      setMessage(
-        err.response?.data?.message || "No se pudo iniciar la modalidad"
-      );
+      // El backend maneja estos mensajes:
+      // - "Ya tienes una modalidad de grado en curso. No puedes iniciar otra."
+      // - "Ya has iniciado esta modalidad"
+      // - "No cumples los requisitos académicos para esta modalidad"
+      // - "Debe completar su perfil académico antes de seleccionar una modalidad"
+      setMessage(err.response?.data?.message || "No se pudo iniciar la modalidad");
     } finally {
       setSendingId(null);
     }

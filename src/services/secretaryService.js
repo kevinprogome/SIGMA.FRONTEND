@@ -1,7 +1,29 @@
 import axios from "../api/axios";
 
-export const getStudentsPendingModalities = async () => {
-  const response = await axios.get("/modalities/students");
+// ✅ NUEVA FUNCIÓN con filtros
+export const getStudentsPendingModalities = async (statuses = [], searchName = "") => {
+  let url = "/modalities/students";
+  const params = new URLSearchParams();
+  
+  // Agregar filtro de estados
+  if (statuses && statuses.length > 0) {
+    params.append("statuses", statuses.join(","));
+  }
+  
+  // Agregar filtro de nombre
+  if (searchName && searchName.trim()) {
+    params.append("name", searchName.trim());
+  }
+  
+  // Solo agregar ? si hay parámetros
+  const queryString = params.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+  
+  console.log("📡 Llamando a:", url); // DEBUG
+  
+  const response = await axios.get(url);
   return response.data;
 };
 
@@ -12,7 +34,6 @@ export const getStudentModalityProfile = async (studentModalityId) => {
   return response.data;
 };
 
-// ✅ CORRECTO: Usar el endpoint que devuelve el PDF
 export const getDocumentBlobUrl = async (studentDocumentId) => {
   console.log("🔍 Descargando documento ID:", studentDocumentId);
   

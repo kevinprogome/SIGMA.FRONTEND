@@ -1,123 +1,296 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getStudentsPendingModalities } from "../../services/secretaryService";
-import "../../styles/secretary/studentpending.css"; // 👈 Importa el CSS
+import "../../styles/secretary/studentpending.css";
+
+/* =========================
+   ESTADOS DISPONIBLES
+   ========================= */
+const AVAILABLE_STATUSES = [
+  { value: "MODALITY_SELECTED", label: "Modalidad Seleccionada" },
+
+  { value: "UNDER_REVIEW_SECRETARY", label: "En Revisión (Secretaría)" },
+  { value: "CORRECTIONS_REQUESTED_SECRETARY", label: "Correcciones (Secretaría)" },
+
+  { value: "READY_FOR_COUNCIL", label: "Listo para Consejo" },
+  { value: "UNDER_REVIEW_COUNCIL", label: "En Revisión (Consejo)" },
+  { value: "CORRECTIONS_REQUESTED_COUNCIL", label: "Correcciones (Consejo)" },
+
+  { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
+
+  { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
+  { value: "DEFENSE_COMPLETED", label: "Sustentación Realizada" },
+
+  { value: "GRADED_APPROVED", label: "Aprobado con Nota" },
+  { value: "GRADED_FAILED", label: "Reprobado" },
+
+  { value: "CANCELLATION_REQUESTED", label: "Cancelación Solicitada" },
+  { value: "CANCELLATION_REJECTED", label: "Cancelación Rechazada" },
+  { value: "CANCELLED_WITHOUT_REPROVAL", label: "Cancelado sin Reprobación" },
+
+  { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
+  { value: "MODALITY_CLOSED", label: "Modalidad Cerrada" },
+];
 
 export default function StudentsPending() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
+  /* Filtros */
+  const [selectedStatuses, setSelectedStatuses] = useState([]);
+  const [searchName, setSearchName] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const res = await getStudentsPendingModalities();
-        setStudents(res);
-      } catch (err) {
-        console.error(err);
-        setMessage(
-          err.response?.data?.message ||
-            "Error al cargar estudiantes pendientes"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStudents();
-  }, []);
+  }, [selectedStatuses, searchName]);
 
-  // Función helper para determinar la clase del badge según el estado
-  const getStatusClass = (status) => {
-    const statusLower = status.toLowerCase();
-    if (statusLower.includes("pending") || statusLower.includes("pendiente")) {
-      return "pending";
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const res = await getStudentsPendingModalities(
+        selectedStatuses,
+        searchName
+      );
+      setStudents(res);
+      setMessage("");
+    } catch (err) {
+      console.error(err);
+      setMessage(
+        err.response?.data?.message ||
+          "Error al cargar estudiantes pendientes"
+      );
+    } finally {
+      setLoading(false);
     }
-    if (statusLower.includes("review") || statusLower.includes("revisión")) {
-      return "in-review";
-    }
-    if (statusLower.includes("approved") || statusLower.includes("aprobado")) {
-      return "approved";
-    }
-    if (statusLower.includes("rejected") || statusLower.includes("rechazado")) {
-      return "rejected";
-    }
-    return "pending"; // default
   };
 
-  if (loading) {
+  /* =========================
+     MANEJO DE FILTROS
+     ========================= */
+  const handleStatusToggle = (statusValue) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(statusValue)
+        ? prev.filter((s) => s !== statusValue)
+        : [...prev, statusValue]
+    );
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearchName(searchInput);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedStatuses([]);
+    setSearchName("");
+    setSearchInput("");
+  };
+
+  /* =========================
+     HELPERS DE ESTADO
+     ========================= */
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "MODALITY_SELECTED":
+        return "pending";
+
+      case "UNDER_REVIEW_SECRETARY":
+      case "UNDER_REVIEW_COUNCIL":
+        return "in-review";
+
+      case "CORRECTIONS_REQUESTED_SECRETARY":
+      case "CORRECTIONS_REQUESTED_COUNCIL":
+        return "corrections";
+
+      case "READY_FOR_COUNCIL":
+      case "DEFENSE_SCHEDULED":
+        return "ready";
+
+      case "PROPOSAL_APPROVED":
+      case "DEFENSE_COMPLETED":
+      case "GRADED_APPROVED":
+        return "approved";
+
+      case "GRADED_FAILED":
+        return "rejected";
+
+      case "MODALITY_CANCELLED":
+      case "MODALITY_CLOSED":
+      case "CANCELLED_WITHOUT_REPROVAL":
+        return "cancelled";
+
+      case "CANCELLATION_REQUESTED":
+      case "CANCELLATION_REJECTED":
+        return "pending";
+
+      default:
+        return "pending";
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    const map = Object.fromEntries(
+      AVAILABLE_STATUSES.map((s) => [s.value, s.label])
+    );
+    return map[status] || status;
+  };
+
+  if (loading && students.length === 0) {
     return (
       <div className="students-pending-loading">
-        Cargando estudiantes pendientes...
+        Cargando estudiantes...
       </div>
     );
   }
 
   return (
     <div className="students-pending-container">
-      {/* Header */}
+      {/* HEADER */}
       <div className="students-pending-header">
-        <h2 className="students-pending-title">Estudiantes Pendientes de Revisión</h2>
+        <h2 className="students-pending-title">
+          Estudiantes Pendientes de Revisión
+        </h2>
         <p className="students-pending-subtitle">
           Gestiona las solicitudes de modalidades de grado
         </p>
       </div>
 
-      {/* Message */}
+      {/* MENSAJE */}
       {message && (
         <div className="students-pending-message error">
           {message}
         </div>
       )}
 
-      {/* Empty State */}
+      {/* FILTROS */}
+      <div className="students-pending-filters">
+        <div className="filter-section">
+          <label className="filter-label">Buscar por nombre</label>
+          <form onSubmit={handleSearchSubmit} className="search-form">
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Nombre del estudiante..."
+              className="search-input"
+            />
+            <button type="submit" className="search-button">
+              Buscar
+            </button>
+          </form>
+        </div>
+
+        <div className="filter-section">
+          <label className="filter-label">Filtrar por estado</label>
+          <div className="status-checkboxes">
+            {AVAILABLE_STATUSES.map((status) => (
+              <label key={status.value} className="checkbox-label">
+                <input
+                  type="checkbox"
+                  className="checkbox-input"
+                  checked={selectedStatuses.includes(status.value)}
+                  onChange={() => handleStatusToggle(status.value)}
+                />
+                <span>{status.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {(selectedStatuses.length > 0 || searchName) && (
+          <button
+            onClick={handleClearFilters}
+            className="clear-filters-button"
+          >
+            ✕ Limpiar filtros
+          </button>
+        )}
+      </div>
+
+      {/* FILTROS ACTIVOS */}
+      {(selectedStatuses.length > 0 || searchName) && (
+        <div className="active-filters">
+          <strong>Filtros activos:</strong>
+          {searchName && (
+            <span className="filter-tag">
+              Nombre: "{searchName}"
+            </span>
+          )}
+          {selectedStatuses.map((status) => (
+            <span key={status} className="filter-tag">
+              {getStatusLabel(status)}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* EMPTY / TABLE */}
       {students.length === 0 ? (
         <div className="students-pending-empty">
-          <div className="students-pending-empty-icon">🎉</div>
+          <div className="students-pending-empty-icon">🔍</div>
           <p className="students-pending-empty-text">
-            ¡No hay estudiantes pendientes!
+            No se encontraron estudiantes
           </p>
           <p className="students-pending-empty-subtext">
-            Todas las solicitudes han sido procesadas
+            Ajusta los filtros para ver resultados
           </p>
         </div>
       ) : (
-        /* Table */
         <div className="students-pending-table-container">
+          <div className="results-count">
+            Mostrando {students.length} estudiante
+            {students.length !== 1 && "s"}
+          </div>
+
           <table className="students-pending-table">
             <thead>
               <tr>
                 <th>Estudiante</th>
+                <th>Email</th>
                 <th>Modalidad</th>
                 <th>Estado</th>
+                <th>Última actualización</th>
                 <th>Acciones</th>
               </tr>
             </thead>
-
             <tbody>
               {students.map((s) => (
                 <tr key={s.studentModalityId}>
                   <td data-label="Estudiante">
                     <span className="student-name">{s.studentName}</span>
                   </td>
+                  <td data-label="Email">
+                    <span className="student-email">{s.studentEmail}</span>
+                  </td>
                   <td data-label="Modalidad">
                     <span className="modality-name">{s.modalityName}</span>
                   </td>
                   <td data-label="Estado">
-                    <span className={`status-badge ${getStatusClass(s.currentStatus)}`}>
-                      {s.currentStatus}
+                    <span
+                      className={`status-badge ${getStatusClass(
+                        s.currentStatus
+                      )}`}
+                    >
+                      {getStatusLabel(s.currentStatus)}
+                    </span>
+                  </td>
+                  <td data-label="Última actualización">
+                    <span className="last-updated">
+                      {new Date(s.lastUpdatedAt).toLocaleDateString("es-CO")}
                     </span>
                   </td>
                   <td data-label="Acciones">
                     <button
+                      className="view-profile-button"
                       onClick={() =>
                         navigate(
                           `/secretary/students/${s.studentModalityId}`
                         )
                       }
-                      className="view-profile-button"
                     >
                       Ver perfil
                     </button>

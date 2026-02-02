@@ -30,7 +30,10 @@ export default function ResetPassword() {
       setSuccess("Contraseña cambiada correctamente ✅");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      setError("Código inválido o expirado");
+      // El backend ya maneja estos mensajes:
+      // - "El token es inválido o ya ha sido utilizado."
+      // - "El token ha expirado. Por favor, solicita un nuevo restablecimiento de contraseña."
+      setError(err.response?.data || "Error al restablecer contraseña");
     }
   };
 

@@ -63,6 +63,29 @@ export const saveStudentProfile = async (profile) => {
   return res.data;
 };
 
+/**
+ * Solicitar cancelación
+ */
+export const requestCancellationModality = async (studentModalityId) => {
+  const res = await api.post(
+    `/students/${studentModalityId}/request-cancellation`
+  );
+  return res.data;
+};
+// Corregir esta función
+export const uploadCancellationDocument = async (studentModalityId, formData) => {
+  const response = await api.post(
+    `/students/cancellation-document/${studentModalityId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+};
+
 export const getModalityById = async (id) => {
   const res = await api.get(`/modalities/${id}`);
   return res.data;

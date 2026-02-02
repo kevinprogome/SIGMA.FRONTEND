@@ -1,0 +1,337 @@
+/* ========================================
+   STUDENT CANCELLATION
+   ======================================== */
+
+.cancellation-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.cancellation-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.cancellation-header h1 {
+  font-size: 2rem;
+  color: #7A1117;
+  margin: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+
+.cancellation-header p {
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* ========================================
+   MESSAGES
+   ======================================== */
+
+.cancellation-message {
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.cancellation-message.success {
+  background: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.cancellation-message.error {
+  background: #fde1e1;
+  color: #7A1117;
+  border-left: 4px solid #7A1117;
+}
+
+/* ========================================
+   STEPS
+   ======================================== */
+
+.cancellation-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.cancellation-steps::before {
+  content: "";
+  position: absolute;
+  top: 30px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #e0e0e0;
+  z-index: 0;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-number {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #999;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  border-color: #7A1117;
+  background: #7A1117;
+  color: white;
+}
+
+.step.completed .step-number {
+  border-color: #28a745;
+  background: #28a745;
+  color: white;
+}
+
+.step-content h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.step-content p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ========================================
+   FORM
+   ======================================== */
+
+.cancellation-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cancellation-form h2 {
+  color: #7A1117;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.file-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px dashed #7A1117;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-input:hover {
+  background: #f9f9f9;
+  border-color: #5d0d12;
+}
+
+.file-info {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #d4edda;
+  color: #155724;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  padding: 0.85rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(122, 17, 23, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: #7A1117;
+  border: 2px solid #7A1117;
+}
+
+.btn-secondary:hover {
+  background: #7A1117;
+  color: white;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c82333;
+  transform: translateY(-2px);
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   CONFIRM BOX
+   ======================================== */
+
+.cancellation-confirm {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cancellation-confirm h2 {
+  color: #7A1117;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.confirm-box {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.confirm-box p {
+  margin: 0.5rem 0;
+  color: #856404;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* ========================================
+   SUCCESS STATE
+   ======================================== */
+
+.cancellation-success {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.cancellation-success h2 {
+  color: #28a745;
+  margin: 0 0 1rem;
+}
+
+.cancellation-success p {
+  color: #666;
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .cancellation-container {
+    padding: 1.5rem;
+  }
+
+  .cancellation-steps {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .cancellation-steps::before {
+    display: none;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    width: 100%;
+  }
+}

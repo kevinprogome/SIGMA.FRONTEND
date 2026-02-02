@@ -23,9 +23,12 @@ function Register() {
     e.preventDefault();
     try {
       await register(form);
-      alert("Registro exitoso.");
       navigate("/login");
     } catch (error) {
+      // El backend ya maneja estos mensajes:
+      // - "Todos los campos son obligatorios..."
+      // - "El correo debe ser institucional con dominio @usco.edu.co"
+      // - "Este correo ya está en uso"
       alert(error.response?.data || "Error al registrarse");
     }
   };

@@ -20,6 +20,7 @@ export default function Navbar() {
           <li><Link to="/student">Perfil</Link></li>
           <li><Link to="/student/modalities">Modalidades</Link></li>
           <li><Link to="/student/status">Estado</Link></li>
+          <li><Link to="/student/cancellation">Cancelar Modalidad</Link></li> {/* ← NUEVO */}
         </ul>
 
         <button className="navbar-logout" onClick={handleLogout}>

@@ -41,7 +41,8 @@ export default function StudentProfile() {
         });
       } catch (err) {
         console.error(err);
-        setMessage("No se pudo cargar el perfil");
+        // El backend maneja: "Usuario no encontrado"
+        setMessage(err.response?.data || "No se pudo cargar el perfil");
       } finally {
         setLoading(false);
       }
@@ -62,13 +63,17 @@ export default function StudentProfile() {
     setMessage("");
 
     try {
-      await saveStudentProfile(profile);
-      setMessage("Perfil actualizado correctamente");
+      const response = await saveStudentProfile(profile);
+      // El backend devuelve: "Datos de perfil de estudiante actualizados correctamente"
+      setMessage(response.data || "Perfil actualizado correctamente");
     } catch (err) {
       console.error(err);
-      setMessage(
-        err.response?.data?.message || "No se pudo guardar el perfil"
-      );
+      // El backend maneja estos mensajes:
+      // - "El semestre debe estar entre 1 y 10."
+      // - "La nota promedio debe estar entre 0.0 y 5.0."
+      // - "El número máximo de créditos aprobados es 180."
+      // - "Usuario no encontrado"
+      setMessage(err.response?.data || "No se pudo guardar el perfil");
     }
   };
 

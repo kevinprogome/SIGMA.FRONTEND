@@ -13,26 +13,51 @@ instance.interceptors.request.use(
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("🔑 Token agregado a petición:", config.url);
+    } else {
+      console.warn("⚠️ No hay token disponible para:", config.url);
     }
     return config;
   },
   (error) => {
+    console.error("❌ Error en request interceptor:", error);
     return Promise.reject(error);
   }
 );
 
 // ✅ Interceptor para manejar errores de autenticación
 instance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log("✅ Respuesta exitosa de:", response.config.url);
+    return response;
+  },
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      // Solo redirigir si no estamos ya en login
-      if (!window.location.pathname.includes("/login")) {
+    const status = error.response?.status;
+    const url = error.config?.url;
+    
+    console.error(`❌ Error ${status} en petición a:`, url);
+    console.error("❌ Detalle del error:", error.response?.data);
+
+    if (status === 401 || status === 403) {
+      console.error("🚨 Error de autenticación/autorización");
+      console.error("🚨 Usuario no autorizado para:", url);
+      
+      // ⚠️ NO HACER window.location.href - usar React Router
+      // Solo limpiar el token si es 401 (no autenticado)
+      if (status === 401) {
+        console.error("🔐 Token inválido o expirado, limpiando localStorage");
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/login";
+        
+        // Emitir un evento personalizado para que el AuthContext lo maneje
+        window.dispatchEvent(new Event('unauthorized'));
+      }
+      
+      // Si es 403, el usuario está autenticado pero no tiene permisos
+      if (status === 403) {
+        console.error("🔒 Usuario autenticado pero sin permisos suficientes");
       }
     }
+    
     return Promise.reject(error);
   }
 );

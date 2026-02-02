@@ -22,7 +22,7 @@ export default function StudentModalityDocuments({
         setDocuments(res.documents || []);
       } catch (err) {
         console.error(err);
-        setMessage("Error al cargar documentos requeridos");
+        setMessage(err.response?.data || "Error al cargar documentos requeridos");
         setMessageType("error");
       }
     };
@@ -48,6 +48,7 @@ export default function StudentModalityDocuments({
         documentId,
         file
       );
+      // El backend devuelve: "Documento subido correctamente"
       setMessage(res.message || "Documento enviado correctamente");
       setMessageType("success");
       
@@ -58,9 +59,14 @@ export default function StudentModalityDocuments({
       }));
     } catch (err) {
       console.error(err);
-      setMessage(
-        err.response?.data?.message || "Error al enviar el documento"
-      );
+      // El backend maneja estos mensajes:
+      // - "El archivo es obligatorio"
+      // - "Formato de archivo no permitido"
+      // - "El archivo supera el tamaño permitido"
+      // - "Usuario no encontrado"
+      // - "Modalidad del estudiante no encontrada"
+      // - "No autorizado"
+      setMessage(err.response?.data || "Error al enviar el documento");
       setMessageType("error");
     } finally {
       setSendingDocId(null);
