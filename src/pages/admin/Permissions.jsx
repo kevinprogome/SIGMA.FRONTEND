@@ -13,16 +13,18 @@ export default function Permissions() {
     fetchPermissions();
   }, []);
 
-  const fetchPermissions = async () => {
-    try {
-      const data = await getAllPermissions();
-      setPermissions(data);
-    } catch (err) {
-      setMessage("Error al cargar permisos");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchPermissions = async () => {
+  try {
+    const data = await getAllPermissions();
+    data.sort((a, b) => a.id - b.id); // 👈 orden numérico ascendente
+    setPermissions(data);
+  } catch (err) {
+    setMessage("Error al cargar permisos");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

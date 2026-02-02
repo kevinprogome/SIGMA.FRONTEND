@@ -3,8 +3,29 @@ import axios from "../api/axios";
 // ========================================
 // 📋 OBTENER ESTUDIANTES PENDIENTES
 // ========================================
-export const getStudentsPendingModalities = async () => {
-  const response = await axios.get("/modalities/students");
+export const getStudentsPendingModalities = async (statuses = [], searchName = "") => {
+  let url = "/modalities/students";
+  const params = new URLSearchParams();
+  
+  // Agregar filtro de estados
+  if (statuses && statuses.length > 0) {
+    params.append("statuses", statuses.join(","));
+  }
+  
+  // Agregar filtro de nombre
+  if (searchName && searchName.trim()) {
+    params.append("name", searchName.trim());
+  }
+  
+  // Solo agregar ? si hay parámetros
+  const queryString = params.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+  
+  console.log("📡 Consejo llamando a:", url); // DEBUG
+  
+  const response = await axios.get(url);
   return response.data;
 };
 
@@ -44,9 +65,6 @@ export const getDocumentBlobUrl = async (studentDocumentId) => {
   }
 };
 
-// ========================================
-// 🔍 REVISAR DOCUMENTO (CONSEJO)
-// ========================================
 export const reviewDocumentCouncil = async (studentDocumentId, data) => {
   const response = await axios.post(
     `/modalities/documents/${studentDocumentId}/review-council`,

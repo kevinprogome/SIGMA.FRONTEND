@@ -55,7 +55,7 @@ export default function AdminLayout() {
         </nav>
 
         <button onClick={handleLogout} className="admin-logout-btn">
-          🚪 Cerrar Sesión
+          Cerrar Sesión
         </button>
       </aside>
 
