@@ -127,9 +127,7 @@ export const getModalityDetails = async (modalityId) => {
 // 📋 OBTENER LISTA DE DIRECTORES
 // ========================================
 export const getProjectDirectors = async () => {
-  // Asumiendo que tienes un endpoint para obtener usuarios con rol PROJECT_DIRECTOR
-  // Si no existe, necesitarás crearlo en el backend
-  const response = await axios.get("/users/directors");
+  const response = await axios.get("/modalities/project-directors");
   return response.data;
 };
 
@@ -139,7 +137,7 @@ export const getProjectDirectors = async () => {
 
 // Obtener todas las solicitudes de cancelación
 export const getCancellationRequests = async () => {
-  const response = await axios.get("/modalities/cancellation-requests");
+  const response = await axios.get("/modalities/cancellation-request");
   return response.data;
 };
 
@@ -156,6 +154,18 @@ export const rejectCancellation = async (studentModalityId, reason) => {
   const response = await axios.post(
     `/modalities/${studentModalityId}/cancellation/reject`,
     { reason }  // ✅ Envía objeto { "reason": "motivo..." }
+  );
+  return response.data;
+};
+
+export const viewCancellationDocument = async (studentModalityId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.get(
+    `/modalities/cancellation/${studentModalityId}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      responseType: "blob",
+    }
   );
   return response.data;
 };

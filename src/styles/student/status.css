@@ -245,6 +245,246 @@
   font-size: 0.95rem;
 }
 
+/* ========================================
+   MESSAGES
+   ======================================== */
+
+.status-message {
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.status-message.success {
+  background: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.status-message.error {
+  background: #fde1e1;
+  color: #7A1117;
+  border-left: 4px solid #7A1117;
+}
+
+/* ========================================
+   DOCUMENTS SECTION
+   ======================================== */
+
+.status-documents-section {
+  margin-top: 2rem;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.status-section-title {
+  font-size: 1.5rem;
+  color: #7A1117;
+  margin: 0 0 1.5rem;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-weight: 700;
+}
+
+.status-documents-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+}
+
+.status-documents-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.status-documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.status-document-card {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.status-document-card:hover {
+  border-color: #7A1117;
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.1);
+}
+
+.status-document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.status-document-name {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+  flex: 1;
+}
+
+.status-document-mandatory-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #ffc107;
+  color: #856404;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-document-info {
+  margin-bottom: 1rem;
+}
+
+.status-document-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.status-document-label {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.status-document-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-document-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-document-badge.accepted {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-document-badge.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-document-badge.corrections {
+  background: #fde1e1;
+  color: #7A1117;
+}
+
+.status-document-date {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.status-document-notes {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #7A1117;
+  margin-top: 0.75rem;
+}
+
+.status-document-notes-text {
+  margin: 0.5rem 0 0;
+  color: #333;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.status-document-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.status-document-btn {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.status-document-btn.view {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+}
+
+.status-document-btn.view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+}
+
+.status-document-upload {
+  position: relative;
+}
+
+.status-document-upload-label {
+  display: block;
+  cursor: pointer;
+}
+
+.status-document-upload-input {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.status-document-upload-btn {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 2px solid #2e7d32;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.status-document-upload-btn:hover {
+  background: #2e7d32;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.status-document-upload-input:disabled + .status-document-upload-btn {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .status-history-meta {
   display: grid;
   gap: 0.75rem;

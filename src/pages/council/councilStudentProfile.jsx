@@ -201,7 +201,6 @@ export default function CouncilStudentProfile() {
     );
   }
 
-
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const allAccepted = uploadedDocs.every(
     (d) => d.status === "ACCEPTED_FOR_COUNCIL_REVIEW"
@@ -258,39 +257,9 @@ export default function CouncilStudentProfile() {
         </div>
       </div>
 
-      {/* ACCIONES ESPECIALES DEL CONSEJO */}
-      <div className="council-actions-section">
-        <h3 className="section-title">🎯 Acciones del Consejo de Facultad</h3>
-        <div className="council-actions-grid">
-          <button
-            onClick={() => setShowAssignDirectorModal(true)}
-            className="council-action-btn assign-director"
-          >
-            <span className="action-icon">👨‍🏫</span>
-            <span className="action-text">Asignar Director</span>
-          </button>
-
-          <button
-            onClick={() => setShowScheduleDefenseModal(true)}
-            className="council-action-btn schedule-defense"
-          >
-            <span className="action-icon">📅</span>
-            <span className="action-text">Programar Sustentación</span>
-          </button>
-
-          <button
-            onClick={() => setShowFinalEvaluationModal(true)}
-            className="council-action-btn final-evaluation"
-          >
-            <span className="action-icon">📊</span>
-            <span className="action-text">Evaluación Final</span>
-          </button>
-        </div>
-      </div>
-
       {/* Documents Section */}
       <div className="documents-section">
-        <h3 className="documents-section-title">Documentos Cargados</h3>
+        <h3 className="documents-section-title">📄 Documentos Cargados</h3>
 
         {uploadedDocs.length === 0 ? (
           <div className="documents-empty">
@@ -455,7 +424,7 @@ export default function CouncilStudentProfile() {
                     allAccepted ? "enabled" : "disabled"
                   }`}
                 >
-                  {submitting ? "Procesando..." : "✅ Aprobar Modalidad Completa"}
+                  {submitting ? "Procesando..." : "Aprobar Modalidad Para Inicio"}
                 </button>
 
                 {!allAccepted && (
@@ -468,6 +437,36 @@ export default function CouncilStudentProfile() {
             </div>
           </>
         )}
+      </div>
+
+      {/* ✅ ACCIONES DEL CONSEJO - MOVIDAS AQUÍ (DESPUÉS DE DOCUMENTOS) */}
+      <div className="council-actions-section">
+        <h3 className="section-title">🎯 Acciones del Consejo de Facultad</h3>
+        <div className="council-actions-grid">
+          <button
+            onClick={() => setShowAssignDirectorModal(true)}
+            className="council-action-btn assign-director"
+          >
+            <span className="action-icon">👨‍🏫</span>
+            <span className="action-text">Asignar Director</span>
+          </button>
+
+          <button
+            onClick={() => setShowScheduleDefenseModal(true)}
+            className="council-action-btn schedule-defense"
+          >
+            <span className="action-icon">📅</span>
+            <span className="action-text">Programar Sustentación</span>
+          </button>
+
+          <button
+            onClick={() => setShowFinalEvaluationModal(true)}
+            className="council-action-btn final-evaluation"
+          >
+            <span className="action-icon">📊</span>
+            <span className="action-text">Evaluación Final</span>
+          </button>
+        </div>
       </div>
 
       {/* Back Button */}

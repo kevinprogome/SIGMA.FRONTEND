@@ -120,7 +120,20 @@ export const deleteModality = async (modalityId) => {
   return response.data;
 };
 
-// ==================== REQUIREMENTS ====================
+export const getModalityRequirements = async (modalityId, active = null) => {
+  const token = localStorage.getItem("token");
+  let url = `${MODALITY_URL}/${modalityId}/requirements`;
+  
+  if (active !== null) {
+    url += `?active=${active}`;
+  }
+  
+  const response = await axios.get(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 export const createModalityRequirements = async (modalityId, requirements) => {
   const token = localStorage.getItem("token");
   const response = await axios.post(
@@ -170,6 +183,30 @@ export const updateRequiredDocument = async (documentId, documentData) => {
 export const viewRequiredDocuments = async (modalityId) => {
   const token = localStorage.getItem("token");
   const response = await axios.get(`${DOCUMENT_URL}/view/${modalityId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+// 🆕 NUEVA FUNCIÓN PARA FILTRAR POR MODALIDAD Y ESTADO
+export const getRequiredDocumentsByModalityAndStatus = async (modalityId, active = null) => {
+  const token = localStorage.getItem("token");
+  let url = `${DOCUMENT_URL}/modality/${modalityId}`;
+  
+  if (active !== null) {
+    url += `/filter?active=${active}`;
+  }
+  
+  const response = await axios.get(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+// También agregar función para eliminar (desactivar) documentos
+export const deleteRequiredDocument = async (documentId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.put(`${DOCUMENT_URL}/delete/${documentId}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;

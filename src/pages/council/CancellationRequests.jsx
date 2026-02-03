@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  getPendingCancellations,
+  getCancellationRequests,
   viewCancellationDocument,
   approveCancellation,
   rejectCancellation,
-} from "../../services/adminService";
+} from "../../services/councilService";
 import "../../styles/council/CancellationRequests.css";
 
 export default function CancellationRequests() {
@@ -23,7 +23,7 @@ export default function CancellationRequests() {
 
   const fetchRequests = async () => {
     try {
-      const data = await getPendingCancellations();
+      const data = await getCancellationRequests();
       setRequests(data);
     } catch (err) {
       setMessage("Error al cargar solicitudes de cancelación");

@@ -3,6 +3,8 @@ import {
   getAllModalities,
   createRequiredDocument,
   updateRequiredDocument,
+  getRequiredDocumentsByModalityAndStatus,
+  deleteRequiredDocument,
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
 
@@ -11,9 +13,11 @@ export default function Documents() {
   const [selectedModalityId, setSelectedModalityId] = useState("");
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingDocument, setEditingDocument] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("all"); // 'all', 'active', 'inactive'
 
   const [formData, setFormData] = useState({
     modalityId: "",
@@ -32,10 +36,11 @@ export default function Documents() {
   useEffect(() => {
     if (selectedModalityId) {
       setFormData((prev) => ({ ...prev, modalityId: selectedModalityId }));
-      // En producción real, deberías tener un endpoint para obtener documentos por modalityId
+      fetchDocuments();
+    } else {
       setDocuments([]);
     }
-  }, [selectedModalityId]);
+  }, [selectedModalityId, activeFilter]);
 
   const fetchModalities = async () => {
     try {
@@ -45,6 +50,28 @@ export default function Documents() {
       setMessage("Error al cargar modalidades");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDocuments = async () => {
+    if (!selectedModalityId) return;
+    
+    setLoadingDocuments(true);
+    try {
+      let data;
+      if (activeFilter === "all") {
+        // Llamar sin filtro de activo (puedes usar el endpoint sin /filter)
+        data = await getRequiredDocumentsByModalityAndStatus(selectedModalityId, null);
+      } else {
+        const isActive = activeFilter === "active";
+        data = await getRequiredDocumentsByModalityAndStatus(selectedModalityId, isActive);
+      }
+      setDocuments(data);
+    } catch (err) {
+      setMessage("Error al cargar documentos");
+      setDocuments([]);
+    } finally {
+      setLoadingDocuments(false);
     }
   };
 
@@ -65,15 +92,27 @@ export default function Documents() {
   const handleOpenEdit = (document) => {
     setEditingDocument(document);
     setFormData({
-      modalityId: document.modalityId,
+      modalityId: selectedModalityId,
       documentName: document.documentName,
       allowedFormat: document.allowedFormat,
       maxFileSizeMB: document.maxFileSizeMB,
-      isMandatory: document.isMandatory,
+      isMandatory: document.mandatory,
       description: document.description,
       active: document.active,
     });
     setShowModal(true);
+  };
+
+  const handleDelete = async (documentId) => {
+    if (!window.confirm("¿Estás seguro de desactivar este documento?")) return;
+    
+    try {
+      await deleteRequiredDocument(documentId);
+      setMessage("Documento desactivado exitosamente");
+      fetchDocuments();
+    } catch (err) {
+      setMessage(err.response?.data || "Error al desactivar el documento");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -92,7 +131,7 @@ export default function Documents() {
         setMessage("Documento creado exitosamente");
       }
       setShowModal(false);
-      // Aquí deberías refrescar los documentos
+      fetchDocuments();
     } catch (err) {
       setMessage(err.response?.data || "Error al procesar la solicitud");
     }
@@ -119,6 +158,7 @@ export default function Documents() {
       {message && (
         <div className={`admin-message ${message.includes("Error") ? "error" : "success"}`}>
           {message}
+          <button onClick={() => setMessage("")} style={{ marginLeft: "1rem" }}>✕</button>
         </div>
       )}
 
@@ -138,60 +178,98 @@ export default function Documents() {
         </select>
       </div>
 
+      {selectedModalityId && (
+        <div className="admin-form-group" style={{ marginBottom: "1.5rem" }}>
+          <label className="admin-label">Filtrar por Estado</label>
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <button
+              onClick={() => setActiveFilter("all")}
+              className={activeFilter === "all" ? "admin-btn-primary" : "admin-btn-secondary"}
+            >
+              Todos
+            </button>
+            <button
+              onClick={() => setActiveFilter("active")}
+              className={activeFilter === "active" ? "admin-btn-primary" : "admin-btn-secondary"}
+            >
+              Activos
+            </button>
+            <button
+              onClick={() => setActiveFilter("inactive")}
+              className={activeFilter === "inactive" ? "admin-btn-primary" : "admin-btn-secondary"}
+            >
+              Inactivos
+            </button>
+          </div>
+        </div>
+      )}
+
       {selectedModalityId ? (
         <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Documento</th>
-                <th>Descripción</th>
-                <th>Formato</th>
-                <th>Tamaño Máx</th>
-                <th>Obligatorio</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {documents.length === 0 ? (
+          {loadingDocuments ? (
+            <div style={{ textAlign: "center", padding: "2rem" }}>Cargando documentos...</div>
+          ) : (
+            <table className="admin-table">
+              <thead>
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
-                    No hay documentos para esta modalidad. ¡Crea uno nuevo!
-                  </td>
+                  <th>Documento</th>
+                  <th>Descripción</th>
+                  <th>Formato</th>
+                  <th>Tamaño Máx</th>
+                  <th>Obligatorio</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
-              ) : (
-                documents.map((doc) => (
-                  <tr key={doc.id}>
-                    <td>
-                      <strong>{doc.documentName}</strong>
-                    </td>
-                    <td>{doc.description}</td>
-                    <td>
-                      <span className="admin-tag">{doc.allowedFormat}</span>
-                    </td>
-                    <td>{doc.maxFileSizeMB} MB</td>
-                    <td>
-                      <span className={`admin-status-badge ${doc.isMandatory ? "active" : "inactive"}`}>
-                        {doc.isMandatory ? "SÍ" : "NO"}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`admin-status-badge ${doc.active ? "active" : "inactive"}`}>
-                        {doc.active ? "ACTIVO" : "INACTIVO"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="admin-table-actions">
-                        <button onClick={() => handleOpenEdit(doc)} className="admin-btn-edit">
-                          ✏️ Editar
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {documents.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
+                      {activeFilter === "all" 
+                        ? "No hay documentos para esta modalidad. ¡Crea uno nuevo!"
+                        : `No hay documentos ${activeFilter === "active" ? "activos" : "inactivos"} para esta modalidad.`
+                      }
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  documents.map((doc) => (
+                    <tr key={doc.id}>
+                      <td>
+                        <strong>{doc.documentName}</strong>
+                      </td>
+                      <td>{doc.description}</td>
+                      <td>
+                        <span className="admin-tag">{doc.allowedFormat}</span>
+                      </td>
+                      <td>{doc.maxFileSizeMB} MB</td>
+                      <td>
+                        <span className={`admin-status-badge ${doc.mandatory ? "active" : "inactive"}`}>
+                          {doc.mandatory ? "SÍ" : "NO"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`admin-status-badge ${doc.active ? "active" : "inactive"}`}>
+                          {doc.active ? "ACTIVO" : "INACTIVO"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="admin-table-actions">
+                          <button onClick={() => handleOpenEdit(doc)} className="admin-btn-edit">
+                            Editar
+                          </button>
+                          {doc.active && (
+                            <button onClick={() => handleDelete(doc.id)} className="admin-btn-delete">
+                              Desactivar
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       ) : (
         <div style={{ textAlign: "center", padding: "4rem", color: "#999" }}>
@@ -229,6 +307,7 @@ export default function Documents() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="admin-textarea"
+                  placeholder="Describe el propósito del documento"
                   required
                 />
               </div>

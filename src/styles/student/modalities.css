@@ -249,6 +249,38 @@
   flex: 1;
 }
 
+/* Mensaje específico por modalidad */
+.modality-specific-message {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.modality-specific-message.success {
+  background: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.modality-specific-message.error {
+  background: #fde1e1;
+  color: #7A1117;
+  border-left: 4px solid #7A1117;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .modality-button {
   width: 100%;
   padding: 0.95rem 1.5rem;

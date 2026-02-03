@@ -1,31 +1,144 @@
-// src/pages/student/ModalityStatus.jsx
 import { useEffect, useState } from "react";
-import { getCurrentModalityStatus } from "../../services/studentService";
-import "../../styles/student/status.css"; // 👈 Importa el CSS
+import { 
+  getCurrentModalityStatus, 
+  getMyDocuments, 
+  uploadStudentDocument,
+  getStudentDocumentBlob
+} from "../../services/studentService";
+import "../../styles/student/status.css";
 
 export default function ModalityStatus() {
   const [data, setData] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [uploadingDocId, setUploadingDocId] = useState(null);
+  const [loadingDocId, setLoadingDocId] = useState(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const res = await getCurrentModalityStatus();
-        setData(res);
-      } catch (err) {
-        console.error(err);
-        setError(
-          err.response?.data?.message ||
-            "No tienes una modalidad activa en este momento"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStatus();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const [statusRes, docsRes] = await Promise.all([
+        getCurrentModalityStatus(),
+        getMyDocuments(),
+      ]);
+      
+      console.log("✅ Estado:", statusRes); // DEBUG
+      console.log("✅ Documentos:", docsRes); // DEBUG
+      
+      setData(statusRes);
+      setDocuments(docsRes);
+    } catch (err) {
+      console.error("❌ Error al cargar datos:", err);
+      setError(
+        err.response?.data?.message ||
+          "No tienes una modalidad activa en este momento"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (requiredDocumentId, file) => {
+    if (!file) return;
+
+    // Validar que sea PDF
+    if (file.type !== "application/pdf") {
+      setMessage("Solo se permiten archivos PDF");
+      return;
+    }
+
+    // Validar tamaño (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("El archivo no puede superar los 5MB");
+      return;
+    }
+
+    setUploadingDocId(requiredDocumentId);
+    setMessage("");
+
+    try {
+      console.log("📤 Subiendo documento:", {
+        studentModalityId: data.studentModalityId,
+        requiredDocumentId: requiredDocumentId,
+        fileName: file.name
+      });
+
+      await uploadStudentDocument(data.studentModalityId, requiredDocumentId, file);
+      setMessage("Documento subido exitosamente");
+      
+      // Recargar documentos
+      const docsRes = await getMyDocuments();
+      setDocuments(docsRes);
+      
+      // Limpiar mensaje después de 3 segundos
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      console.error("❌ Error al subir:", err);
+      setMessage(err.response?.data || "Error al subir el documento");
+    } finally {
+      setUploadingDocId(null);
+    }
+  };
+
+  const handleViewDocument = async (studentDocumentId) => {
+    console.log("📄 Intentando ver documento con ID:", studentDocumentId);
+    setLoadingDocId(studentDocumentId);
+
+    try {
+      const blobUrl = await getStudentDocumentBlob(studentDocumentId);
+      console.log("✅ Blob URL generada:", blobUrl);
+      window.open(blobUrl, "_blank");
+
+      // Liberar el blob después de 1 minuto
+      setTimeout(() => {
+        console.log("🗑️ Liberando blob URL");
+        window.URL.revokeObjectURL(blobUrl);
+      }, 60000);
+    } catch (err) {
+      console.error("❌ Error completo al cargar documento:", err);
+      console.error("❌ Response:", err.response);
+      console.error("❌ Data:", err.response?.data);
+      setMessage(err.response?.data?.message || err.message || "Error al cargar el documento");
+    } finally {
+      setLoadingDocId(null);
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    const statusLower = status?.toLowerCase() || "";
+    
+    if (statusLower.includes("accepted") || statusLower.includes("aceptado")) {
+      return "accepted";
+    }
+    if (statusLower.includes("rejected") || statusLower.includes("rechazado")) {
+      return "rejected";
+    }
+    if (statusLower.includes("corrections") || statusLower.includes("correcciones")) {
+      return "corrections";
+    }
+    if (statusLower.includes("pending") || statusLower.includes("pendiente")) {
+      return "pending";
+    }
+    return "pending";
+  };
+
+  const getStatusLabel = (status) => {
+    const statusMap = {
+      "PENDING": "Pendiente de revisión",
+      "ACCEPTED_FOR_SECRETARY_REVIEW": "Aceptado por Secretaría",
+      "REJECTED_FOR_SECRETARY_REVIEW": "Rechazado por Secretaría",
+      "CORRECTIONS_REQUESTED_BY_SECRETARY": "Correcciones solicitadas - Secretaría",
+      "ACCEPTED_FOR_COUNCIL_REVIEW": "Aceptado por Consejo",
+      "REJECTED_FOR_COUNCIL_REVIEW": "Rechazado por Consejo",
+      "CORRECTIONS_REQUESTED_BY_COUNCIL": "Correcciones solicitadas - Consejo",
+    };
+    return statusMap[status] || status;
+  };
 
   if (loading) {
     return <div className="status-loading">Cargando estado de la modalidad...</div>;
@@ -51,6 +164,13 @@ export default function ModalityStatus() {
       <div className="status-header">
         <h2 className="status-title">Estado de la Modalidad</h2>
       </div>
+
+      {/* Mensaje de feedback */}
+      {message && (
+        <div className={`status-message ${message.includes("Error") || message.includes("error") ? "error" : "success"}`}>
+          {message}
+        </div>
+      )}
 
       {/* Información principal */}
       <div className="status-main-card">
@@ -81,6 +201,105 @@ export default function ModalityStatus() {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Sección de Documentos */}
+      <div className="status-documents-section">
+        <h3 className="status-section-title">Mis Documentos</h3>
+        
+        {documents.length === 0 ? (
+          <div className="status-documents-empty">
+            <div className="status-documents-empty-icon">📭</div>
+            <p>No hay documentos cargados</p>
+          </div>
+        ) : (
+          <div className="status-documents-grid">
+            {documents.map((doc) => (
+              <div key={doc.studentDocumentId} className="status-document-card">
+                <div className="status-document-header">
+                  <h4 className="status-document-name">{doc.documentName}</h4>
+                  {doc.mandatory && (
+                    <span className="status-document-mandatory-badge">Obligatorio</span>
+                  )}
+                </div>
+
+                <div className="status-document-info">
+                  <div className="status-document-info-item">
+                    <span className="status-document-label">Estado:</span>
+                    <span className={`status-document-badge ${getStatusBadgeClass(doc.status)}`}>
+                      {getStatusLabel(doc.status)}
+                    </span>
+                  </div>
+
+                  {doc.uploadedAt && (
+                    <div className="status-document-info-item">
+                      <span className="status-document-label">Subido:</span>
+                      <span className="status-document-date">
+                        {new Date(doc.uploadedAt).toLocaleDateString('es-CO', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  )}
+
+                  {doc.notes && (
+                    <div className="status-document-notes">
+                      <span className="status-document-label">Comentarios:</span>
+                      <p className="status-document-notes-text">{doc.notes}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="status-document-actions">
+                  {doc.studentDocumentId && (
+                    <button
+                      onClick={() => handleViewDocument(doc.studentDocumentId)}
+                      disabled={loadingDocId === doc.studentDocumentId}
+                      className={`status-document-btn view ${loadingDocId === doc.studentDocumentId ? 'loading' : ''}`}
+                    >
+                      {loadingDocId === doc.studentDocumentId 
+                        ? "Cargando..." 
+                        : "Ver documento"}
+                    </button>
+                  )}
+
+                  {/* Permitir resubir si está rechazado o se solicitaron correcciones */}
+                  {(doc.status === "REJECTED_FOR_SECRETARY_REVIEW" ||
+                    doc.status === "REJECTED_FOR_COUNCIL_REVIEW" ||
+                    doc.status === "CORRECTIONS_REQUESTED_BY_SECRETARY" ||
+                    doc.status === "CORRECTIONS_REQUESTED_BY_COUNCIL") && (
+                    <div className="status-document-upload">
+                      <label className="status-document-upload-label">
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              // ⚠️ NOTA: Necesitamos el requiredDocumentId del backend
+                              // Por ahora usamos studentDocumentId como fallback
+                              const docId = doc.requiredDocumentId || doc.studentDocumentId;
+                              handleFileUpload(docId, file);
+                            }
+                          }}
+                          disabled={uploadingDocId === doc.studentDocumentId}
+                          className="status-document-upload-input"
+                        />
+                        <span className="status-document-upload-btn">
+                          {uploadingDocId === doc.studentDocumentId
+                            ? "⏳ Subiendo..."
+                            : "📤 Resubir documento"}
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Historial */}

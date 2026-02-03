@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   getAllModalities,
+  getModalityRequirements,
   createModalityRequirements,
   updateModalityRequirements,
   deleteModalityRequirement,
@@ -18,6 +19,7 @@ export default function Requirements() {
   const [selectedModalityId, setSelectedModalityId] = useState(modalityIdFromUrl || "");
   const [requirements, setRequirements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingRequirements, setLoadingRequirements] = useState(false);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -35,12 +37,11 @@ export default function Requirements() {
 
   useEffect(() => {
     if (selectedModalityId) {
-      const modality = modalities.find((m) => m.id === parseInt(selectedModalityId));
-      // En producción real, deberías tener un endpoint para obtener requirements por modalityId
-      // Por ahora simulamos que no hay requirements iniciales
+      fetchRequirements();
+    } else {
       setRequirements([]);
     }
-  }, [selectedModalityId, modalities]);
+  }, [selectedModalityId]);
 
   const fetchModalities = async () => {
     try {
@@ -50,6 +51,19 @@ export default function Requirements() {
       setMessage("Error al cargar modalidades");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRequirements = async () => {
+    setLoadingRequirements(true);
+    try {
+      const data = await getModalityRequirements(selectedModalityId);
+      setRequirements(data);
+    } catch (err) {
+      setMessage("Error al cargar requerimientos: " + (err.response?.data?.message || err.message));
+      setRequirements([]);
+    } finally {
+      setLoadingRequirements(false);
     }
   };
 
@@ -75,7 +89,7 @@ export default function Requirements() {
       await createModalityRequirements(selectedModalityId, [formData]);
       setMessage("Requerimiento creado exitosamente");
       setShowModal(false);
-      // Aquí deberías refrescar los requirements
+      await fetchRequirements(); // ✅ Refresca la lista
     } catch (err) {
       setMessage(err.response?.data || "Error al crear requerimiento");
     }
@@ -87,7 +101,7 @@ export default function Requirements() {
     try {
       await deleteModalityRequirement(requirementId);
       setMessage("Requerimiento eliminado exitosamente");
-      setRequirements((prev) => prev.filter((req) => req.id !== requirementId));
+      await fetchRequirements(); // ✅ Refresca la lista
     } catch (err) {
       setMessage("Error al eliminar requerimiento");
     }
@@ -134,54 +148,60 @@ export default function Requirements() {
       </div>
 
       {selectedModalityId ? (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Requerimiento</th>
-                <th>Descripción</th>
-                <th>Tipo de Regla</th>
-                <th>Valor Esperado</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requirements.length === 0 ? (
+        loadingRequirements ? (
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            Cargando requerimientos...
+          </div>
+        ) : (
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
-                    No hay requerimientos para esta modalidad. ¡Crea uno nuevo!
-                  </td>
+                  <th>Requerimiento</th>
+                  <th>Descripción</th>
+                  <th>Tipo de Regla</th>
+                  <th>Valor Esperado</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
-              ) : (
-                requirements.map((req) => (
-                  <tr key={req.id}>
-                    <td>
-                      <strong>{req.requirementName}</strong>
-                    </td>
-                    <td>{req.description}</td>
-                    <td>
-                      <span className="admin-tag">{req.ruleType}</span>
-                    </td>
-                    <td>{req.expectedValue}</td>
-                    <td>
-                      <span className={`admin-status-badge ${req.active ? "active" : "inactive"}`}>
-                        {req.active ? "ACTIVO" : "INACTIVO"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="admin-table-actions">
-                        <button onClick={() => handleDelete(req.id)} className="admin-btn-delete">
-                          🗑️ Eliminar
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {requirements.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
+                      No hay requerimientos para esta modalidad. ¡Crea uno nuevo!
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  requirements.map((req) => (
+                    <tr key={req.id}>
+                      <td>
+                        <strong>{req.requirementName}</strong>
+                      </td>
+                      <td>{req.description}</td>
+                      <td>
+                        <span className="admin-tag">{req.ruleType}</span>
+                      </td>
+                      <td>{req.expectedValue}</td>
+                      <td>
+                        <span className={`admin-status-badge ${req.active ? "active" : "inactive"}`}>
+                          {req.active ? "ACTIVO" : "INACTIVO"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="admin-table-actions">
+                          <button onClick={() => handleDelete(req.id)} className="admin-btn-delete">
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )
       ) : (
         <div style={{ textAlign: "center", padding: "4rem", color: "#999" }}>
           👆 Selecciona una modalidad para ver sus requerimientos

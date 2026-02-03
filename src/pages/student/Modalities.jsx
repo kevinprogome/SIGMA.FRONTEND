@@ -13,7 +13,8 @@ export default function Modalities() {
   const [modalities, setModalities] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
+  const [globalMessage, setGlobalMessage] = useState(""); // Mensaje global
+  const [modalityMessages, setModalityMessages] = useState({}); // Mensajes por modalidad
   const [sendingId, setSendingId] = useState(null);
 
   const [studentModalityId, setStudentModalityId] = useState(null);
@@ -26,8 +27,8 @@ export default function Modalities() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingModalityId, setPendingModalityId] = useState(null);
 
-  // 🔽 referencia para scroll automático
   const documentsRef = useRef(null);
+  const modalityRefs = useRef({}); // Referencias a cada tarjeta de modalidad
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,7 +54,7 @@ export default function Modalities() {
           // No modalidad activa
         }
       } catch {
-        setMessage("Error al cargar la información");
+        setGlobalMessage("Error al cargar la información");
       } finally {
         setLoading(false);
       }
@@ -71,17 +72,20 @@ export default function Modalities() {
   const handleSelectModality = async (modalityId) => {
     try {
       setSendingId(modalityId);
+      setModalityMessages({}); // Limpiar mensajes anteriores
 
       const res = await startModality(modalityId);
 
       setStudentModalityId(res.studentModalityId);
       setSelectedModalityId(modalityId);
-      setMessage(res.message);
+      
+      // Mensaje de éxito específico para esta modalidad
+      setModalityMessages({ [modalityId]: { type: 'success', text: res.message } });
 
       setShowConfirmModal(false);
       setShowDetailModal(false);
 
-      // 🔽 scroll automático a documentos
+      // Scroll automático a documentos
       setTimeout(() => {
         documentsRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -89,9 +93,18 @@ export default function Modalities() {
         });
       }, 300);
     } catch (err) {
-      setMessage(
-        err.response?.data?.message || "No se pudo iniciar la modalidad"
-      );
+      const errorMessage = err.response?.data?.message || "No se pudo iniciar la modalidad";
+      
+      // Mensaje de error específico para esta modalidad
+      setModalityMessages({ [modalityId]: { type: 'error', text: errorMessage } });
+      
+      // Scroll a la tarjeta de la modalidad con error
+      setTimeout(() => {
+        modalityRefs.current[modalityId]?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
     } finally {
       setSendingId(null);
     }
@@ -104,7 +117,7 @@ export default function Modalities() {
       setModalityDetail(detail);
       setShowDetailModal(true);
     } catch {
-      setMessage("Error al cargar los detalles de la modalidad");
+      setModalityMessages({ [modalityId]: { type: 'error', text: "Error al cargar los detalles de la modalidad" } });
     } finally {
       setLoadingDetail(false);
     }
@@ -125,13 +138,18 @@ export default function Modalities() {
         </p>
       </div>
 
-      {message && (
-        <div className="modalities-message info">{message}</div>
+      {/* Mensaje global (solo para errores generales) */}
+      {globalMessage && (
+        <div className="modalities-message error">{globalMessage}</div>
       )}
 
       <ul className="modalities-list">
         {modalities.map((m) => (
-          <li key={m.id} className="modality-card">
+          <li 
+            key={m.id} 
+            className="modality-card"
+            ref={(el) => (modalityRefs.current[m.id] = el)}
+          >
             <h3 className="modality-name">{m.name}</h3>
             <p className="modality-description">{m.description}</p>
 
@@ -144,6 +162,13 @@ export default function Modalities() {
               </span>
             </div>
 
+            {/* Mensaje específico de esta modalidad */}
+            {modalityMessages[m.id] && (
+              <div className={`modality-specific-message ${modalityMessages[m.id].type}`}>
+                {modalityMessages[m.id].text}
+              </div>
+            )}
+
             <button
               className="modality-button secondary"
               onClick={() => handleViewDetails(m.id)}
@@ -154,7 +179,7 @@ export default function Modalities() {
         ))}
       </ul>
 
-      {/* 🔽 DOCUMENTOS */}
+      {/* DOCUMENTOS */}
       {studentModalityId && selectedModalityId && (
         <div ref={documentsRef}>
           <StudentModalityDocuments
