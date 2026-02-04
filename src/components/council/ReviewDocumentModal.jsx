@@ -7,9 +7,9 @@ export default function ReviewDocumentModal({ document, onClose, onSubmit }) {
   const [error, setError] = useState("");
 
   const statusOptions = [
-    { value: "ACCEPTED_FOR_COUNCIL_REVIEW", label: "✅ Aceptado para revisión del consejo" },
-    { value: "REJECTED_FOR_COUNCIL_REVIEW", label: "❌ Rechazado por el consejo" },
-    { value: "CORRECTIONS_REQUESTED_BY_COUNCIL", label: "📝 Correcciones solicitadas por el consejo" },
+    { value: "ACCEPTED_FOR_COUNCIL_REVIEW", label: "✅ Aceptado para revisión del comité de currículo de programa" },
+    { value: "REJECTED_FOR_COUNCIL_REVIEW", label: "❌ Rechazado por el comité de currículo de programa" },
+    { value: "CORRECTIONS_REQUESTED_BY_COUNCIL", label: "📝 Correcciones solicitadas por el comité de currículo de programa" },
   ];
 
   const handleSubmit = (e) => {

@@ -105,14 +105,14 @@ export default function StudentProfileSecretary() {
 
     if (!allAccepted) {
       alert(
-        "Debes aceptar todos los documentos cargados antes de enviar al Consejo de Facultad"
+        "Debes aceptar todos los documentos cargados antes de enviar al Comité de Currículo de Programa"
       );
       return;
     }
 
     if (
       !window.confirm(
-        "¿Estás segura de enviar este estudiante al Consejo de Facultad?"
+        "¿Estás segura de enviar este estudiante al Comité de Currículo de Programa?"
       )
     ) {
       return;
@@ -121,12 +121,12 @@ export default function StudentProfileSecretary() {
     setSubmitting(true);
     try {
       await approveSecretary(studentModalityId);
-      alert("Estudiante enviado al Consejo de Facultad exitosamente");
+      alert("Estudiante enviado al Comité de Currículo de Programa exitosamente");
       navigate("/secretary");
     } catch (err) {
       console.error(err);
       alert(
-        err.response?.data?.message || "Error al enviar al Consejo de Facultad"
+        err.response?.data?.message || "Error al enviar al Comité de Currículo de Programa"
       );
     } finally {
       setSubmitting(false);
@@ -378,13 +378,13 @@ export default function StudentProfileSecretary() {
                 >
                   {submitting
                     ? "Procesando..."
-                    : "Enviar al Consejo de Facultad"}
+                    : "Enviar al Comité de Currículo de Programa"}
                 </button>
 
                 {!allAccepted && (
                   <div className="approve-warning">
                     Debes aceptar todos los documentos cargados antes de
-                    enviar al Consejo de Facultad
+                    enviar al comité de currículo de programa
                   </div>
                 )}
               </div>

@@ -37,7 +37,7 @@ export default function CouncilStudentProfile() {
     const fetchProfile = async () => {
       try {
         const res = await getStudentModalityProfile(studentModalityId);
-        console.log("RESPUESTA BACKEND (Consejo):", res);
+        console.log("RESPUESTA BACKEND (comité de currículo de programa):", res);
         setProfile(res);
       } catch (err) {
         console.error(err);
@@ -211,7 +211,7 @@ export default function CouncilStudentProfile() {
       {/* Header */}
       <div className="student-profile-header">
         <h2 className="student-profile-title">
-          Perfil del Estudiante - Consejo de Facultad
+          Perfil del Estudiante - Comité de Currículo de Programa
         </h2>
         <p className="student-profile-subtitle">
           Revisa documentos y gestiona la modalidad de grado
@@ -373,13 +373,13 @@ export default function CouncilStudentProfile() {
                               >
                                 <option value="">Seleccionar estado</option>
                                 <option value="ACCEPTED_FOR_COUNCIL_REVIEW">
-                                  Aceptado para revisión del consejo
+                                  Aceptado para revisión del comité de currículo de programa
                                 </option>
                                 <option value="REJECTED_FOR_COUNCIL_REVIEW">
-                                  Rechazado por el consejo
+                                  Rechazado por el comité de currículo de programa
                                 </option>
                                 <option value="CORRECTIONS_REQUESTED_BY_COUNCIL">
-                                  Correcciones solicitadas por el consejo
+                                  Correcciones solicitadas por el comité de currículo de programa
                                 </option>
                               </select>
                             </div>
@@ -439,9 +439,8 @@ export default function CouncilStudentProfile() {
         )}
       </div>
 
-      {/* ✅ ACCIONES DEL CONSEJO - MOVIDAS AQUÍ (DESPUÉS DE DOCUMENTOS) */}
       <div className="council-actions-section">
-        <h3 className="section-title">🎯 Acciones del Consejo de Facultad</h3>
+        <h3 className="section-title">🎯 Acciones del Comité de Currículo de Programa</h3>
         <div className="council-actions-grid">
           <button
             onClick={() => setShowAssignDirectorModal(true)}

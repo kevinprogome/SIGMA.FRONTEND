@@ -84,7 +84,7 @@ export default function StudentCancellation() {
     setLoading(true);
     try {
       await requestCancellationModality(studentModalityId);
-      setMessage("Solicitud de cancelación enviada exitosamente. El consejo la revisará pronto.");
+      setMessage("Solicitud de cancelación enviada exitosamente. El comité de currículo de programa la revisará pronto.");
       setStep(3);
     } catch (err) {
       setMessage(err.response?.data?.message || err.response?.data || "Error al solicitar cancelación");
@@ -130,7 +130,7 @@ export default function StudentCancellation() {
           <div className="step-number">2</div>
           <div className="step-content">
             <h3>Confirmar Solicitud</h3>
-            <p>Envía formalmente tu solicitud de cancelación al consejo</p>
+            <p>Envía formalmente tu solicitud de cancelación al comité de currículo de programa</p>
           </div>
         </div>
 
@@ -138,7 +138,7 @@ export default function StudentCancellation() {
           <div className="step-number">3</div>
           <div className="step-content">
             <h3>Esperar Aprobación</h3>
-            <p>El consejo revisará tu solicitud y te notificará la decisión</p>
+            <p>El comité de currículo de programa revisará tu solicitud y te notificará la decisión</p>
           </div>
         </div>
       </div>
@@ -179,7 +179,7 @@ export default function StudentCancellation() {
           <h2>Paso 2: Confirmar Solicitud</h2>
           <div className="confirm-box">
             <p>
-              ⚠️ <strong>Importante:</strong> Al confirmar esta solicitud, el consejo académico
+              ⚠️ <strong>Importante:</strong> Al confirmar esta solicitud, el comité de currículo de programa
               revisará tu caso. Este proceso es irreversible una vez enviado.
             </p>
             <p>¿Estás seguro de que deseas continuar?</p>
@@ -200,7 +200,7 @@ export default function StudentCancellation() {
         <div className="cancellation-success">
           <div className="success-icon">✅</div>
           <h2>Solicitud Enviada</h2>
-          <p>Tu solicitud de cancelación ha sido enviada al consejo académico.</p>
+          <p>Tu solicitud de cancelación ha sido enviada al comité de currículo de programa.</p>
           <p>Te notificaremos cuando haya una decisión.</p>
         </div>
       )}

@@ -14,7 +14,7 @@ export default function Navbar() {
   return (
     <nav className="navbar-wrapper">
       <div className="navbar">
-        <div className="navbar-brand">SIGMA PANEL SECRETARIA</div>
+        <div className="navbar-brand">SIGMA PANEL JEFE DE PROGRAMA</div>
 
 
         <button className="navbar-logout" onClick={handleLogout}>

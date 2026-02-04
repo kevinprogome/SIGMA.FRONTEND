@@ -9,12 +9,12 @@ import "../../styles/secretary/studentpending.css";
 const AVAILABLE_STATUSES = [
   { value: "MODALITY_SELECTED", label: "Modalidad Seleccionada" },
 
-  { value: "UNDER_REVIEW_SECRETARY", label: "En Revisión (Secretaría)" },
-  { value: "CORRECTIONS_REQUESTED_SECRETARY", label: "Correcciones (Secretaría)" },
+  { value: "UNDER_REVIEW_SECRETARY", label: "En Revisión (Jefe de Programa)" },
+  { value: "CORRECTIONS_REQUESTED_SECRETARY", label: "Correcciones (Jefe de Programa)" },
 
-  { value: "READY_FOR_COUNCIL", label: "Listo para Consejo" },
-  { value: "UNDER_REVIEW_COUNCIL", label: "En Revisión (Consejo)" },
-  { value: "CORRECTIONS_REQUESTED_COUNCIL", label: "Correcciones (Consejo)" },
+  { value: "READY_FOR_COUNCIL", label: "Listo para comité de currículo de programa" },
+  { value: "UNDER_REVIEW_COUNCIL", label: "En Revisión (Comité de currículo de programa)" },
+  { value: "CORRECTIONS_REQUESTED_COUNCIL", label: "Correcciones (Comité de currículo de programa)" },
 
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
 

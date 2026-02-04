@@ -29,7 +29,7 @@ export default function CouncilLayout() {
       {/* Sidebar */}
       <aside className="council-sidebar">
         <div className="sidebar-header">
-          <h2>Consejo de Facultad</h2>
+          <h2>Comité de Currículo de Programa</h2>
           <p className="user-info">{user?.email || "Cargando..."}</p>
         </div>
 

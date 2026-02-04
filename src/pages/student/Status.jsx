@@ -130,12 +130,12 @@ export default function ModalityStatus() {
   const getStatusLabel = (status) => {
     const statusMap = {
       "PENDING": "Pendiente de revisión",
-      "ACCEPTED_FOR_SECRETARY_REVIEW": "Aceptado por Secretaría",
-      "REJECTED_FOR_SECRETARY_REVIEW": "Rechazado por Secretaría",
-      "CORRECTIONS_REQUESTED_BY_SECRETARY": "Correcciones solicitadas - Secretaría",
-      "ACCEPTED_FOR_COUNCIL_REVIEW": "Aceptado por Consejo",
-      "REJECTED_FOR_COUNCIL_REVIEW": "Rechazado por Consejo",
-      "CORRECTIONS_REQUESTED_BY_COUNCIL": "Correcciones solicitadas - Consejo",
+      "ACCEPTED_FOR_SECRETARY_REVIEW": "Aceptado por Jefe de Programa",
+      "REJECTED_FOR_SECRETARY_REVIEW": "Rechazado por Jefe de Programa",
+      "CORRECTIONS_REQUESTED_BY_SECRETARY": "Correcciones solicitadas - Jefe de Programa",
+      "ACCEPTED_FOR_COUNCIL_REVIEW": "Aceptado por comité de currículo de programa",
+      "REJECTED_FOR_COUNCIL_REVIEW": "Rechazado por comité de currículo de programa",
+      "CORRECTIONS_REQUESTED_BY_COUNCIL": "Correcciones solicitadas por comité de currículo de programa",
     };
     return statusMap[status] || status;
   };

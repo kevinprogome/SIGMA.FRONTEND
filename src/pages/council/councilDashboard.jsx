@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { getStudentsPendingModalities } from "../../services/councilService";
 import "../../styles/council/studentpending.css";
 
-// Estados disponibles para el Consejo
 const AVAILABLE_STATUSES = [
-  { value: "READY_FOR_COUNCIL", label: "Listo para Consejo" },
-  { value: "UNDER_REVIEW_COUNCIL", label: "En Revisión - Consejo" },
-  { value: "CORRECTIONS_REQUESTED_COUNCIL", label: "Correcciones Solicitadas - Consejo" },
+  { value: "READY_FOR_COUNCIL", label: "Listo para comité de currículo de programa" },
+  { value: "UNDER_REVIEW_COUNCIL", label: "En Revisión - Comité de currículo de programa" },
+  { value: "CORRECTIONS_REQUESTED_COUNCIL", label: "Correcciones Solicitadas - Comité de currículo de programa" },
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
@@ -112,8 +111,8 @@ export default function CouncilDashboard() {
 
   const getStatusLabel = (status) => {
     const statusMap = {
-      "READY_FOR_COUNCIL": "Listo para Consejo",
-      "UNDER_REVIEW_COUNCIL": "En Revisión - Consejo",
+      "READY_FOR_COUNCIL": "Listo para comité de currículo de programa",
+      "UNDER_REVIEW_COUNCIL": "En Revisión - Comité de currículo de programa",
       "CORRECTIONS_REQUESTED_COUNCIL": "Correcciones Solicitadas",
       "PROPOSAL_APPROVED": "Propuesta Aprobada",
       "DEFENSE_SCHEDULED": "Sustentación Programada",
@@ -142,7 +141,7 @@ export default function CouncilDashboard() {
       {/* Header */}
       <div className="students-pending-header">
         <h2 className="students-pending-title">
-          Gestión de Modalidades - Consejo de Facultad
+          Gestión de Modalidades - Comité de Currículo de Programa
         </h2>
         <p className="students-pending-subtitle">
           Revisa documentos, asigna directores y programa sustentaciones
