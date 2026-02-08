@@ -1,6 +1,6 @@
 //components/council/AssignDirectorModal.jsx//
 import { useState, useEffect } from "react";
-import { getProjectDirectors, assignProjectDirector } from "../../services/councilService";
+import { getProjectDirectors, assignProjectDirector } from "../../services/committeeService";
 import "../../styles/council/modals.css";
 
 export default function AssignDirectorModal({ studentModalityId, onClose, onSuccess }) {

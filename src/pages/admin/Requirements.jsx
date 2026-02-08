@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  getAllModalities,
+  getModalitiesAdmin,
   getModalityRequirements,
   createModalityRequirements,
   updateModalityRequirements,
@@ -45,7 +45,7 @@ export default function Requirements() {
 
   const fetchModalities = async () => {
     try {
-      const data = await getAllModalities();
+      const data = await getModalitiesAdmin();
       setModalities(data);
     } catch (err) {
       setMessage("Error al cargar modalidades");

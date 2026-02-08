@@ -243,7 +243,7 @@
    ======================================== */
 
 .view-profile-button {
-  padding: 0.65rem 1.5rem;
+  padding: 0.6rem 0.6rem;
   background-color: #7A1117;
   color: white;
   border: none;
@@ -254,6 +254,8 @@
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(122, 17, 23, 0.3);
   white-space: nowrap;
+  margin-left: auto;
+  margin-right: 1rem;
 }
 
 .view-profile-button:hover {

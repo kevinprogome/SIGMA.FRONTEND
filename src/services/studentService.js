@@ -1,6 +1,38 @@
 import api from "../api/axios";
 
 // ========================================
+// 🔧 HELPER FUNCTION
+// ========================================
+const extractData = (response, fallback = []) => {
+  const data = response;
+  
+  // Si ya es un array, retornarlo directamente
+  if (Array.isArray(data)) {
+    return data;
+  }
+  
+  // Si es un objeto, buscar el array en propiedades comunes
+  if (typeof data === 'object' && data !== null) {
+    // Intentar propiedades comunes
+    if (Array.isArray(data.data)) return data.data;
+    if (Array.isArray(data.content)) return data.content;
+    if (Array.isArray(data.items)) return data.items;
+    if (Array.isArray(data.faculties)) return data.faculties;
+    if (Array.isArray(data.programs)) return data.programs;
+    if (Array.isArray(data.modalities)) return data.modalities;
+    
+    // Si tiene solo una propiedad y es un array, retornarla
+    const keys = Object.keys(data);
+    if (keys.length === 1 && Array.isArray(data[keys[0]])) {
+      return data[keys[0]];
+    }
+  }
+  
+  console.warn("No se pudo extraer array de la respuesta:", data);
+  return fallback;
+};
+
+// ========================================
 // 📊 DASHBOARD
 // ========================================
 export const getStudentDashboard = async () => {
@@ -26,7 +58,7 @@ export const getCurrentModalityStatus = async () => {
 // ========================================
 export const getModalidades = async () => {
   const response = await api.get("/modalities");
-  return response.data;
+  return extractData(response.data); // ✅ Usar extractData
 };
 
 export const getModalityById = async (id) => {
@@ -143,4 +175,17 @@ export const uploadCancellationDocument = async (studentModalityId, formData) =>
     }
   );
   return response.data;
+};
+
+// ========================================
+// 🎓 FACULTADES Y PROGRAMAS (ESTUDIANTE)
+// ========================================
+export const getActiveFacultiesStudent = async () => {
+  const res = await api.get("/faculties/active");
+  return extractData(res.data); // ✅ Usar extractData
+};
+
+export const getActiveProgramsStudent = async () => {
+  const res = await api.get("/academic-programs/active");
+  return extractData(res.data); // ✅ Usar extractData
 };

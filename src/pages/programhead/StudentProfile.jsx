@@ -3,12 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   getStudentModalityProfile,
   reviewDocument,
-  approveSecretary,
+  approveProgramhead,
   getDocumentBlobUrl,
-} from "../../services/secretaryService";
-import "../../styles/secretary/secretaryprofile.css";
+} from "../../services/programsheadService";
+import "../../styles/programhead/programheadprofile.css";
 
-export default function StudentProfileSecretary() {
+export default function StudentProfileProgramHead() {
   const { studentModalityId } = useParams();
   const navigate = useNavigate();
 
@@ -100,7 +100,7 @@ export default function StudentProfileSecretary() {
   const handleApproveAll = async () => {
     const uploadedDocs = profile.documents.filter((d) => d.uploaded);
     const allAccepted = uploadedDocs.every(
-      (d) => d.status === "ACCEPTED_FOR_SECRETARY_REVIEW"
+      (d) => d.status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW"
     );
 
     if (!allAccepted) {
@@ -112,7 +112,7 @@ export default function StudentProfileSecretary() {
 
     if (
       !window.confirm(
-        "¿Estás segura de enviar este estudiante al Comité de Currículo de Programa?"
+        "¿Estás seguro de enviar este estudiante al Comité de Currículo de Programa?"
       )
     ) {
       return;
@@ -120,9 +120,9 @@ export default function StudentProfileSecretary() {
 
     setSubmitting(true);
     try {
-      await approveSecretary(studentModalityId);
+      await approveProgramhead(studentModalityId);
       alert("Estudiante enviado al Comité de Currículo de Programa exitosamente");
-      navigate("/secretary");
+      navigate("/jefeprograma");
     } catch (err) {
       console.error(err);
       alert(
@@ -135,10 +135,24 @@ export default function StudentProfileSecretary() {
 
   // Helper para obtener clase de badge
   const getStatusBadgeClass = (status) => {
-    if (status === "ACCEPTED_FOR_SECRETARY_REVIEW") return "accepted";
-    if (status === "REJECTED_FOR_SECRETARY_REVIEW") return "rejected";
-    if (status === "CORRECTIONS_REQUESTED_BY_SECRETARY") return "corrections";
+    if (status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW") return "accepted";
+    if (status === "REJECTED_FOR_PROGRAM_HEAD_REVIEW") return "rejected";
+    if (status === "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD") return "corrections";
     return "pending";
+  };
+
+  // Helper para obtener etiqueta legible del estado
+  const getStatusLabel = (status) => {
+    const statusLabels = {
+      "PENDING": "Pendiente",
+      "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW": "Aceptado por Jefe de Programa",
+      "REJECTED_FOR_PROGRAM_HEAD_REVIEW": "Rechazado por Jefe de Programa",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD": "Correcciones solicitadas por Jefe de Programa",
+      "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Aceptado por Comité de Currículo",
+      "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité de Currículo",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité de Currículo",
+    };
+    return statusLabels[status] || status;
   };
 
   if (loading) {
@@ -167,7 +181,7 @@ export default function StudentProfileSecretary() {
 
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const allAccepted = uploadedDocs.every(
-    (d) => d.status === "ACCEPTED_FOR_SECRETARY_REVIEW"
+    (d) => d.status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW"
   );
 
   return (
@@ -245,7 +259,7 @@ export default function StudentProfileSecretary() {
                             doc.status
                           )}`}
                         >
-                          {doc.statusDescription}
+                          {getStatusLabel(doc.status)}
                         </span>
                       </td>
                       <td>
@@ -324,13 +338,13 @@ export default function StudentProfileSecretary() {
                                 className="review-select"
                               >
                                 <option value="">Seleccionar estado</option>
-                                <option value="ACCEPTED_FOR_SECRETARY_REVIEW">
+                                <option value="ACCEPTED_FOR_PROGRAM_HEAD_REVIEW">
                                   Aceptado
                                 </option>
-                                <option value="REJECTED_FOR_SECRETARY_REVIEW">
+                                <option value="REJECTED_FOR_PROGRAM_HEAD_REVIEW">
                                   Rechazado
                                 </option>
-                                <option value="CORRECTIONS_REQUESTED_BY_SECRETARY">
+                                <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD">
                                   Requiere correcciones
                                 </option>
                               </select>
@@ -383,7 +397,7 @@ export default function StudentProfileSecretary() {
 
                 {!allAccepted && (
                   <div className="approve-warning">
-                    Debes aceptar todos los documentos cargados antes de
+                    ⚠️ Debes aceptar todos los documentos cargados antes de
                     enviar al comité de currículo de programa
                   </div>
                 )}
@@ -395,8 +409,8 @@ export default function StudentProfileSecretary() {
 
       {/* Back Button */}
       <div className="back-button-section">
-        <button onClick={() => navigate("/secretary")} className="back-btn">
-          Volver al listado
+        <button onClick={() => navigate("/jefeprograma")} className="back-btn">
+          ← Volver al listado
         </button>
       </div>
     </div>

@@ -2,18 +2,18 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   getStudentModalityProfile,
-  reviewDocumentCouncil,
-  approveCouncil,
+  reviewDocumentCommittee,
+  approveCommittee,
   getDocumentBlobUrl,
   getModalityDetails,
-} from "../../services/councilService";
-import AssignDirectorModal from "../../components/council/AssignDirectorModal";
-import ScheduleDefenseModal from "../../components/council/ScheduleDefenseModal";
-import FinalEvaluationModal from "../../components/council/FinalEvaluationModal";
-import ModalityDetailsModal from "../../components/council/ModalityDetailsModal";
+} from "../../services/committeeService";
+import AssignDirectorModal from "../../components/committee/AssignDirectorModal";
+import ScheduleDefenseModal from "../../components/committee/ScheduleDefenseModal";
+import FinalEvaluationModal from "../../components/committee/FinalEvaluationModal";
+import ModalityDetailsModal from "../../components/committee/ModalityDetailsModal";
 import "../../styles/council/studentprofile.css";
 
-export default function CouncilStudentProfile() {
+export default function CommitteeStudentProfile() {
   const { studentModalityId } = useParams();
   const navigate = useNavigate();
 
@@ -86,9 +86,14 @@ export default function CouncilStudentProfile() {
       return;
     }
 
+    console.log("🔍 [DEBUG] Revisando documento:", studentDocumentId);
+    console.log("🔍 [DEBUG] Estado seleccionado:", selectedStatus);
+    console.log("🔍 [DEBUG] Notas:", notes.trim());
+    console.log("🔍 [DEBUG] Token actual:", localStorage.getItem("token")?.substring(0, 50) + "...");
+
     setSubmitting(true);
     try {
-      await reviewDocumentCouncil(studentDocumentId, {
+      await reviewDocumentCommittee(studentDocumentId, {
         status: selectedStatus,
         notes: notes.trim(),
       });
@@ -114,7 +119,7 @@ export default function CouncilStudentProfile() {
   const handleApproveModality = async () => {
     const uploadedDocs = profile.documents.filter((d) => d.uploaded);
     const allAccepted = uploadedDocs.every(
-      (d) => d.status === "ACCEPTED_FOR_COUNCIL_REVIEW"
+      (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
     );
 
     if (!allAccepted) {
@@ -134,9 +139,9 @@ export default function CouncilStudentProfile() {
 
     setSubmitting(true);
     try {
-      await approveCouncil(studentModalityId);
+      await approveCommittee(studentModalityId);
       alert("Modalidad aprobada exitosamente");
-      navigate("/council");
+      navigate("/comite");
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Error al aprobar la modalidad");
@@ -171,10 +176,27 @@ export default function CouncilStudentProfile() {
 
   // Helper para obtener clase de badge
   const getStatusBadgeClass = (status) => {
-    if (status === "ACCEPTED_FOR_COUNCIL_REVIEW") return "accepted";
-    if (status === "REJECTED_FOR_COUNCIL_REVIEW") return "rejected";
-    if (status === "CORRECTIONS_REQUESTED_BY_COUNCIL") return "corrections";
+    if (status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW") return "accepted";
+    if (status === "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW") return "rejected";
+    if (status === "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE") return "corrections";
+    if (status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW") return "accepted";
+    if (status === "REJECTED_FOR_PROGRAM_HEAD_REVIEW") return "rejected";
+    if (status === "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD") return "corrections";
     return "pending";
+  };
+
+  // Helper para obtener etiqueta legible del estado
+  const getStatusLabel = (status) => {
+    const statusLabels = {
+      "PENDING": "Pendiente",
+      "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW": "Aceptado por Jefe de Programa",
+      "REJECTED_FOR_PROGRAM_HEAD_REVIEW": "Rechazado por Jefe de Programa",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD": "Correcciones solicitadas por Jefe de Programa",
+      "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Aceptado por Comité de Currículo",
+      "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité de Currículo",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité de Currículo",
+    };
+    return statusLabels[status] || status;
   };
 
   if (loading) {
@@ -203,7 +225,7 @@ export default function CouncilStudentProfile() {
 
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const allAccepted = uploadedDocs.every(
-    (d) => d.status === "ACCEPTED_FOR_COUNCIL_REVIEW"
+    (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
   );
 
   return (
@@ -247,14 +269,16 @@ export default function CouncilStudentProfile() {
         </div>
 
         {/* Botón para ver detalles de la modalidad */}
-        <div className="modality-details-btn-container">
-          <button
-            onClick={handleViewModalityDetails}
-            className="btn-view-modality-details"
-          >
-            📋 Ver Detalles de la Modalidad
-          </button>
-        </div>
+        {profile.modalityId && (
+          <div className="modality-details-btn-container">
+            <button
+              onClick={handleViewModalityDetails}
+              className="btn-view-modality-details"
+            >
+              📋 Ver Detalles de la Modalidad
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Documents Section */}
@@ -293,7 +317,7 @@ export default function CouncilStudentProfile() {
                             doc.status
                           )}`}
                         >
-                          {doc.statusDescription}
+                          {getStatusLabel(doc.status)}
                         </span>
                       </td>
                       <td>
@@ -372,14 +396,14 @@ export default function CouncilStudentProfile() {
                                 className="review-select"
                               >
                                 <option value="">Seleccionar estado</option>
-                                <option value="ACCEPTED_FOR_COUNCIL_REVIEW">
-                                  Aceptado para revisión del comité de currículo de programa
+                                <option value="ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">
+                                  Aceptado
                                 </option>
-                                <option value="REJECTED_FOR_COUNCIL_REVIEW">
-                                  Rechazado por el comité de currículo de programa
+                                <option value="REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">
+                                  Rechazado
                                 </option>
-                                <option value="CORRECTIONS_REQUESTED_BY_COUNCIL">
-                                  Correcciones solicitadas por el comité de currículo de programa
+                                <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE">
+                                  Requiere correcciones
                                 </option>
                               </select>
                             </div>
@@ -429,7 +453,7 @@ export default function CouncilStudentProfile() {
 
                 {!allAccepted && (
                   <div className="approve-warning">
-                    Debes aceptar todos los documentos cargados antes de
+                    ⚠️ Debes aceptar todos los documentos cargados antes de
                     aprobar la modalidad
                   </div>
                 )}
@@ -439,6 +463,7 @@ export default function CouncilStudentProfile() {
         )}
       </div>
 
+      {/* Committee Actions Section */}
       <div className="council-actions-section">
         <h3 className="section-title">🎯 Acciones del Comité de Currículo de Programa</h3>
         <div className="council-actions-grid">
@@ -470,7 +495,7 @@ export default function CouncilStudentProfile() {
 
       {/* Back Button */}
       <div className="back-button-section">
-        <button onClick={() => navigate("/council")} className="back-btn">
+        <button onClick={() => navigate("/comite")} className="back-btn">
           ← Volver al listado
         </button>
       </div>

@@ -1,6 +1,6 @@
 //components/council/ScheduleDefenseModal.jsx//
 import { useState } from "react";
-import { scheduleDefense } from "../../services/councilService";
+import { scheduleDefense } from "../../services/committeeService";
 import "../../styles/council/modals.css";
 
 export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuccess }) {

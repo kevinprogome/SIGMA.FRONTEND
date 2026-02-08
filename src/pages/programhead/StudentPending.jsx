@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getStudentsPendingModalities } from "../../services/secretaryService";
-import "../../styles/secretary/studentpending.css";
+import { getStudentsPendingModalities } from "../../services/programsheadService";
+import "../../styles/programhead/studentpending.css";
 
 /* =========================
    ESTADOS DISPONIBLES
@@ -9,12 +9,12 @@ import "../../styles/secretary/studentpending.css";
 const AVAILABLE_STATUSES = [
   { value: "MODALITY_SELECTED", label: "Modalidad Seleccionada" },
 
-  { value: "UNDER_REVIEW_SECRETARY", label: "En Revisión (Jefe de Programa)" },
-  { value: "CORRECTIONS_REQUESTED_SECRETARY", label: "Correcciones (Jefe de Programa)" },
+  { value: "UNDER_REVIEW_PROGRAM_HEAD", label: "En Revisión (Jefe de Programa)" },
+  { value: "CORRECTIONS_REQUESTED_PROGRAM_HEAD", label: "Correcciones (Jefe de Programa)" },
 
-  { value: "READY_FOR_COUNCIL", label: "Listo para comité de currículo de programa" },
-  { value: "UNDER_REVIEW_COUNCIL", label: "En Revisión (Comité de currículo de programa)" },
-  { value: "CORRECTIONS_REQUESTED_COUNCIL", label: "Correcciones (Comité de currículo de programa)" },
+  { value: "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para comité de currículo de programa" },
+  { value: "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE", label: "En Revisión (Comité de currículo de programa)" },
+  { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones (Comité de currículo de programa)" },
 
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
 
@@ -98,15 +98,15 @@ export default function StudentsPending() {
       case "MODALITY_SELECTED":
         return "pending";
 
-      case "UNDER_REVIEW_SECRETARY":
-      case "UNDER_REVIEW_COUNCIL":
+      case "UNDER_REVIEW_PROGRAM_HEAD":
+      case "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE":
         return "in-review";
 
-      case "CORRECTIONS_REQUESTED_SECRETARY":
-      case "CORRECTIONS_REQUESTED_COUNCIL":
+      case "CORRECTIONS_REQUESTED_PROGRAM_HEAD":
+      case "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE":
         return "corrections";
 
-      case "READY_FOR_COUNCIL":
+      case "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE":
       case "DEFENSE_SCHEDULED":
         return "ready";
 
@@ -288,7 +288,7 @@ export default function StudentsPending() {
                       className="view-profile-button"
                       onClick={() =>
                         navigate(
-                          `/secretary/students/${s.studentModalityId}`
+                          `/jefeprograma/students/${s.studentModalityId}`
                         )
                       }
                     >

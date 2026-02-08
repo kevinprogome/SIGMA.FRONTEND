@@ -1,6 +1,6 @@
 //components/council/FinalEvaluationModal.jsx//
 import { useState } from "react";
-import { registerFinalEvaluation } from "../../services/councilService";
+import { registerFinalEvaluation } from "../../services/committeeService";
 import "../../styles/council/modals.css";
 
 export default function FinalEvaluationModal({ studentModalityId, onClose, onSuccess }) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  getAllModalities,
+  getModalitiesAdmin,
   createRequiredDocument,
   updateRequiredDocument,
   getRequiredDocumentsByModalityAndStatus,
@@ -44,7 +44,7 @@ export default function Documents() {
 
   const fetchModalities = async () => {
     try {
-      const data = await getAllModalities();
+      const data = await getModalitiesAdmin();
       setModalities(data);
     } catch (err) {
       setMessage("Error al cargar modalidades");

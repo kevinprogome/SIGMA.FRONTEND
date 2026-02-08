@@ -15,7 +15,7 @@ function Login() {
   const { login } = useAuth();
 
   // 🔹 Lista de roles válidos
-  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "SECRETARY", "COUNCIL", "STUDENT", "PROJECT_DIRECTOR"];
+  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "PROGRAM_HEAD", "PROGRAM_CURRICULUM_COMMITTEE", "STUDENT", "PROJECT_DIRECTOR"];
 
   // 🔹 Redirigir según el rol
   const redirectByRole = (role) => {
@@ -28,11 +28,11 @@ function Login() {
       case "ADMIN":
         navigate("/admin", { replace: true });
         break;
-      case "SECRETARY":
-        navigate("/secretary", { replace: true });
+      case "PROGRAM_HEAD":
+        navigate("/jefeprograma", { replace: true });
         break;
-      case "COUNCIL":
-        navigate("/council", { replace: true });
+      case "PROGRAM_CURRICULUM_COMMITTEE":
+        navigate("/comite", { replace: true });
         break;
       case "STUDENT":
         navigate("/student", { replace: true });
@@ -63,11 +63,11 @@ function Login() {
 
     if (permissionsStr.includes("REVIEW_DOCUMENTS") || 
         permissionsStr.includes("APPROVE_DOCUMENTS")) {
-      return "SECRETARY";
+      return "PROGRAM_HEAD";
     }
 
     if (permissionsStr.includes("COUNCIL_REVIEW")) {
-      return "COUNCIL";
+      return "PROGRAM_CURRICULUM_COMMITTEE";
     }
 
     return "STUDENT";

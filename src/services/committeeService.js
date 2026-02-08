@@ -4,7 +4,7 @@ import axios from "../api/axios";
 // 📋 OBTENER ESTUDIANTES PENDIENTES
 // ========================================
 export const getStudentsPendingModalities = async (statuses = [], searchName = "") => {
-  let url = "/modalities/students";
+  let url = "/modalities/students/committee";
   const params = new URLSearchParams();
   
   // Agregar filtro de estados
@@ -23,18 +23,18 @@ export const getStudentsPendingModalities = async (statuses = [], searchName = "
     url += `?${queryString}`;
   }
   
-  console.log("📡 Consejo llamando a:", url); // DEBUG
+  console.log("📡 Comité llamando a:", url);
   
   const response = await axios.get(url);
   return response.data;
 };
 
 // ========================================
-// 👤 OBTENER PERFIL DEL ESTUDIANTE
+// 👤 OBTENER PERFIL DEL ESTUDIANTE (COMITÉ)
 // ========================================
 export const getStudentModalityProfile = async (studentModalityId) => {
   const response = await axios.get(
-    `/modalities/students/${studentModalityId}`
+    `/modalities/students/${studentModalityId}/committee`
   );
   return response.data;
 };
@@ -65,22 +65,37 @@ export const getDocumentBlobUrl = async (studentDocumentId) => {
   }
 };
 
-export const reviewDocumentCouncil = async (studentDocumentId, data) => {
-  const response = await axios.post(
-    `/modalities/documents/${studentDocumentId}/review-council`,
-    data
-  );
-  return response.data;
+// ========================================
+// 📝 REVISAR DOCUMENTO (COMITÉ) ✅ REAL
+// ========================================
+export const reviewDocumentCommittee = async (studentDocumentId, data) => {
+  return (
+    await axios.post(
+      `/modalities/documents/${studentDocumentId}/review-committee`,
+      data
+    )
+  ).data;
 };
 
 // ========================================
-// ✅ APROBAR MODALIDAD (CONSEJO)
+// ✅ APROBAR MODALIDAD (COMITÉ)
 // ========================================
-export const approveCouncil = async (studentModalityId) => {
-  const response = await axios.post(
-    `/modalities/${studentModalityId}/approve-council`
-  );
-  return response.data;
+export const approveCommittee = async (studentModalityId) => {
+  return (
+    await axios.post(`/modalities/${studentModalityId}/approve-committee`)
+  ).data;
+};
+
+// ========================================
+// ❌ RECHAZAR MODALIDAD (COMITÉ)
+// ========================================
+export const rejectCommittee = async (studentModalityId, reason) => {
+  return (
+    await axios.post(
+      `/modalities/${studentModalityId}/reject-committee`,
+      { reason }
+    )
+  ).data;
 };
 
 // ========================================
@@ -153,19 +168,23 @@ export const approveCancellation = async (studentModalityId) => {
 export const rejectCancellation = async (studentModalityId, reason) => {
   const response = await axios.post(
     `/modalities/${studentModalityId}/cancellation/reject`,
-    { reason }  // ✅ Envía objeto { "reason": "motivo..." }
+    { reason }
   );
   return response.data;
 };
 
+// Ver documento de justificación de cancelación
 export const viewCancellationDocument = async (studentModalityId) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.get(
-    `/modalities/cancellation/${studentModalityId}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: "blob",
-    }
-  );
-  return response.data;
+  try {
+    const response = await axios.get(
+      `/modalities/cancellation/${studentModalityId}`,
+      {
+        responseType: "blob",
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error al ver documento de cancelación:", error);
+    throw error;
+  }
 };

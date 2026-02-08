@@ -65,9 +65,9 @@ export const reviewDocument = async (studentDocumentId, data) => {
   return response.data;
 };
 
-export const approveSecretary = async (studentModalityId) => {
+export const approveProgramhead = async (studentModalityId) => {
   const response = await axios.post(
-    `/modalities/${studentModalityId}/approve-secretary`
+    `/modalities/${studentModalityId}/approve-program-head`
   );
   return response.data;
 };

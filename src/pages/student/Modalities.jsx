@@ -38,6 +38,8 @@ export default function Modalities() {
           getStudentProfile(),
         ]);
 
+        console.log("📋 Modalidades recibidas:", modalitiesRes); // ✅ Debug
+
         setModalities(modalitiesRes);
         setProfile(profileRes);
 
@@ -53,7 +55,8 @@ export default function Modalities() {
         } catch {
           // No modalidad activa
         }
-      } catch {
+      } catch (err) {
+        console.error("❌ Error al cargar datos:", err);
         setGlobalMessage("Error al cargar la información");
       } finally {
         setLoading(false);
@@ -65,8 +68,8 @@ export default function Modalities() {
 
   const isProfileComplete = () => {
     if (!profile) return false;
-    const { approvedCredits, gpa, semester, studentCode } = profile;
-    return approvedCredits && gpa && semester && studentCode;
+    const { approvedCredits, gpa, semester, studentCode, facultyId, academicProgramId } = profile;
+    return approvedCredits && gpa && semester && studentCode && facultyId && academicProgramId;
   };
 
   const handleSelectModality = async (modalityId) => {
@@ -114,9 +117,11 @@ export default function Modalities() {
     try {
       setLoadingDetail(true);
       const detail = await getModalityById(modalityId);
+      console.log("📄 Detalle de modalidad:", detail); // ✅ Debug
       setModalityDetail(detail);
       setShowDetailModal(true);
-    } catch {
+    } catch (err) {
+      console.error("❌ Error al cargar detalles:", err);
       setModalityMessages({ [modalityId]: { type: 'error', text: "Error al cargar los detalles de la modalidad" } });
     } finally {
       setLoadingDetail(false);
@@ -143,6 +148,16 @@ export default function Modalities() {
         <div className="modalities-message error">{globalMessage}</div>
       )}
 
+      {/* ✅ Verificar si el perfil está completo */}
+      {!isProfileComplete() && (
+        <div className="modalities-message warning">
+          ⚠️ Completa tu perfil antes de seleccionar una modalidad. 
+          <a href="/student/profile" style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
+            Ir a mi perfil
+          </a>
+        </div>
+      )}
+
       <ul className="modalities-list">
         {modalities.map((m) => (
           <li 
@@ -158,7 +173,8 @@ export default function Modalities() {
                 Créditos requeridos:
               </span>
               <span className="modality-requirements-value">
-                {m.creditsRequired}
+                {/* ✅ Cambio aquí: requiredCredits en lugar de creditsRequired */}
+                {m.requiredCredits || 'N/A'}
               </span>
             </div>
 
@@ -219,31 +235,40 @@ export default function Modalities() {
 
                 <div className="modal-detail-info">
                   <strong>Créditos requeridos:</strong>{" "}
-                  {modalityDetail.creditsRequired}
+                  {/* ✅ Cambio aquí también */}
+                  {modalityDetail.requiredCredits || 'N/A'}
                 </div>
 
                 <h4>Requisitos</h4>
-                <ul className="modal-detail-list">
-                  {modalityDetail.requirements.map((r) => (
-                    <li key={r.id}>
-                      <strong>{r.requirementName}</strong>
-                      <p>{r.description}</p>
-                    </li>
-                  ))}
-                </ul>
+                {modalityDetail.requirements && modalityDetail.requirements.length > 0 ? (
+                  <ul className="modal-detail-list">
+                    {modalityDetail.requirements.map((r) => (
+                      <li key={r.id}>
+                        <strong>{r.requirementName}</strong>
+                        <p>{r.description}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p style={{ color: '#666', fontStyle: 'italic' }}>No hay requisitos específicos</p>
+                )}
 
                 <h4>Documentos obligatorios</h4>
-                <ul className="modal-detail-list">
-                  {modalityDetail.documents.map((d) => (
-                    <li key={d.id}>
-                      <strong>{d.documentName}</strong>
-                      <p>{d.description}</p>
-                      <small>
-                        {d.allowedFormat} · Máx {d.maxFileSizeMB}MB
-                      </small>
-                    </li>
-                  ))}
-                </ul>
+                {modalityDetail.documents && modalityDetail.documents.length > 0 ? (
+                  <ul className="modal-detail-list">
+                    {modalityDetail.documents.map((d) => (
+                      <li key={d.id}>
+                        <strong>{d.documentName}</strong>
+                        <p>{d.description}</p>
+                        <small>
+                          {d.allowedFormat} · Máx {d.maxFileSizeMB}MB
+                        </small>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p style={{ color: '#666', fontStyle: 'italic' }}>No hay documentos obligatorios</p>
+                )}
 
                 <button
                   className="modality-button"
@@ -252,8 +277,15 @@ export default function Modalities() {
                     setPendingModalityId(modalityDetail.id);
                     setShowConfirmModal(true);
                   }}
+                  title={
+                    !isProfileComplete() 
+                      ? "Completa tu perfil primero" 
+                      : studentModalityId 
+                      ? "Ya tienes una modalidad seleccionada" 
+                      : ""
+                  }
                 >
-                  Seleccionar modalidad
+                  {studentModalityId ? "Ya tienes una modalidad" : "Seleccionar modalidad"}
                 </button>
               </>
             )}

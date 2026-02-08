@@ -5,7 +5,7 @@ import {
   viewCancellationDocument,
   approveCancellation,
   rejectCancellation,
-} from "../../services/councilService";
+} from "../../services/committeeService";
 import "../../styles/council/CancellationRequests.css";
 
 export default function CancellationRequests() {
@@ -43,7 +43,7 @@ export default function CancellationRequests() {
   };
 
   const handleViewProfile = (studentModalityId) => {
-    navigate(`/council/students/${studentModalityId}`);
+    navigate(`/comite/students/${studentModalityId}`);
   };
 
   const handleApprove = async (studentModalityId) => {

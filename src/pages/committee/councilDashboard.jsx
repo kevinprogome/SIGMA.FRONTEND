@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getStudentsPendingModalities } from "../../services/councilService";
+import { getStudentsPendingModalities } from "../../services/committeeService";
 import "../../styles/council/studentpending.css";
 
 const AVAILABLE_STATUSES = [
-  { value: "READY_FOR_COUNCIL", label: "Listo para comité de currículo de programa" },
-  { value: "UNDER_REVIEW_COUNCIL", label: "En Revisión - Comité de currículo de programa" },
-  { value: "CORRECTIONS_REQUESTED_COUNCIL", label: "Correcciones Solicitadas - Comité de currículo de programa" },
+  { value: "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para comité de currículo de programa" },
+  { value: "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE", label: "En Revisión - Comité de currículo de programa" },
+  { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones Solicitadas - Comité de currículo de programa" },
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
@@ -19,7 +19,7 @@ const AVAILABLE_STATUSES = [
   { value: "MODALITY_CLOSED", label: "Modalidad Cerrada" },
 ];
 
-export default function CouncilDashboard() {
+export default function CommitteeDashboard() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -78,42 +78,48 @@ export default function CouncilDashboard() {
 
   // Función helper para determinar la clase del badge según el estado
   const getStatusClass = (status) => {
-    const statusLower = status?.toLowerCase() || "";
-    if (statusLower.includes("ready") || statusLower.includes("listo")) {
-      return "ready";
+    switch (status) {
+      case "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE":
+        return "ready";
+      
+      case "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE":
+        return "in-review";
+      
+      case "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE":
+        return "corrections";
+      
+      case "PROPOSAL_APPROVED":
+        return "approved";
+      
+      case "DEFENSE_SCHEDULED":
+      case "DEFENSE_COMPLETED":
+        return "defense";
+      
+      case "GRADED_APPROVED":
+        return "graded-approved";
+      
+      case "GRADED_FAILED":
+        return "graded-failed";
+      
+      case "CANCELLATION_REQUESTED":
+      case "CANCELLATION_REJECTED":
+        return "pending";
+      
+      case "MODALITY_CANCELLED":
+      case "CANCELLED_WITHOUT_REPROVAL":
+      case "MODALITY_CLOSED":
+        return "cancelled";
+      
+      default:
+        return "pending";
     }
-    if (statusLower.includes("review") || statusLower.includes("revisión")) {
-      return "in-review";
-    }
-    if (statusLower.includes("corrections") || statusLower.includes("correcciones")) {
-      return "corrections";
-    }
-    if (statusLower.includes("approved") && statusLower.includes("proposal")) {
-      return "approved";
-    }
-    if (statusLower.includes("defense") || statusLower.includes("sustentación")) {
-      return "defense";
-    }
-    if (statusLower.includes("graded_approved")) {
-      return "graded-approved";
-    }
-    if (statusLower.includes("graded_failed") || statusLower.includes("failed")) {
-      return "graded-failed";
-    }
-    if (statusLower.includes("cancel")) {
-      return "cancelled";
-    }
-    if (statusLower.includes("closed")) {
-      return "closed";
-    }
-    return "pending";
   };
 
   const getStatusLabel = (status) => {
     const statusMap = {
-      "READY_FOR_COUNCIL": "Listo para comité de currículo de programa",
-      "UNDER_REVIEW_COUNCIL": "En Revisión - Comité de currículo de programa",
-      "CORRECTIONS_REQUESTED_COUNCIL": "Correcciones Solicitadas",
+      "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE": "Listo para comité de currículo de programa",
+      "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE": "En Revisión - Comité de currículo de programa",
+      "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones Solicitadas",
       "PROPOSAL_APPROVED": "Propuesta Aprobada",
       "DEFENSE_SCHEDULED": "Sustentación Programada",
       "DEFENSE_COMPLETED": "Sustentación Completada",
@@ -280,7 +286,7 @@ export default function CouncilDashboard() {
                   <td data-label="Acciones">
                     <button
                       onClick={() =>
-                        navigate(`/council/students/${s.studentModalityId}`)
+                        navigate(`/comite/students/${s.studentModalityId}`)
                       }
                       className="view-profile-button"
                     >

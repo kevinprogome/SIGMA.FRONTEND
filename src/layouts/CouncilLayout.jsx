@@ -35,7 +35,7 @@ export default function CouncilLayout() {
 
         <nav className="sidebar-nav">
           <NavLink
-            to="/council"
+            to="/comite"
             end
             className={({ isActive }) =>
               isActive ? "nav-link active" : "nav-link"
@@ -46,7 +46,7 @@ export default function CouncilLayout() {
           </NavLink>
 
           <NavLink
-            to="/council/cancellations"
+            to="/comite/cancellations"
             className={({ isActive }) =>
               isActive ? "nav-link active" : "nav-link"
             }

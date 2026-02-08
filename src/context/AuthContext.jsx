@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // 🔹 Lista de roles válidos del sistema
-  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "SECRETARY", "COUNCIL", "STUDENT", "PROJECT_DIRECTOR"];
+  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "PROGRAM_HEAD", "PROGRAM_CURRICULUM_COMMITTEE", "STUDENT", "PROJECT_DIRECTOR"];
 
   // 🔹 Extrae y normaliza el rol desde el JWT
   const extractRole = (decoded) => {
@@ -81,15 +82,15 @@ export const AuthProvider = ({ children }) => {
       return "ADMIN";
     }
 
-    // Si tiene permisos de SECRETARY
+    // Si tiene permisos de jefe programa
     if (permissionsStr.includes("REVIEW_DOCUMENTS") || 
         permissionsStr.includes("APPROVE_DOCUMENTS")) {
-      return "SECRETARY";
+      return "PROGRAM_HEAD";
     }
 
-    // Si tiene permisos de COUNCIL
+    // Si tiene permisos de comite
     if (permissionsStr.includes("COUNCIL_REVIEW")) {
-      return "COUNCIL";
+      return "PROGRAM_CURRICULUM_COMMITTEE";
     }
 
     // Por defecto, si no podemos inferir, asumimos STUDENT
@@ -142,6 +143,20 @@ export const AuthProvider = ({ children }) => {
 
     setLoading(false);
     console.log("✅ AuthContext inicializado");
+  }, []);
+
+  // ✅ Escuchar evento de unauthorized desde axios
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      console.log("🚨 Evento unauthorized recibido, cerrando sesión");
+      logout();
+    };
+
+    window.addEventListener('unauthorized', handleUnauthorized);
+    
+    return () => {
+      window.removeEventListener('unauthorized', handleUnauthorized);
+    };
   }, []);
 
   // 🔐 Login

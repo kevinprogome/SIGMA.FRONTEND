@@ -7,16 +7,30 @@ const instance = axios.create({
   },
 });
 
+// ✅ Rutas públicas que NO necesitan token
+const PUBLIC_ROUTES = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/forgot-password",
+  "/auth/reset-password"
+];
+
 // ✅ Interceptor para añadir el token a cada petición
 instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 Token agregado a petición:", config.url);
-    } else {
-      console.warn("⚠️ No hay token disponible para:", config.url);
+    // ✅ No agregar token a rutas públicas
+    const isPublicRoute = PUBLIC_ROUTES.some(route => config.url?.includes(route));
+    
+    if (!isPublicRoute) {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+        console.log("🔑 Token agregado a petición:", config.url);
+      } else {
+        console.warn("⚠️ No hay token disponible para:", config.url);
+      }
     }
+    
     return config;
   },
   (error) => {
@@ -42,7 +56,6 @@ instance.interceptors.response.use(
       console.error("🚨 Error de autenticación/autorización");
       console.error("🚨 Usuario no autorizado para:", url);
       
-      // ⚠️ NO HACER window.location.href - usar React Router
       // Solo limpiar el token si es 401 (no autenticado)
       if (status === 401) {
         console.error("🔐 Token inválido o expirado, limpiando localStorage");
