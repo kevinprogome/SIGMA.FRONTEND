@@ -174,15 +174,51 @@ export const rejectCancellation = async (studentModalityId, reason) => {
 };
 
 // Ver documento de justificación de cancelación
+// ========================================
+// 🚫 VER DOCUMENTO DE CANCELACIÓN (ACTUALIZADO)
+// ========================================
+// Reemplaza la función viewCancellationDocument existente en tu committeeService.js con esta:
+
 export const viewCancellationDocument = async (studentModalityId) => {
   try {
+    // Primero obtenemos la información del documento de cancelación
+    console.log("🔍 [1/2] Obteniendo ID del documento de cancelación para studentModalityId:", studentModalityId);
+    
+    const profileResponse = await axios.get(
+      `/modalities/students/${studentModalityId}/committee`
+    );
+    
+    console.log("📦 [1/2] Perfil recibido:", profileResponse.data);
+    
+    // Buscar el documento con nombre "Justificación de cancelación de modalidad de grado"
+    const cancellationDoc = profileResponse.data.documents?.find(
+      doc => doc.documentName === "Justificación de cancelación de modalidad de grado"
+    );
+    
+    if (!cancellationDoc) {
+      throw new Error("No se encontró el documento de justificación de cancelación");
+    }
+    
+    if (!cancellationDoc.uploaded) {
+      throw new Error("El estudiante aún no ha subido el documento de cancelación");
+    }
+    
+    const studentDocumentId = cancellationDoc.studentDocumentId;
+    console.log("✅ [1/2] Documento encontrado, ID:", studentDocumentId);
+    
+    // Ahora descargamos el documento usando el endpoint normal
+    console.log("🔍 [2/2] Descargando documento ID:", studentDocumentId);
+    
     const response = await axios.get(
-      `/modalities/cancellation/${studentModalityId}`,
+      `/modalities/student/${studentDocumentId}/view`,
       {
         responseType: "blob",
       }
     );
+
+    console.log("✅ [2/2] PDF recibido, tamaño:", response.data.size);
     return response.data;
+    
   } catch (error) {
     console.error("❌ Error al ver documento de cancelación:", error);
     throw error;

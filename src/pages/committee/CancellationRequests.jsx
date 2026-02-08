@@ -16,6 +16,7 @@ export default function CancellationRequests() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [loadingDoc, setLoadingDoc] = useState(null);
 
   useEffect(() => {
     fetchRequests();
@@ -24,21 +25,56 @@ export default function CancellationRequests() {
   const fetchRequests = async () => {
     try {
       const data = await getCancellationRequests();
+      console.log("📋 [DEBUG] Solicitudes de cancelación recibidas:", data);
+      console.log("📋 [DEBUG] Primera solicitud (ejemplo):", data[0]);
       setRequests(data);
     } catch (err) {
+      console.error("Error al cargar solicitudes:", err);
       setMessage("Error al cargar solicitudes de cancelación");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewDocument = async (studentModalityId) => {
+  const handleViewDocument = async (request) => {
+    console.log("📄 [DEBUG] Intentando ver documento de cancelación");
+    console.log("📄 [DEBUG] studentModalityId:", request.studentModalityId);
+    
+    setLoadingDoc(request.studentModalityId);
+
     try {
-      const blob = await viewCancellationDocument(studentModalityId);
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
+      const blob = await viewCancellationDocument(request.studentModalityId);
+      
+      console.log("✅ [DEBUG] Blob recibido - Tamaño:", blob.size, "bytes");
+      
+      if (blob.size === 0) {
+        throw new Error("El documento está vacío (0 bytes)");
+      }
+      
+      const blobUrl = window.URL.createObjectURL(blob);
+      console.log("✅ [DEBUG] Abriendo documento en nueva pestaña");
+      window.open(blobUrl, "_blank");
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 60000);
+      
     } catch (err) {
-      setMessage("Error al ver el documento");
+      console.error("❌ [DEBUG] Error:", err);
+      
+      let errorMessage = "Error al ver el documento";
+      
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.response?.status === 404) {
+        errorMessage = "Documento de cancelación no encontrado";
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      setMessage(errorMessage);
+    } finally {
+      setLoadingDoc(null);
     }
   };
 
@@ -55,8 +91,10 @@ export default function CancellationRequests() {
       await approveCancellation(studentModalityId);
       setMessage("Solicitud aprobada exitosamente");
       fetchRequests();
+      setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      setMessage("Error al aprobar la solicitud");
+      console.error("Error al aprobar:", err);
+      setMessage(err.response?.data?.message || "Error al aprobar la solicitud");
     }
   };
 
@@ -73,8 +111,10 @@ export default function CancellationRequests() {
       setMessage("Solicitud rechazada");
       setShowRejectModal(false);
       fetchRequests();
+      setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      setMessage("Error al rechazar la solicitud");
+      console.error("Error al rechazar:", err);
+      setMessage(err.response?.data?.message || "Error al rechazar la solicitud");
     }
   };
 
@@ -92,6 +132,18 @@ export default function CancellationRequests() {
       {message && (
         <div className={`cancellation-message ${message.includes("Error") ? "error" : "success"}`}>
           {message}
+          <button 
+            onClick={() => setMessage("")} 
+            style={{ 
+              marginLeft: "1rem", 
+              background: "transparent", 
+              border: "none", 
+              cursor: "pointer",
+              fontSize: "1.2rem"
+            }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
@@ -124,11 +176,12 @@ export default function CancellationRequests() {
                   <td>
                     <div className="action-buttons">
                       <button
-                        onClick={() => handleViewDocument(request.studentModalityId)}
-                        className="btn-view-doc"
+                        onClick={() => handleViewDocument(request)}
+                        disabled={loadingDoc === request.studentModalityId}
+                        className={`btn-view-doc ${loadingDoc === request.studentModalityId ? "loading" : ""}`}
                         title="Ver documento"
                       >
-                        📄 Documento
+                        {loadingDoc === request.studentModalityId ? "⏳ Cargando..." : "📄 Documento"}
                       </button>
                       <button
                         onClick={() => handleViewProfile(request.studentModalityId)}
@@ -212,4 +265,4 @@ export default function CancellationRequests() {
       )}
     </div>
   );
-}//
+}

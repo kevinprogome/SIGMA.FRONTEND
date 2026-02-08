@@ -5,6 +5,7 @@ import {
   getModalitiesAdmin,
   getProgramDegreeModalities,
   createProgramDegreeModality,
+  updateProgramDegreeModality,
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
 
@@ -16,6 +17,7 @@ export default function ProgramDegreeModalities() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [editingConfig, setEditingConfig] = useState(null);
 
   // Filtros
   const [selectedFacultyId, setSelectedFacultyId] = useState("");
@@ -63,7 +65,7 @@ export default function ProgramDegreeModalities() {
       const [facultiesData, programsData, modalitiesData] = await Promise.all([
         getAllFaculties(),
         getAllAcademicPrograms(),
-        getModalitiesAdmin("ACTIVE"), // Usar solo modalidades activas
+        getModalitiesAdmin("ACTIVE"),
       ]);
       
       console.log("Faculties:", facultiesData);
@@ -103,33 +105,55 @@ export default function ProgramDegreeModalities() {
     }
   };
 
-  const handleOpenModal = () => {
-    setFormData({
-      academicProgramId: selectedProgramId || "",
-      degreeModalityId: "",
-      creditsRequired: 0,
-    });
+  const handleOpenModal = (config = null) => {
+    if (config) {
+      // Modo edición
+      setEditingConfig(config);
+      setFormData({
+        academicProgramId: config.academicProgramId.toString(),
+        degreeModalityId: config.degreeModalityId.toString(),
+        creditsRequired: config.creditsRequired,
+      });
+    } else {
+      // Modo creación
+      setEditingConfig(null);
+      setFormData({
+        academicProgramId: selectedProgramId || "",
+        degreeModalityId: "",
+        creditsRequired: 0,
+      });
+    }
     setShowModal(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createProgramDegreeModality({
+      const payload = {
         academicProgramId: parseInt(formData.academicProgramId),
         degreeModalityId: parseInt(formData.degreeModalityId),
         creditsRequired: parseInt(formData.creditsRequired),
-      });
+      };
+
+      if (editingConfig) {
+        // Actualizar configuración existente
+        await updateProgramDegreeModality(editingConfig.id, payload);
+        setMessage("Configuración actualizada exitosamente");
+      } else {
+        // Crear nueva configuración
+        await createProgramDegreeModality(payload);
+        setMessage("Configuración creada exitosamente");
+      }
       
-      setMessage("Configuración de créditos creada exitosamente");
       setShowModal(false);
+      setEditingConfig(null);
       fetchConfigurations();
       
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      console.error("Error creating configuration:", err);
+      console.error("Error al guardar configuración:", err);
       const errorMsg = getErrorMessage(err);
-      setMessage("Error al crear configuración: " + errorMsg);
+      setMessage("Error: " + errorMsg);
     }
   };
 
@@ -159,7 +183,7 @@ export default function ProgramDegreeModalities() {
           <h1 className="admin-page-title">Configuración de Créditos por Programa</h1>
           <p className="admin-page-subtitle">Asocia modalidades a programas y define créditos requeridos</p>
         </div>
-        <button onClick={handleOpenModal} className="admin-btn-primary">
+        <button onClick={() => handleOpenModal()} className="admin-btn-primary">
           ➕ Nueva Configuración
         </button>
       </div>
@@ -240,12 +264,13 @@ export default function ProgramDegreeModalities() {
               <th>Modalidad de Grado</th>
               <th>Créditos Requeridos</th>
               <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {configurations.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
+                <td colSpan="6" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
                   No hay configuraciones disponibles. ¡Crea una nueva!
                 </td>
               </tr>
@@ -267,6 +292,16 @@ export default function ProgramDegreeModalities() {
                       {config.active ? "ACTIVA" : "INACTIVA"}
                     </span>
                   </td>
+                  <td>
+                    <button
+                      onClick={() => handleOpenModal(config)}
+                      className="admin-btn-secondary"
+                      style={{ padding: "0.5rem 1rem", fontSize: "0.9rem" }}
+                      title="Editar configuración"
+                    >
+                      ✏️ Editar
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
@@ -279,7 +314,7 @@ export default function ProgramDegreeModalities() {
         <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
             <div className="admin-modal-header">
-              <h2>Nueva Configuración de Créditos</h2>
+              <h2>{editingConfig ? "Editar Configuración de Créditos" : "Nueva Configuración de Créditos"}</h2>
               <button onClick={() => setShowModal(false)} className="admin-modal-close">
                 ✕
               </button>
@@ -293,6 +328,7 @@ export default function ProgramDegreeModalities() {
                   onChange={(e) => setFormData({ ...formData, academicProgramId: e.target.value })}
                   className="admin-select"
                   required
+                  disabled={!!editingConfig}
                 >
                   <option value="">-- Selecciona un programa --</option>
                   {programs.map((program) => (
@@ -301,6 +337,11 @@ export default function ProgramDegreeModalities() {
                     </option>
                   ))}
                 </select>
+                {editingConfig && (
+                  <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
+                    No se puede cambiar el programa en una configuración existente
+                  </small>
+                )}
               </div>
 
               <div className="admin-form-group">
@@ -310,6 +351,7 @@ export default function ProgramDegreeModalities() {
                   onChange={(e) => setFormData({ ...formData, degreeModalityId: e.target.value })}
                   className="admin-select"
                   required
+                  disabled={!!editingConfig}
                 >
                   <option value="">-- Selecciona una modalidad --</option>
                   {modalities.map((modality) => (
@@ -318,6 +360,11 @@ export default function ProgramDegreeModalities() {
                     </option>
                   ))}
                 </select>
+                {editingConfig && (
+                  <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
+                    No se puede cambiar la modalidad en una configuración existente
+                  </small>
+                )}
               </div>
 
               <div className="admin-form-group">
@@ -341,7 +388,7 @@ export default function ProgramDegreeModalities() {
                   Cancelar
                 </button>
                 <button type="submit" className="admin-btn-primary">
-                  Crear Configuración
+                  {editingConfig ? "Actualizar Configuración" : "Crear Configuración"}
                 </button>
               </div>
             </form>

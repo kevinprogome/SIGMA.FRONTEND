@@ -233,6 +233,14 @@ export const createProgramDegreeModality = async (data) => {
   return response.data;
 };
 
+export const updateProgramDegreeModality = async (id, data) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.put(`${PROGRAM_DEGREE_URL}/update/${id}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 // ==================== ADMIN ASSIGNMENTS ====================
 export const assignProgramHead = async (data) => {
   const token = localStorage.getItem("token");
