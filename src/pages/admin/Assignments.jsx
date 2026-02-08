@@ -6,6 +6,7 @@ import {
   assignProgramHead,
   assignProjectDirector,
   assignCommitteeMember,
+  getCommitteeMembers,
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
 
@@ -19,12 +20,19 @@ export default function Assignments() {
   const [users, setUsers] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [faculties, setFaculties] = useState([]);
+  const [committeeMembers, setCommitteeMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMembers, setLoadingMembers] = useState(false);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  // Filtros para crear asignación
   const [selectedFacultyId, setSelectedFacultyId] = useState("");
   const [filteredPrograms, setFilteredPrograms] = useState([]);
+
+  // Filtros para ver asignaciones
+  const [viewFacultyFilter, setViewFacultyFilter] = useState("");
+  const [viewProgramFilter, setViewProgramFilter] = useState("");
 
   const [formData, setFormData] = useState({
     assignmentType: "",
@@ -45,6 +53,10 @@ export default function Assignments() {
     }
   }, [selectedFacultyId, programs]);
 
+  useEffect(() => {
+    fetchAssignments();
+  }, [viewFacultyFilter, viewProgramFilter]);
+
   const fetchInitialData = async () => {
     try {
       const [usersData, programsData, facultiesData] = await Promise.all([
@@ -52,13 +64,45 @@ export default function Assignments() {
         getAllAcademicPrograms(),
         getAllFaculties(),
       ]);
-      setUsers(usersData);
-      setPrograms(programsData);
-      setFaculties(facultiesData);
+      
+      setUsers(Array.isArray(usersData) ? usersData : []);
+      setPrograms(Array.isArray(programsData) ? programsData : []);
+      setFaculties(Array.isArray(facultiesData) ? facultiesData : []);
+      setFilteredPrograms(Array.isArray(programsData) ? programsData : []);
+      
+      // Cargar asignaciones inmediatamente
+      await fetchAssignments();
     } catch (err) {
+      console.error("❌ Error loading data:", err);
       setMessage("Error al cargar datos: " + (err.response?.data || err.message));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAssignments = async () => {
+    setLoadingMembers(true);
+    try {
+      const filters = {};
+      if (viewProgramFilter) filters.academicProgramId = viewProgramFilter;
+      if (viewFacultyFilter) filters.facultyId = viewFacultyFilter;
+
+      console.log("📋 Fetching committee members with filters:", filters);
+      
+      const committeeData = await getCommitteeMembers(filters);
+
+      console.log("✅ Committee Members received:", committeeData);
+
+      setCommitteeMembers(Array.isArray(committeeData) ? committeeData : []);
+    } catch (err) {
+      console.error("❌ Error fetching assignments:", err);
+      console.error("❌ Error details:", err.response?.data);
+      setCommitteeMembers([]);
+      
+      const errorMsg = err.response?.data?.message || err.response?.data || err.message;
+      setMessage("Error al cargar miembros del comité: " + errorMsg);
+    } finally {
+      setLoadingMembers(false);
     }
   };
 
@@ -69,6 +113,7 @@ export default function Assignments() {
       academicProgramId: "",
     });
     setSelectedFacultyId("");
+    setMessage(""); // Limpiar mensajes anteriores
     setShowModal(true);
   };
 
@@ -90,22 +135,26 @@ export default function Assignments() {
         academicProgramId: parseInt(formData.academicProgramId),
       });
       
-      setMessage(`${assignmentConfig.label} asignado exitosamente`);
+      setMessage(`✅ ${assignmentConfig.label} asignado exitosamente`);
       setShowModal(false);
       
+      // Refrescar la lista
+      await fetchAssignments();
+      
+      // Limpiar mensaje después de 3 segundos
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      setMessage(err.response?.data || "Error al asignar usuario");
+      console.error("❌ Error assigning user:", err);
+      const errorMsg = err.response?.data?.message || err.response?.data || "Error al asignar usuario";
+      setMessage("❌ " + errorMsg);
     }
   };
 
-  const getFullName = (user) => {
-    if (user.name) {
-      return user.name;
-    }
-    const firstName = user.firstName || '';
-    const lastName = user.lastName || '';
-    return `${firstName} ${lastName}`.trim() || 'Sin nombre';
+  const getFullName = (member) => {
+    if (!member) return "Usuario no encontrado";
+    const name = member.name || "";
+    const lastName = member.lastName || "";
+    return `${name} ${lastName}`.trim() || "Sin nombre";
   };
 
   const getProgramName = (programId) => {
@@ -126,8 +175,10 @@ export default function Assignments() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Asignaciones de Usuarios</h1>
-          <p className="admin-page-subtitle">Asigna jefes de programa, directores y miembros de comité</p>
+          <h1 className="admin-page-title">Gestión de Asignaciones</h1>
+          <p className="admin-page-subtitle">
+            Asigna usuarios a programas y visualiza los miembros del comité curricular
+          </p>
         </div>
         <button onClick={handleOpenModal} className="admin-btn-primary">
           ➕ Nueva Asignación
@@ -135,25 +186,126 @@ export default function Assignments() {
       </div>
 
       {message && (
-        <div className={`admin-message ${message.includes("Error") || message.includes("error") ? "error" : "success"}`}>
+        <div className={`admin-message ${message.includes("Error") || message.includes("❌") ? "error" : "success"}`}>
           {message}
-          <button onClick={() => setMessage("")} style={{ marginLeft: "1rem" }}>✕</button>
+          <button 
+            onClick={() => setMessage("")} 
+            style={{ 
+              marginLeft: "auto", 
+              background: "transparent", 
+              border: "none", 
+              cursor: "pointer",
+              fontSize: "1.2rem",
+              color: "inherit"
+            }}
+          >
+            ✕
+          </button>
         </div>
       )}
 
+      {/* Filtros */}
       <div style={{ 
-        background: "#f8f9fa", 
-        padding: "2rem", 
-        borderRadius: "8px",
-        textAlign: "center",
-        marginTop: "2rem"
+        display: "flex", 
+        gap: "1rem", 
+        marginBottom: "2rem",
+        padding: "1.5rem",
+        background: "#f8f9fa",
+        borderRadius: "8px"
       }}>
-        <p style={{ fontSize: "1.1rem", color: "#666" }}>
-          Utiliza el botón "Nueva Asignación" para asignar usuarios a programas académicos.
-        </p>
-        <p style={{ fontSize: "0.95rem", color: "#999", marginTop: "0.5rem" }}>
-          Puedes asignar jefes de programa, directores de proyecto o miembros de comité curricular.
-        </p>
+        <div className="admin-form-group" style={{ flex: 1, marginBottom: 0 }}>
+          <label className="admin-label">Filtrar por Facultad</label>
+          <select
+            value={viewFacultyFilter}
+            onChange={(e) => {
+              setViewFacultyFilter(e.target.value);
+              setViewProgramFilter(""); // Reset program filter
+            }}
+            className="admin-select"
+          >
+            <option value="">-- Todas las facultades --</option>
+            {faculties.map((faculty) => (
+              <option key={faculty.id} value={faculty.id}>
+                {faculty.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="admin-form-group" style={{ flex: 1, marginBottom: 0 }}>
+          <label className="admin-label">Filtrar por Programa</label>
+          <select
+            value={viewProgramFilter}
+            onChange={(e) => setViewProgramFilter(e.target.value)}
+            className="admin-select"
+            disabled={!viewFacultyFilter && programs.length > 20} // Deshabilitar si no hay facultad y hay muchos programas
+          >
+            <option value="">
+              {viewFacultyFilter ? "-- Todos los programas --" : "-- Primero selecciona una facultad --"}
+            </option>
+            {programs
+              .filter(p => !viewFacultyFilter || p.facultyId === parseInt(viewFacultyFilter))
+              .map((program) => (
+                <option key={program.id} value={program.id}>
+                  {program.name}
+                </option>
+              ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Tabla de Miembros del Comité Curricular */}
+      <div>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
+          Miembros del Comité Curricular
+        </h2>
+        
+        {loadingMembers ? (
+          <div style={{ textAlign: "center", padding: "3rem", color: "#666" }}>
+            <div className="admin-loading" style={{ display: "inline-block" }}>
+              Cargando miembros...
+            </div>
+          </div>
+        ) : (
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Email</th>
+                  <th>Programa Académico</th>
+                </tr>
+              </thead>
+              <tbody>
+                {committeeMembers.length === 0 ? (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: "center", padding: "3rem", color: "#999" }}>
+                      {viewFacultyFilter || viewProgramFilter 
+                        ? "No hay miembros asignados con los filtros seleccionados" 
+                        : "No hay miembros del comité asignados"}
+                    </td>
+                  </tr>
+                ) : (
+                  committeeMembers.map((member, idx) => (
+                    <tr key={member.id || idx}>
+                      <td>
+                        <strong>{getFullName(member)}</strong>
+                      </td>
+                      <td>{member.email || "N/A"}</td>
+                      <td>
+                        <span className="admin-tag">
+                          {viewProgramFilter 
+                            ? getProgramName(parseInt(viewProgramFilter))
+                            : "Múltiples programas"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Modal */}
@@ -206,7 +358,10 @@ export default function Assignments() {
                 <label className="admin-label">Facultad (Filtro)</label>
                 <select
                   value={selectedFacultyId}
-                  onChange={(e) => setSelectedFacultyId(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedFacultyId(e.target.value);
+                    setFormData({ ...formData, academicProgramId: "" }); // Reset program
+                  }}
                   className="admin-select"
                 >
                   <option value="">-- Todas las facultades --</option>
@@ -217,7 +372,7 @@ export default function Assignments() {
                   ))}
                 </select>
                 <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
-                  Filtra los programas por facultad
+                  Filtra los programas académicos por facultad
                 </small>
               </div>
 
@@ -232,7 +387,8 @@ export default function Assignments() {
                   <option value="">-- Selecciona un programa académico --</option>
                   {filteredPrograms.map((program) => (
                     <option key={program.id} value={program.id}>
-                      {program.name} - {getFacultyName(program.facultyId)}
+                      {program.name}
+                      {!selectedFacultyId && ` - ${getFacultyName(program.facultyId)}`}
                     </option>
                   ))}
                 </select>

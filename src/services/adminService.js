@@ -92,9 +92,20 @@ export const createPermission = async (permissionData) => {
 };
 
 // ==================== USERS ====================
-export const getAllUsers = async () => {
+export const getAllUsers = async (filters = {}) => {
   const token = localStorage.getItem("token");
-  const response = await axios.get(`${API_URL}/getUsers`, {
+  const params = new URLSearchParams();
+  
+  if (filters.status) params.append('status', filters.status);
+  if (filters.role) params.append('role', filters.role);
+  if (filters.facultyId) params.append('facultyId', filters.facultyId);
+  if (filters.programId) params.append('programId', filters.programId);
+  
+  const url = params.toString() 
+    ? `${API_URL}/getUsers?${params.toString()}`
+    : `${API_URL}/getUsers`;
+  
+  const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return extractData(response);
@@ -103,6 +114,14 @@ export const getAllUsers = async () => {
 export const changeUserStatus = async (data) => {
   const token = localStorage.getItem("token");
   const response = await axios.post(`${API_URL}/changeUserStatus`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const registerUserByAdmin = async (userData) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.post(`${API_URL}/register-user`, userData, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
@@ -239,6 +258,48 @@ export const assignCommitteeMember = async (data) => {
   return response.data;
 };
 
+// ==================== VIEW ASSIGNMENTS ====================
+export const getProgramHeads = async () => {
+  const token = localStorage.getItem("token");
+  // TODO: Confirmar endpoint correcto para program heads
+  // Por ahora comentado hasta tener el endpoint correcto
+  return [];
+  /*
+  const response = await axios.get(`${API_URL}/program-heads`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return extractData(response);
+  */
+};
+
+// ==================== VIEW ASSIGNMENTS ====================
+export const getCommitteeMembers = async (filters = {}) => {
+  const token = localStorage.getItem("token");
+  const params = new URLSearchParams();
+  
+  // Solo agregar parámetros si tienen valor
+  if (filters.academicProgramId) {
+    params.append('academicProgramId', parseInt(filters.academicProgramId));
+  }
+  if (filters.facultyId) {
+    params.append('facultyId', parseInt(filters.facultyId));
+  }
+  
+  // ✅ CORRECTO: /modalities/committee
+  const url = params.toString()
+    ? `http://localhost:8080/modalities/committee?${params.toString()}`
+    : `http://localhost:8080/modalities/committee`;
+  
+  console.log("🔍 Fetching committee members from:", url);
+  
+  const response = await axios.get(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  
+  console.log("✅ Committee members response:", response.data);
+  
+  return extractData(response);
+};
 // ==================== MODALITIES ====================
 export const getAllModalities = async () => {
   const token = localStorage.getItem("token");

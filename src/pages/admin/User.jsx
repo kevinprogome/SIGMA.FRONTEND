@@ -1,14 +1,30 @@
 import { useEffect, useState } from "react";
-import { getAllUsers, changeUserStatus, assignRoleToUser, getAllRoles } from "../../services/adminService";
+import {
+  getAllUsers,
+  changeUserStatus,
+  assignRoleToUser,
+  getAllRoles,
+  registerUserByAdmin,
+  getAllAcademicPrograms,
+} from "../../services/adminService";
 import "../../styles/admin/Roles.css";
+
+// Roles que requieren programa académico
+const ROLES_REQUIRING_PROGRAM = [
+  "PROGRAM_HEAD",
+  "PROJECT_DIRECTOR",
+  "PROGRAM_CURRICULUM_COMMITTEE"
+];
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]); // Para guardar todos los usuarios
+  const [allUsers, setAllUsers] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRoleId, setSelectedRoleId] = useState("");
   
@@ -16,34 +32,45 @@ export default function Users() {
   const [searchName, setSearchName] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
+  // Form data para crear usuario
+  const [createFormData, setCreateFormData] = useState({
+    name: "",
+    lastName: "",
+    email: "",
+    password: "",
+    roleName: "",
+    academicProgramId: "",
+  });
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Filtrar usuarios cuando cambie la búsqueda
   useEffect(() => {
     filterUsers();
   }, [searchName, allUsers]);
 
   const fetchData = async () => {
     try {
-      const [usersData, rolesData] = await Promise.all([
+      const [usersData, rolesData, programsData] = await Promise.all([
         getAllUsers(),
         getAllRoles(),
+        getAllAcademicPrograms(),
       ]);
       
       console.log("Users data:", usersData);
       console.log("Roles data:", rolesData);
+      console.log("Programs data:", programsData);
       
-      // Enriquecer roles con IDs temporales si no los tienen
       const enrichedRoles = rolesData.map((role, index) => ({
         ...role,
         id: role.id || index + 1,
       }));
       
-      setAllUsers(usersData);
-      setUsers(usersData);
+      setAllUsers(Array.isArray(usersData) ? usersData : []);
+      setUsers(Array.isArray(usersData) ? usersData : []);
       setRoles(enrichedRoles);
+      setPrograms(Array.isArray(programsData) ? programsData : []);
     } catch (err) {
       console.error("Error al cargar datos:", err);
       setMessage("Error al cargar datos: " + (err.response?.data || err.message));
@@ -99,6 +126,18 @@ export default function Users() {
     setShowRoleModal(true);
   };
 
+  const handleOpenCreateModal = () => {
+    setCreateFormData({
+      name: "",
+      lastName: "",
+      email: "",
+      password: "",
+      roleName: "",
+      academicProgramId: "",
+    });
+    setShowCreateModal(true);
+  };
+
   const handleAssignRole = async (e) => {
     e.preventDefault();
     
@@ -123,7 +162,53 @@ export default function Users() {
     }
   };
 
-  // Función para obtener el nombre completo del usuario
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    
+    // Validación de correo institucional
+    if (!createFormData.email.endsWith("@usco.edu.co")) {
+      setMessage("El correo debe ser institucional con dominio @usco.edu.co");
+      return;
+    }
+
+    // Preparar datos para enviar
+    const userData = {
+      name: createFormData.name,
+      lastName: createFormData.lastName,
+      email: createFormData.email,
+      password: createFormData.password,
+      roleName: createFormData.roleName,
+    };
+
+    // Solo agregar academicProgramId si el rol lo requiere
+    if (ROLES_REQUIRING_PROGRAM.includes(createFormData.roleName)) {
+      if (!createFormData.academicProgramId) {
+        setMessage(`El rol ${createFormData.roleName} requiere que se especifique un programa académico`);
+        return;
+      }
+      userData.academicProgramId = parseInt(createFormData.academicProgramId);
+    }
+
+    console.log("Creando usuario:", userData);
+
+    try {
+      const response = await registerUserByAdmin(userData);
+      setMessage(response || "Usuario registrado exitosamente");
+      setShowCreateModal(false);
+      fetchData();
+      
+      setTimeout(() => setMessage(""), 5000);
+    } catch (err) {
+      console.error("Error al crear usuario:", err);
+      const errorMsg = err.response?.data || err.message;
+      setMessage("Error al crear usuario: " + errorMsg);
+    }
+  };
+
+  const requiresProgram = () => {
+    return ROLES_REQUIRING_PROGRAM.includes(createFormData.roleName);
+  };
+
   const getFullName = (user) => {
     if (user.name) {
       return user.name;
@@ -144,18 +229,22 @@ export default function Users() {
           <h1 className="admin-page-title">Gestión de Usuarios</h1>
           <p className="admin-page-subtitle">Administra usuarios y sus estados</p>
         </div>
+        <button onClick={handleOpenCreateModal} className="admin-btn-primary">
+          ➕ Crear Usuario
+        </button>
       </div>
 
       {message && (
         <div className={`admin-message ${message.includes("Error") || message.includes("error") ? "error" : "success"}`}>
           {message}
+          <button onClick={() => setMessage("")} style={{ marginLeft: "1rem" }}>✕</button>
         </div>
       )}
 
       {/* Filtro de búsqueda */}
       <div className="admin-filters">
         <div className="filter-section">
-          <label className="filter-label">Buscar usuario por nombre, email o código:</label>
+          <label className="filter-label">Buscar usuario por nombre o email:</label>
           <form onSubmit={handleSearchSubmit} className="search-form">
             <input
               type="text"
@@ -262,6 +351,121 @@ export default function Users() {
           </tbody>
         </table>
       </div>
+
+      {/* Create User Modal */}
+      {showCreateModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h2>Crear Nuevo Usuario</h2>
+              <button onClick={() => setShowCreateModal(false)} className="admin-modal-close">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateUser} className="admin-form">
+              <div className="admin-form-group">
+                <label className="admin-label">Nombre *</label>
+                <input
+                  type="text"
+                  value={createFormData.name}
+                  onChange={(e) => setCreateFormData({ ...createFormData, name: e.target.value })}
+                  className="admin-input"
+                  placeholder="Juan"
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">Apellido *</label>
+                <input
+                  type="text"
+                  value={createFormData.lastName}
+                  onChange={(e) => setCreateFormData({ ...createFormData, lastName: e.target.value })}
+                  className="admin-input"
+                  placeholder="Pérez"
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">Email Institucional *</label>
+                <input
+                  type="email"
+                  value={createFormData.email}
+                  onChange={(e) => setCreateFormData({ ...createFormData, email: e.target.value })}
+                  className="admin-input"
+                  placeholder="juan.perez@usco.edu.co"
+                  required
+                />
+                <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
+                  Debe terminar en @usco.edu.co
+                </small>
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">Contraseña *</label>
+                <input
+                  type="password"
+                  value={createFormData.password}
+                  onChange={(e) => setCreateFormData({ ...createFormData, password: e.target.value })}
+                  className="admin-input"
+                  placeholder="Contraseña segura"
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">Rol *</label>
+                <select
+                  value={createFormData.roleName}
+                  onChange={(e) => setCreateFormData({ ...createFormData, roleName: e.target.value })}
+                  className="admin-select"
+                  required
+                >
+                  <option value="">-- Selecciona un rol --</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.name}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {requiresProgram() && (
+                <div className="admin-form-group">
+                  <label className="admin-label">Programa Académico *</label>
+                  <select
+                    value={createFormData.academicProgramId}
+                    onChange={(e) => setCreateFormData({ ...createFormData, academicProgramId: e.target.value })}
+                    className="admin-select"
+                    required
+                  >
+                    <option value="">-- Selecciona un programa --</option>
+                    {programs.map((program) => (
+                      <option key={program.id} value={program.id}>
+                        {program.name}
+                      </option>
+                    ))}
+                  </select>
+                  <small style={{ color: "#f59e0b", marginTop: "0.5rem", display: "block" }}>
+                    ⚠️ Este rol requiere un programa académico
+                  </small>
+                </div>
+              )}
+
+              <div className="admin-modal-actions">
+                <button type="button" onClick={() => setShowCreateModal(false)} className="admin-btn-secondary">
+                  Cancelar
+                </button>
+                <button type="submit" className="admin-btn-primary">
+                  Crear Usuario
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Assign Role Modal */}
       {showRoleModal && (
