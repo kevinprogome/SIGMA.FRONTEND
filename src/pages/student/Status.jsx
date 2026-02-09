@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { 
-  getCurrentModalityStatus, 
-  getMyDocuments, 
+import {
+  getCurrentModalityStatus,
+  getMyDocuments,
   uploadStudentDocument,
   getStudentDocumentBlob
 } from "../../services/studentService";
@@ -26,10 +26,10 @@ export default function ModalityStatus() {
         getCurrentModalityStatus(),
         getMyDocuments(),
       ]);
-      
-      console.log("✅ Estado:", statusRes); // DEBUG
-      console.log("✅ Documentos:", docsRes); // DEBUG
-      
+     
+      console.log("✅ Estado:", statusRes);
+      console.log("✅ Documentos:", docsRes);
+     
       setData(statusRes);
       setDocuments(docsRes);
     } catch (err) {
@@ -46,13 +46,11 @@ export default function ModalityStatus() {
   const handleFileUpload = async (requiredDocumentId, file) => {
     if (!file) return;
 
-    // Validar que sea PDF
     if (file.type !== "application/pdf") {
       setMessage("Solo se permiten archivos PDF");
       return;
     }
 
-    // Validar tamaño (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setMessage("El archivo no puede superar los 5MB");
       return;
@@ -70,12 +68,10 @@ export default function ModalityStatus() {
 
       await uploadStudentDocument(data.studentModalityId, requiredDocumentId, file);
       setMessage("Documento subido exitosamente");
-      
-      // Recargar documentos
+     
       const docsRes = await getMyDocuments();
       setDocuments(docsRes);
-      
-      // Limpiar mensaje después de 3 segundos
+     
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("❌ Error al subir:", err);
@@ -94,15 +90,12 @@ export default function ModalityStatus() {
       console.log("✅ Blob URL generada:", blobUrl);
       window.open(blobUrl, "_blank");
 
-      // Liberar el blob después de 1 minuto
       setTimeout(() => {
         console.log("🗑️ Liberando blob URL");
         window.URL.revokeObjectURL(blobUrl);
       }, 60000);
     } catch (err) {
       console.error("❌ Error completo al cargar documento:", err);
-      console.error("❌ Response:", err.response);
-      console.error("❌ Data:", err.response?.data);
       setMessage(err.response?.data?.message || err.message || "Error al cargar el documento");
     } finally {
       setLoadingDocId(null);
@@ -111,7 +104,7 @@ export default function ModalityStatus() {
 
   const getStatusBadgeClass = (status) => {
     const statusLower = status?.toLowerCase() || "";
-    
+   
     if (statusLower.includes("accepted") || statusLower.includes("aceptado")) {
       return "accepted";
     }
@@ -130,12 +123,12 @@ export default function ModalityStatus() {
   const getStatusLabel = (status) => {
     const statusMap = {
       "PENDING": "Pendiente de revisión",
-      "ACCEPTED_FOR_SECRETARY_REVIEW": "Aceptado por Jefe de Programa",
-      "REJECTED_FOR_SECRETARY_REVIEW": "Rechazado por Jefe de Programa",
-      "CORRECTIONS_REQUESTED_BY_SECRETARY": "Correcciones solicitadas - Jefe de Programa",
-      "ACCEPTED_FOR_COUNCIL_REVIEW": "Aceptado por comité de currículo de programa",
-      "REJECTED_FOR_COUNCIL_REVIEW": "Rechazado por comité de currículo de programa",
-      "CORRECTIONS_REQUESTED_BY_COUNCIL": "Correcciones solicitadas por comité de currículo de programa",
+      "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW": "Aceptado por Jefe de Programa",
+      "REJECTED_FOR_PROGRAM_HEAD_REVIEW": "Rechazado por Jefe de Programa",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD": "Correcciones solicitadas - Jefe de Programa",
+      "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Aceptado por comité de currículo de programa",
+      "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por comité de currículo de programa",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por comité de currículo de programa",
     };
     return statusMap[status] || status;
   };
@@ -200,13 +193,91 @@ export default function ModalityStatus() {
               })}
             </span>
           </div>
+          {/* Información del Director de Proyecto */}
+      {data.projectDirectorName && (
+        <div className="status-section">
+          <h3 className="status-section-title">Director de Proyecto</h3>
+          <div className="status-info-card">
+            <div className="status-info-grid">
+              <div className="status-info-item">
+                <span className="status-label">Nombre</span>
+                <span className="status-value">{data.projectDirectorName}</span>
+              </div>
+              <div className="status-info-item">
+                <span className="status-label">Email</span>
+                <span className="status-value">{data.projectDirectorEmail}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+       {/* Información de Sustentación */}
+      <div className="status-section">
+        <h3 className="status-section-title">Información de Sustentación</h3>
+        <div className="status-info-card">
+          {data.defenseDate ? (
+            <div className="status-info-grid">
+              <div className="status-info-item">
+                <span className="status-label">Fecha programada</span>
+                <span className="status-value">
+                  {new Date(data.defenseDate).toLocaleString('es-CO', {
+                    dateStyle: 'full',
+                    timeStyle: 'short'
+                  })}
+                </span>
+              </div>
+              <div className="status-info-item">
+                <span className="status-label">Lugar</span>
+                <span className="status-value">{data.defenseLocation || "No especificado"}</span>
+              </div>
+              {data.defenseProposedByProjectDirector && (
+                <div className="status-info-note">
+                  ℹ️ {data.defenseProposedByProjectDirector}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="status-info-empty">
+              <div className="status-info-empty-icon"></div>
+              <p>Aún no se ha programado la fecha de sustentación</p>
+              <small style={{ color: "#666", marginTop: "0.5rem" }}>
+                Se te notificará cuando tu director o el comité programen la sustentación
+              </small>
+            </div>
+          )}
+        </div>
+      </div>
+        </div>
+      </div>
+
+
+      {/* Estadísticas de Documentos */}
+      <div className="status-section">
+        <h3 className="status-section-title">📊 Resumen de Documentos</h3>
+        <div className="status-documents-stats">
+          <div className="status-stat-card">
+            <div className="status-stat-number">{data.totalDocuments || 0}</div>
+            <div className="status-stat-label">Total</div>
+          </div>
+          <div className="status-stat-card success">
+            <div className="status-stat-number">{data.approvedDocuments || 0}</div>
+            <div className="status-stat-label">Aprobados</div>
+          </div>
+          <div className="status-stat-card warning">
+            <div className="status-stat-number">{data.pendingDocuments || 0}</div>
+            <div className="status-stat-label">Pendientes</div>
+          </div>
+          <div className="status-stat-card error">
+            <div className="status-stat-number">{data.rejectedDocuments || 0}</div>
+            <div className="status-stat-label">Rechazados</div>
+          </div>
         </div>
       </div>
 
       {/* Sección de Documentos */}
       <div className="status-documents-section">
-        <h3 className="status-section-title">Mis Documentos</h3>
-        
+        <h3 className="status-section-title">📄 Mis Documentos</h3>
+       
         {documents.length === 0 ? (
           <div className="status-documents-empty">
             <div className="status-documents-empty-icon">📭</div>
@@ -259,17 +330,16 @@ export default function ModalityStatus() {
                       disabled={loadingDocId === doc.studentDocumentId}
                       className={`status-document-btn view ${loadingDocId === doc.studentDocumentId ? 'loading' : ''}`}
                     >
-                      {loadingDocId === doc.studentDocumentId 
-                        ? "Cargando..." 
+                      {loadingDocId === doc.studentDocumentId
+                        ? "Cargando..."
                         : "Ver documento"}
                     </button>
                   )}
 
-                  {/* Permitir resubir si está rechazado o se solicitaron correcciones */}
-                  {(doc.status === "REJECTED_FOR_SECRETARY_REVIEW" ||
-                    doc.status === "REJECTED_FOR_COUNCIL_REVIEW" ||
-                    doc.status === "CORRECTIONS_REQUESTED_BY_SECRETARY" ||
-                    doc.status === "CORRECTIONS_REQUESTED_BY_COUNCIL") && (
+                  {(doc.status === "REJECTED_FOR_PROGRAM_HEAD_REVIEW" ||
+                    doc.status === "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW" ||
+                    doc.status === "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD" ||
+                    doc.status === "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE") && (
                     <div className="status-document-upload">
                       <label className="status-document-upload-label">
                         <input
@@ -278,8 +348,6 @@ export default function ModalityStatus() {
                           onChange={(e) => {
                             const file = e.target.files[0];
                             if (file) {
-                              // ⚠️ NOTA: Necesitamos el requiredDocumentId del backend
-                              // Por ahora usamos studentDocumentId como fallback
                               const docId = doc.requiredDocumentId || doc.studentDocumentId;
                               handleFileUpload(docId, file);
                             }

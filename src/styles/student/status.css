@@ -504,6 +504,49 @@
   color: #333;
   font-size: 0.85rem;
 }
+/* Document Statistics */
+.status-documents-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.status-stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #d1d5db;
+}
+
+.status-stat-card.success {
+  border-left-color: #10b981;
+}
+
+.status-stat-card.warning {
+  border-left-color: #f59e0b;
+}
+
+.status-stat-card.error {
+  border-left-color: #ef4444;
+}
+
+.status-stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.status-stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 
 .status-history-meta-value {
   color: #666;

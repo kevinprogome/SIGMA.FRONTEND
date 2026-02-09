@@ -14,22 +14,28 @@ import StudentLayout from "../layouts/StudentLayout";
 import SecretaryLayout from "../layouts/SecretaryLayout";
 import CouncilLayout from "../layouts/CouncilLayout";
 import AdminLayout from "../layouts/AdminLayout";
+import DirectorLayout from "../layouts/DirectorLayout";
 
 // STUDENT
 import StudentDashboard from "../pages/student/Dashboard";
 import StudentModalities from "../pages/student/Modalities";
 import StudentStatus from "../pages/student/Status";
 import StudentCancellation from "../pages/student/Cancellation";
-import StudentProfile from "../pages/student/StudentProfile"; // ✅ Agregar esta importación
+import StudentProfile from "../pages/student/StudentProfile";
 
-// JEFE PROGRAMA
+// SECRETARY
 import StudentsPending from "../pages/programhead/StudentPending";
 import StudentProfileSecretary from "../pages/programhead/StudentProfile";
 
-// COMITE
+// COUNCIL
 import CouncilDashboard from "../pages/committee/councilDashboard";
 import CouncilStudentProfile from "../pages/committee/councilStudentProfile";
 import CancellationRequests from "../pages/committee/CancellationRequests";
+
+// DIRECTOR
+import DirectorDashboard from "../pages/director/DirectorDashboard";
+import DirectorStudentProfile from "../pages/director/DirectorStudentProfile";
+import DirectorCancellationRequests from "../pages/director/DirectorCancellationRequest";
 
 // ADMIN
 import Roles from "../pages/admin/Roles";
@@ -56,14 +62,14 @@ function AppRoutes() {
       <Route element={<ProtectedRoute allowedRoles={["STUDENT"]} />}>
         <Route path="/student" element={<StudentLayout />}>
           <Route index element={<StudentDashboard />} />
+          <Route path="profile" element={<StudentProfile />} />
           <Route path="modalities" element={<StudentModalities />} />
           <Route path="status" element={<StudentStatus />} />
           <Route path="cancellation" element={<StudentCancellation />} />
-          <Route path="profile" element={<StudentProfile />} /> {/* ✅ Agregar ruta de perfil */}
         </Route>
       </Route>
 
-      {/* JEFE PROGRAMA */}
+      {/* SECRETARY / PROGRAM HEAD */}
       <Route element={<ProtectedRoute allowedRoles={["PROGRAM_HEAD"]} />}>
         <Route path="/jefeprograma" element={<SecretaryLayout />}>
           <Route index element={<StudentsPending />} />
@@ -74,7 +80,7 @@ function AppRoutes() {
         </Route>
       </Route>
 
-      {/* COMITE */}
+      {/* COUNCIL / COMMITTEE */}
       <Route element={<ProtectedRoute allowedRoles={["PROGRAM_CURRICULUM_COMMITTEE"]} />}>
         <Route path="/comite" element={<CouncilLayout />}>
           <Route index element={<CouncilDashboard />} />
@@ -86,8 +92,24 @@ function AppRoutes() {
         </Route>
       </Route>
 
-      {/* ADMIN - ✅ Cambiado a ADMIN (o mantén SUPERADMIN si así lo requieres) */}
-      <Route element={<ProtectedRoute allowedRoles={["ADMIN", "SUPERADMIN"]} />}>
+      {/* DIRECTOR */}
+      <Route element={<ProtectedRoute allowedRoles={["PROJECT_DIRECTOR"]} />}>
+        <Route path="/project-director" element={<DirectorLayout />}>
+          <Route index element={<DirectorDashboard />} />
+          <Route 
+            path="students/:studentModalityId" 
+            element={<DirectorStudentProfile />} 
+          />
+          {/* ✅ Ahora está DENTRO del DirectorLayout */}
+          <Route 
+            path="cancellations" 
+            element={<DirectorCancellationRequests />} 
+          />
+        </Route>
+      </Route>
+
+      {/* ADMIN */}
+      <Route element={<ProtectedRoute allowedRoles={["SUPERADMIN"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/faculties" replace />} />
           <Route path="roles" element={<Roles />} />
