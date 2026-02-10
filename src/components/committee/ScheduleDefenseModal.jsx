@@ -1,15 +1,50 @@
 import { useState } from "react";
-import { scheduleDefense } from "../../services/committeeService";
+import { approveDefenseProposal, rescheduleDefense } from "../../services/committeeService";
 import "../../styles/council/modals.css";
 
-export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuccess }) {
-  const [defenseDate, setDefenseDate] = useState("");
-  const [defenseLocation, setDefenseLocation] = useState("");
+export default function DefenseProposalModal({ 
+  studentModalityId, 
+  proposedDefenseDate,  // ✅ Nombre correcto del backend
+  proposedDefenseLocation,  // ✅ Nombre correcto del backend
+  onClose, 
+  onSuccess 
+}) {
+  const [action, setAction] = useState(""); // 'approve' o 'reschedule'
+  const [defenseDate, setDefenseDate] = useState(proposedDefenseDate || "");
+  const [defenseLocation, setDefenseLocation] = useState(proposedDefenseLocation || "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleApprove = async () => {
+    setSubmitting(true);
+    setError("");
+
+    try {
+      await approveDefenseProposal(studentModalityId);
+
+      // Formatear fecha para mostrar
+      const formattedDate = new Date(proposedDefenseDate).toLocaleString("es-CO", {
+        dateStyle: "full",
+        timeStyle: "short",
+      });
+
+      setSuccessMessage(
+        `✅ Propuesta aprobada correctamente. Sustentación programada para el ${formattedDate} en ${proposedDefenseLocation}`
+      );
+
+      setTimeout(() => {
+        onSuccess();
+      }, 10000);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Error al aprobar propuesta");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleReschedule = async (e) => {
     e.preventDefault();
 
     if (!defenseDate) {
@@ -26,7 +61,7 @@ export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuc
     setError("");
 
     try {
-      await scheduleDefense(studentModalityId, {
+      await rescheduleDefense(studentModalityId, {
         defenseDate,
         defenseLocation,
       });
@@ -37,18 +72,16 @@ export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuc
         timeStyle: "short",
       });
 
-      // Mostrar mensaje de éxito
       setSuccessMessage(
-        `✅ Sustentación programada correctamente para el ${formattedDate} en ${defenseLocation}`
+        `✅ Sustentación reprogramada correctamente para el ${formattedDate} en ${defenseLocation}`
       );
 
-      // Esperar antes de cerrar
       setTimeout(() => {
         onSuccess();
-      }, 1000000);
+      }, 3000);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Error al programar sustentación");
+      setError(err.response?.data?.message || "Error al reprogramar sustentación");
     } finally {
       setSubmitting(false);
     }
@@ -59,9 +92,9 @@ export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuc
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>📅 Programar Sustentación</h3>
+          <h3>📅 Revisar Propuesta de Sustentación</h3>
           <button onClick={onClose} className="modal-close">
             ✕
           </button>
@@ -73,15 +106,77 @@ export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuc
               <div className="success-icon">✅</div>
               <div className="success-message">{successMessage}</div>
               <div className="success-submessage">
-                El estudiante fue notificado de esta novedad
+                El estudiante y director serán notificados...
               </div>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
+          ) : !action ? (
+            <>
               {error && <div className="error-message">{error}</div>}
 
+              <div className="info-box" style={{ marginBottom: "1.5rem" }}>
+                <h4 style={{ margin: "0 0 1rem 0", color: "#1565c0" }}>
+                  📝 Propuesta del Director de Proyecto
+                </h4>
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  <div>
+                    <strong>Fecha y Hora:</strong>
+                    <p style={{ margin: "0.25rem 0 0 0", color: "#333" }}>
+                      {proposedDefenseDate ? new Date(proposedDefenseDate).toLocaleString("es-CO", {
+                        dateStyle: "full",
+                        timeStyle: "short",
+                      }) : "No especificada"}
+                    </p>
+                  </div>
+                  <div>
+                    <strong>Lugar:</strong>
+                    <p style={{ margin: "0.25rem 0 0 0", color: "#333" }}>
+                      {proposedDefenseLocation || "No especificado"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gap: "1rem" }}>
+                <button
+                  onClick={handleApprove}
+                  disabled={submitting}
+                  className="btn-submit"
+                  style={{ 
+                    background: "linear-gradient(135deg, #28a745 0%, #218838 100%)",
+                    padding: "1rem"
+                  }}
+                >
+                  {submitting ? "Aprobando..." : "✅ Aprobar Propuesta"}
+                </button>
+
+                <button
+                  onClick={() => setAction("reschedule")}
+                  className="btn-cancel"
+                  style={{ 
+                    background: "linear-gradient(135deg, #ff9800 0%, #f57c00 100%)",
+                    color: "white",
+                    border: "none",
+                    padding: "1rem"
+                  }}
+                >
+                  📝 Reprogramar a Otra Fecha
+                </button>
+              </div>
+            </>
+          ) : (
+            <form onSubmit={handleReschedule}>
+              {error && <div className="error-message">{error}</div>}
+
+              <div className="warning-box" style={{ marginBottom: "1.5rem" }}>
+                <p>
+                  <strong>⚠️ Reprogramación</strong><br />
+                  Estás cambiando la fecha propuesta por el director. Se notificará
+                  al estudiante y al director de la nueva fecha.
+                </p>
+              </div>
+
               <div className="form-group">
-                <label>Fecha y Hora de Sustentación *</label>
+                <label>Nueva Fecha y Hora de Sustentación *</label>
                 <input
                   type="datetime-local"
                   value={defenseDate}
@@ -96,7 +191,7 @@ export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuc
               </div>
 
               <div className="form-group">
-                <label>Lugar de Sustentación *</label>
+                <label>Nuevo Lugar de Sustentación *</label>
                 <input
                   type="text"
                   value={defenseLocation}
@@ -110,28 +205,21 @@ export default function ScheduleDefenseModal({ studentModalityId, onClose, onSuc
                 />
               </div>
 
-              <div className="info-box">
-                <p>
-                  ℹ️ Una vez programada la sustentación, el estudiante será
-                  notificado con los detalles.
-                </p>
-              </div>
-
               <div className="modal-actions">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={() => setAction("")}
                   className="btn-cancel"
                   disabled={submitting}
                 >
-                  Cancelar
+                  ← Volver
                 </button>
                 <button
                   type="submit"
                   className="btn-submit"
                   disabled={submitting}
                 >
-                  {submitting ? "Programando..." : "Programar Sustentación"}
+                  {submitting ? "Reprogramando..." : "Confirmar Reprogramación"}
                 </button>
               </div>
             </form>

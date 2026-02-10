@@ -224,3 +224,47 @@ export const viewCancellationDocument = async (studentModalityId) => {
     throw error;
   }
 };
+// ==========================================
+// 🆕 NUEVAS FUNCIONES PARA PROPUESTAS DE DEFENSA
+// ==========================================
+
+/**
+ * Obtener propuestas de defensa pendientes de aprobación
+ * @returns {Promise<Object>} Objeto con lista de propuestas
+ */
+export const getPendingDefenseProposals = async () => {
+  console.log("📋 Obteniendo propuestas de defensa pendientes");
+  const response = await axios.get("/modalities/defense-proposals/pending");
+  return response.data;
+};
+
+/**
+ * Aprobar propuesta de defensa del director
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @returns {Promise<Object>} Respuesta de confirmación
+ */
+export const approveDefenseProposal = async (studentModalityId) => {
+  console.log("✅ Aprobando propuesta de defensa:", studentModalityId);
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/defense-proposals/approve`
+  );
+  return response.data;
+};
+
+/**
+ * Reprogramar defensa (rechazar propuesta y poner nueva fecha)
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @param {Object} defenseData - Nueva fecha y lugar
+ * @param {string} defenseData.defenseDate - Fecha en formato ISO
+ * @param {string} defenseData.defenseLocation - Lugar de la sustentación
+ * @returns {Promise<Object>} Respuesta de confirmación
+ */
+export const rescheduleDefense = async (studentModalityId, defenseData) => {
+  console.log("📝 Reprogramando defensa:", { studentModalityId, defenseData });
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/defense-proposals/reschedule`,
+    defenseData
+  );
+  return response.data;
+};
+

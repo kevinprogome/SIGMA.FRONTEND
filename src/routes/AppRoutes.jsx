@@ -32,6 +32,7 @@ import StudentProfileSecretary from "../pages/programhead/StudentProfile";
 import CouncilDashboard from "../pages/committee/councilDashboard";
 import CouncilStudentProfile from "../pages/committee/councilStudentProfile";
 import CancellationRequests from "../pages/committee/CancellationRequests";
+import CommitteeDefenseProposals from "../pages/committee/defenseProposals"
 
 // DIRECTOR
 import DirectorDashboard from "../pages/director/DirectorDashboard";
@@ -49,6 +50,7 @@ import Requirements from "../pages/admin/Requirements";
 import Documents from "../pages/admin/Documents";
 import Assignments from "../pages/admin/Assignments";
 import ProgramDegreeModalities from "../pages/admin/ProgramDegreeModalities";
+import DefenseProposals from "../pages/committee/defenseProposals";
 
 function AppRoutes() {
   return (
@@ -91,6 +93,8 @@ function AppRoutes() {
             element={<CouncilStudentProfile />}
           />
           <Route path="cancellations" element={<CancellationRequests />} />
+          <Route path="proposals" element={<DefenseProposals/>} />
+
         </Route>
       </Route>
 

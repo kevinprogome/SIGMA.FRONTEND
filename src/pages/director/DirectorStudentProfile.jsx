@@ -13,19 +13,23 @@ import {
   getStatusBadgeClass,
 } from "../../services/directorService";
 import "../../styles/admin/Roles.css";
+import "../../styles/council/modals.css";
 
 export default function DirectorStudentProfile() {
   const { studentModalityId } = useParams();
   const navigate = useNavigate();
-  
+ 
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  
+ 
   // Modals
   const [showDefenseModal, setShowDefenseModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  
+  const [successMessage, setSuccessMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+ 
   // Form data
   const [defenseData, setDefenseData] = useState({
     defenseDate: "",
@@ -52,18 +56,48 @@ export default function DirectorStudentProfile() {
 
   const handleProposeDefense = async (e) => {
     e.preventDefault();
-    
+
+    if (!defenseData.defenseDate) {
+      setError("Debes seleccionar una fecha");
+      return;
+    }
+
+    if (!defenseData.defenseLocation.trim()) {
+      setError("Debes ingresar el lugar de la sustentación");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+   
     try {
       const response = await proposeDefenseByDirector(studentModalityId, defenseData);
-      setMessage(response.message || "Propuesta de sustentación enviada exitosamente");
-      setShowDefenseModal(false);
-      setDefenseData({ defenseDate: "", defenseLocation: "" });
-      fetchStudentDetail();
-      
-      setTimeout(() => setMessage(""), 5000);
+
+      // Formatear fecha para mostrar
+      const formattedDate = new Date(defenseData.defenseDate).toLocaleString("es-CO", {
+        dateStyle: "full",
+        timeStyle: "short",
+      });
+
+      // Mostrar mensaje de éxito
+      setSuccessMessage(
+        `✅ Propuesta de sustentación enviada correctamente para el ${formattedDate} en ${defenseData.defenseLocation}`
+      );
+
+      // Esperar segundos antes de cerrar
+      setTimeout(() => {
+        setShowDefenseModal(false);
+        setSuccessMessage("");
+        setDefenseData({ defenseDate: "", defenseLocation: "" });
+        fetchStudentDetail();
+        setMessage(response.message || "Propuesta de sustentación enviada exitosamente");
+        setTimeout(() => setMessage(""), 10000);
+      }, 10000);
     } catch (err) {
       console.error("Error proposing defense:", err);
-      setMessage("Error al proponer sustentación: " + getErrorMessage(err));
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -76,7 +110,7 @@ export default function DirectorStudentProfile() {
       const response = await approveModalityCancellationByDirector(studentModalityId);
       setMessage(response.message || "Cancelación aprobada. Será enviada al comité.");
       fetchStudentDetail();
-      
+     
       setTimeout(() => setMessage(""), 5000);
     } catch (err) {
       console.error("Error approving cancellation:", err);
@@ -98,13 +132,16 @@ export default function DirectorStudentProfile() {
       setShowRejectModal(false);
       setRejectReason("");
       fetchStudentDetail();
-      
+     
       setTimeout(() => setMessage(""), 5000);
     } catch (err) {
       console.error("Error rejecting cancellation:", err);
       setMessage("Error al rechazar cancelación: " + getErrorMessage(err));
     }
   };
+
+  // Obtener fecha mínima (hoy)
+  const today = new Date().toISOString().split("T")[0];
 
   if (loading) {
     return <div className="admin-loading">Cargando perfil del estudiante...</div>;
@@ -128,8 +165,8 @@ export default function DirectorStudentProfile() {
       {/* Header */}
       <div className="admin-page-header">
         <div>
-          <button 
-            onClick={() => navigate('/project-director')} 
+          <button
+            onClick={() => navigate('/project-director')}
             className="admin-btn-secondary"
             style={{ marginBottom: "1rem" }}
           >
@@ -138,10 +175,10 @@ export default function DirectorStudentProfile() {
           <h1 className="admin-page-title">Perfil del Estudiante</h1>
           <p className="admin-page-subtitle">{student.studentName}</p>
         </div>
-        
+       
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           {canProposeDefense(student.currentStatus) && (
-            <button 
+            <button
               onClick={() => setShowDefenseModal(true)}
               className="admin-btn-primary"
             >
@@ -175,14 +212,14 @@ export default function DirectorStudentProfile() {
             debes revisar y decidir si apruebas o rechazas esta solicitud.
           </p>
           <div style={{ display: "flex", gap: "1rem" }}>
-            <button 
+            <button
               onClick={handleApproveCancellation}
               className="admin-btn-primary"
               style={{ background: "#059669" }}
             >
               ✓ Aprobar Cancelación
             </button>
-            <button 
+            <button
               onClick={() => setShowRejectModal(true)}
               className="admin-btn-delete"
             >
@@ -226,12 +263,12 @@ export default function DirectorStudentProfile() {
               <span>{formatDate(student.lastUpdatedAt)}</span>
             </div>
           </div>
-          
+         
           {student.currentStatusDescription && (
-            <div style={{ 
-              marginTop: "1.5rem", 
-              paddingTop: "1.5rem", 
-              borderTop: "1px solid #e5e7eb" 
+            <div style={{
+              marginTop: "1.5rem",
+              paddingTop: "1.5rem",
+              borderTop: "1px solid #e5e7eb"
             }}>
               <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.5rem" }}>
                 Descripción del Estado
@@ -288,7 +325,7 @@ export default function DirectorStudentProfile() {
           <div className="admin-card-body">
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {student.documents.map((doc, index) => (
-                <div 
+                <div
                   key={index}
                   style={{
                     padding: "1rem",
@@ -309,17 +346,17 @@ export default function DirectorStudentProfile() {
                         {doc.statusDescription}
                       </span>
                     </div>
-                    <span 
+                    <span
                       className={`admin-status-badge ${doc.uploaded ? 'success' : 'inactive'}`}
                       style={{ fontSize: "0.75rem" }}
                     >
                       {doc.uploaded ? "✓ Subido" : "Sin subir"}
                     </span>
                   </div>
-                  
+                 
                   {doc.notes && (
-                    <p style={{ 
-                      margin: "0.5rem 0 0 0", 
+                    <p style={{
+                      margin: "0.5rem 0 0 0",
                       fontSize: "0.875rem",
                       fontStyle: "italic",
                       color: "#4b5563"
@@ -327,10 +364,10 @@ export default function DirectorStudentProfile() {
                       <strong>Notas:</strong> {doc.notes}
                     </p>
                   )}
-                  
+                 
                   {doc.lastUpdate && (
-                    <p style={{ 
-                      margin: "0.5rem 0 0 0", 
+                    <p style={{
+                      margin: "0.5rem 0 0 0",
                       fontSize: "0.75rem",
                       color: "#9ca3af"
                     }}>
@@ -353,7 +390,7 @@ export default function DirectorStudentProfile() {
           <div className="admin-card-body">
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {student.history.map((history, index) => (
-                <div 
+                <div
                   key={index}
                   style={{
                     padding: "1rem",
@@ -370,16 +407,16 @@ export default function DirectorStudentProfile() {
                       {formatDate(history.changeDate)}
                     </span>
                   </div>
-                  
+                 
                   {history.description && (
                     <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#4b5563" }}>
                       {history.description}
                     </p>
                   )}
-                  
+                 
                   {history.observations && (
-                    <p style={{ 
-                      margin: "0.5rem 0 0 0", 
+                    <p style={{
+                      margin: "0.5rem 0 0 0",
                       padding: "0.5rem",
                       background: "white",
                       borderRadius: "4px",
@@ -390,10 +427,10 @@ export default function DirectorStudentProfile() {
                       <strong>Observaciones:</strong> {history.observations}
                     </p>
                   )}
-                  
+                 
                   {history.responsible && (
-                    <p style={{ 
-                      margin: "0.5rem 0 0 0", 
+                    <p style={{
+                      margin: "0.5rem 0 0 0",
                       fontSize: "0.75rem",
                       color: "#9ca3af"
                     }}>
@@ -407,53 +444,93 @@ export default function DirectorStudentProfile() {
         </div>
       )}
 
-      {/* Modal Proponer Sustentación */}
+      {/* Modal Proponer Sustentación - CON DISEÑO DE MODALS.CSS */}
       {showDefenseModal && (
-        <div className="admin-modal-overlay" onClick={() => setShowDefenseModal(false)}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h2>📅 Proponer Fecha de Sustentación</h2>
-              <button onClick={() => setShowDefenseModal(false)} className="admin-modal-close">
+        <div className="modal-overlay" onClick={() => !submitting && setShowDefenseModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📅 Proponer Fecha de Sustentación</h3>
+              <button 
+                onClick={() => setShowDefenseModal(false)} 
+                className="modal-close"
+                disabled={submitting}
+              >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleProposeDefense} className="admin-form">
-              <div className="admin-form-group">
-                <label className="admin-label">Fecha y Hora de Sustentación *</label>
-                <input
-                  type="datetime-local"
-                  value={defenseData.defenseDate}
-                  onChange={(e) => setDefenseData({ ...defenseData, defenseDate: e.target.value })}
-                  className="admin-input"
-                  required
-                />
-                <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
-                  La propuesta será enviada al comité para su aprobación
-                </small>
-              </div>
+            <div className="modal-body">
+              {successMessage ? (
+                <div className="modal-success-animation">
+                  <div className="success-icon">✅</div>
+                  <div className="success-message">{successMessage}</div>
+                  <div className="success-submessage">
+                    El comité revisará tu propuesta...
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleProposeDefense}>
+                  {error && <div className="error-message">{error}</div>}
 
-              <div className="admin-form-group">
-                <label className="admin-label">Lugar de Sustentación *</label>
-                <input
-                  type="text"
-                  value={defenseData.defenseLocation}
-                  onChange={(e) => setDefenseData({ ...defenseData, defenseLocation: e.target.value })}
-                  className="admin-input"
-                  placeholder="Ej: Auditorio Principal, Sala 201"
-                  required
-                />
-              </div>
+                  <div className="form-group">
+                    <label>Fecha y Hora de Sustentación *</label>
+                    <input
+                      type="datetime-local"
+                      value={defenseData.defenseDate}
+                      onChange={(e) => {
+                        setDefenseData({ ...defenseData, defenseDate: e.target.value });
+                        setError("");
+                      }}
+                      min={today}
+                      className="form-input"
+                      disabled={submitting}
+                      required
+                    />
+                  </div>
 
-              <div className="admin-modal-actions">
-                <button type="button" onClick={() => setShowDefenseModal(false)} className="admin-btn-secondary">
-                  Cancelar
-                </button>
-                <button type="submit" className="admin-btn-primary">
-                  Enviar Propuesta
-                </button>
-              </div>
-            </form>
+                  <div className="form-group">
+                    <label>Lugar de Sustentación *</label>
+                    <input
+                      type="text"
+                      value={defenseData.defenseLocation}
+                      onChange={(e) => {
+                        setDefenseData({ ...defenseData, defenseLocation: e.target.value });
+                        setError("");
+                      }}
+                      placeholder="Ej: Auditorio Principal, Sala 302, etc."
+                      className="form-input"
+                      disabled={submitting}
+                      required
+                    />
+                  </div>
+
+                  <div className="info-box">
+                    <p>
+                      ℹ️ Esta propuesta será enviada al Comité de Currículo del Programa
+                      para su revisión y aprobación.
+                    </p>
+                  </div>
+
+                  <div className="modal-actions">
+                    <button
+                      type="button"
+                      onClick={() => setShowDefenseModal(false)}
+                      className="btn-cancel"
+                      disabled={submitting}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn-submit"
+                      disabled={submitting}
+                    >
+                      {submitting ? "Enviando..." : "Enviar Propuesta"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}
