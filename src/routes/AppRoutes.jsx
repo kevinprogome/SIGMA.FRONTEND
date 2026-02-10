@@ -19,6 +19,7 @@ import DirectorLayout from "../layouts/DirectorLayout";
 // STUDENT
 import StudentDashboard from "../pages/student/Dashboard";
 import StudentModalities from "../pages/student/Modalities";
+import StudentDocuments from "../pages/student/Documents";
 import StudentStatus from "../pages/student/Status";
 import StudentCancellation from "../pages/student/Cancellation";
 import StudentProfile from "../pages/student/StudentProfile";
@@ -64,6 +65,7 @@ function AppRoutes() {
           <Route index element={<StudentDashboard />} />
           <Route path="profile" element={<StudentProfile />} />
           <Route path="modalities" element={<StudentModalities />} />
+          <Route path="documents" element={<StudentDocuments />} /> {/* ✅ NUEVA RUTA */}
           <Route path="status" element={<StudentStatus />} />
           <Route path="cancellation" element={<StudentCancellation />} />
         </Route>
@@ -100,7 +102,6 @@ function AppRoutes() {
             path="students/:studentModalityId" 
             element={<DirectorStudentProfile />} 
           />
-          {/* ✅ Ahora está DENTRO del DirectorLayout */}
           <Route 
             path="cancellations" 
             element={<DirectorCancellationRequests />} 

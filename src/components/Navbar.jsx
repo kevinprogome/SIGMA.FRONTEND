@@ -19,8 +19,9 @@ export default function Navbar() {
         <ul className="navbar-links">
           <li><Link to="/student">Perfil</Link></li>
           <li><Link to="/student/modalities">Modalidades</Link></li>
+          <li><Link to="/student/documents">Documentos</Link></li> {/* ✅ NUEVO */}
           <li><Link to="/student/status">Estado</Link></li>
-          <li><Link to="/student/cancellation">Cancelar Modalidad</Link></li> {/* ← NUEVO */}
+          <li><Link to="/student/cancellation">Cancelar Modalidad</Link></li>
         </ul>
 
         <button className="navbar-logout" onClick={handleLogout}>

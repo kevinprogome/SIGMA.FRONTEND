@@ -58,7 +58,7 @@ export const getCurrentModalityStatus = async () => {
 // ========================================
 export const getModalidades = async () => {
   const response = await api.get("/modalities");
-  return extractData(response.data); // ✅ Usar extractData
+  return extractData(response.data);
 };
 
 export const getModalityById = async (id) => {
@@ -125,13 +125,13 @@ export const uploadStudentDocument = async (
   return res.data;
 };
 
-// ✅ VER DOCUMENTO (BLOB/PDF) - Igual que councilService
+// ✅ VER DOCUMENTO (BLOB/PDF) - ENDPOINT PARA ESTUDIANTES
 export const getStudentDocumentBlob = async (studentDocumentId) => {
-  console.log("🔍 Descargando documento ID:", studentDocumentId);
+  console.log("🔍 [ESTUDIANTE] Descargando documento ID:", studentDocumentId);
 
   try {
     const response = await api.get(
-      `/modalities/student/${studentDocumentId}/view`,
+      `/students/documents/${studentDocumentId}/view`,
       {
         responseType: "blob",
       }
@@ -144,8 +144,17 @@ export const getStudentDocumentBlob = async (studentDocumentId) => {
 
     return url;
   } catch (error) {
-    console.error("❌ Error al descargar:", error);
-    throw error;
+    console.error("❌ Error al descargar documento:", error);
+    console.error("❌ Status:", error.response?.status);
+    console.error("❌ Mensaje:", error.response?.data);
+    
+    if (error.response?.status === 403) {
+      throw new Error("No tienes permiso para ver este documento");
+    } else if (error.response?.status === 404) {
+      throw new Error("Documento no encontrado");
+    } else {
+      throw new Error("Error al cargar el documento. Intenta nuevamente.");
+    }
   }
 };
 
@@ -182,10 +191,10 @@ export const uploadCancellationDocument = async (studentModalityId, formData) =>
 // ========================================
 export const getActiveFacultiesStudent = async () => {
   const res = await api.get("/faculties/active");
-  return extractData(res.data); // ✅ Usar extractData
+  return extractData(res.data);
 };
 
 export const getActiveProgramsStudent = async () => {
   const res = await api.get("/academic-programs/active");
-  return extractData(res.data); // ✅ Usar extractData
+  return extractData(res.data);
 };

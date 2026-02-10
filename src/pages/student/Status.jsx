@@ -250,7 +250,6 @@ export default function ModalityStatus() {
         </div>
       </div>
 
-
       {/* Estadísticas de Documentos */}
       <div className="status-section">
         <h3 className="status-section-title">📊 Resumen de Documentos</h3>
@@ -272,102 +271,6 @@ export default function ModalityStatus() {
             <div className="status-stat-label">Rechazados</div>
           </div>
         </div>
-      </div>
-
-      {/* Sección de Documentos */}
-      <div className="status-documents-section">
-        <h3 className="status-section-title">📄 Mis Documentos</h3>
-       
-        {documents.length === 0 ? (
-          <div className="status-documents-empty">
-            <div className="status-documents-empty-icon">📭</div>
-            <p>No hay documentos cargados</p>
-          </div>
-        ) : (
-          <div className="status-documents-grid">
-            {documents.map((doc) => (
-              <div key={doc.studentDocumentId} className="status-document-card">
-                <div className="status-document-header">
-                  <h4 className="status-document-name">{doc.documentName}</h4>
-                  {doc.mandatory && (
-                    <span className="status-document-mandatory-badge">Obligatorio</span>
-                  )}
-                </div>
-
-                <div className="status-document-info">
-                  <div className="status-document-info-item">
-                    <span className="status-document-label">Estado:</span>
-                    <span className={`status-document-badge ${getStatusBadgeClass(doc.status)}`}>
-                      {getStatusLabel(doc.status)}
-                    </span>
-                  </div>
-
-                  {doc.uploadedAt && (
-                    <div className="status-document-info-item">
-                      <span className="status-document-label">Subido:</span>
-                      <span className="status-document-date">
-                        {new Date(doc.uploadedAt).toLocaleDateString('es-CO', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                  )}
-
-                  {doc.notes && (
-                    <div className="status-document-notes">
-                      <span className="status-document-label">Comentarios:</span>
-                      <p className="status-document-notes-text">{doc.notes}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="status-document-actions">
-                  {doc.studentDocumentId && (
-                    <button
-                      onClick={() => handleViewDocument(doc.studentDocumentId)}
-                      disabled={loadingDocId === doc.studentDocumentId}
-                      className={`status-document-btn view ${loadingDocId === doc.studentDocumentId ? 'loading' : ''}`}
-                    >
-                      {loadingDocId === doc.studentDocumentId
-                        ? "Cargando..."
-                        : "Ver documento"}
-                    </button>
-                  )}
-
-                  {(doc.status === "REJECTED_FOR_PROGRAM_HEAD_REVIEW" ||
-                    doc.status === "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW" ||
-                    doc.status === "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD" ||
-                    doc.status === "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE") && (
-                    <div className="status-document-upload">
-                      <label className="status-document-upload-label">
-                        <input
-                          type="file"
-                          accept=".pdf"
-                          onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                              const docId = doc.requiredDocumentId || doc.studentDocumentId;
-                              handleFileUpload(docId, file);
-                            }
-                          }}
-                          disabled={uploadingDocId === doc.studentDocumentId}
-                          className="status-document-upload-input"
-                        />
-                        <span className="status-document-upload-btn">
-                          {uploadingDocId === doc.studentDocumentId
-                            ? "⏳ Subiendo..."
-                            : "📤 Resubir documento"}
-                        </span>
-                      </label>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Historial */}

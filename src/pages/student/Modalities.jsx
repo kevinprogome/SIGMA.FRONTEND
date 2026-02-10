@@ -6,7 +6,6 @@ import {
   getCurrentModalityStatus,
   getModalityById,
 } from "../../services/studentService";
-import StudentModalityDocuments from "../student/StudentModalityDocuments";
 import "../../styles/student/modalities.css";
 
 export default function Modalities() {
@@ -27,7 +26,6 @@ export default function Modalities() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingModalityId, setPendingModalityId] = useState(null);
 
-  const documentsRef = useRef(null);
   const modalityRefs = useRef({});
 
   useEffect(() => {
@@ -128,38 +126,32 @@ export default function Modalities() {
       setStudentModalityId(res.studentModalityId);
       setSelectedModalityId(modalityId);
      
-      setModalityMessages({ 
-        [modalityId]: { 
-          type: 'success', 
-          text: res.message || "Modalidad iniciada correctamente. Puedes subir los documentos."
-        } 
+      setModalityMessages({
+        [modalityId]: {
+          type: 'success',
+          text: res.message || "Modalidad seleccionada correctamente. Ahora puedes subir los documentos en la sección 'Documentos'."
+        }
       });
 
       setShowConfirmModal(false);
       setShowDetailModal(false);
 
-      setTimeout(() => {
-        documentsRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 300);
     } catch (err) {
       console.error("❌ Error al iniciar modalidad:", err);
       console.error("❌ Response completa:", err.response);
-      
+     
       let errorContent = null;
-      
+     
       if (err.response?.data) {
         const errorData = err.response.data;
-        
+       
         // Caso 1: Validación de requisitos (objeto con eligible: false y results)
         if (typeof errorData === 'object' && errorData.eligible === false) {
           const validationResults = errorData.results;
-          
+         
           if (validationResults && Array.isArray(validationResults)) {
             const failedRequirements = validationResults.filter(r => !r.fulfilled);
-            
+           
             if (failedRequirements.length > 0) {
               errorContent = (
                 <div className="validation-error-details">
@@ -200,17 +192,17 @@ export default function Modalities() {
       } else {
         errorContent = err.message || "No se pudo iniciar la modalidad";
       }
-      
-      setModalityMessages({ 
-        [modalityId]: { 
-          type: 'error', 
-          text: errorContent 
-        } 
+     
+      setModalityMessages({
+        [modalityId]: {
+          type: 'error',
+          text: errorContent
+        }
       });
      
       setShowConfirmModal(false);
       setShowDetailModal(false);
-      
+     
       setTimeout(() => {
         modalityRefs.current[modalityId]?.scrollIntoView({
           behavior: "smooth",
@@ -231,11 +223,11 @@ export default function Modalities() {
       setShowDetailModal(true);
     } catch (err) {
       console.error("❌ Error al cargar detalles:", err);
-      setModalityMessages({ 
-        [modalityId]: { 
-          type: 'error', 
-          text: "Error al cargar los detalles de la modalidad" 
-        } 
+      setModalityMessages({
+        [modalityId]: {
+          type: 'error',
+          text: "Error al cargar los detalles de la modalidad"
+        }
       });
     } finally {
       setLoadingDetail(false);
@@ -284,6 +276,16 @@ export default function Modalities() {
         </div>
       )}
 
+      {/* Mostrar mensaje si ya tiene modalidad seleccionada */}
+      {studentModalityId && (
+        <div className="modalities-message info">
+          ℹ️ Ya tienes una modalidad seleccionada. Puedes subir tus documentos en la sección{' '}
+          <a href="/student/documents" style={{ color: '#004085', fontWeight: '600', textDecoration: 'underline' }}>
+            Documentos
+          </a>
+        </div>
+      )}
+
       {/* Lista de modalidades */}
       <ul className="modalities-list">
         {modalities.map((m) => (
@@ -320,16 +322,6 @@ export default function Modalities() {
           </li>
         ))}
       </ul>
-
-      {/* Sección de documentos */}
-      {studentModalityId && selectedModalityId && (
-        <div ref={documentsRef} className="documents-section">
-          <StudentModalityDocuments
-            studentModalityId={studentModalityId}
-            modalityId={selectedModalityId}
-          />
-        </div>
-      )}
 
       {/* MODAL DETALLES */}
       {showDetailModal && modalityDetail && (
