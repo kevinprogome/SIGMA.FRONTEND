@@ -445,6 +445,16 @@ export const deleteRequiredDocument = async (documentId) => {
   return response.data;
 };
 
+export const updateModalityRequirement = async (modalityId, requirementId, requirementData) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.put(
+    `${MODALITY_URL}/requirements/${modalityId}/update/${requirementId}`,
+    requirementData,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
 // ==================== STUDENT CANCELLATIONS ====================
 export const uploadCancellationDocument = async (formData) => {
   const token = localStorage.getItem("token");

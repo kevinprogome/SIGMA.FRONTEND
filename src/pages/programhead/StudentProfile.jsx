@@ -15,6 +15,7 @@ export default function StudentProfileProgramHead() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [reviewingDocId, setReviewingDocId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [notes, setNotes] = useState("");
@@ -22,26 +23,24 @@ export default function StudentProfileProgramHead() {
   const [loadingDoc, setLoadingDoc] = useState(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await getStudentModalityProfile(studentModalityId);
-        console.log("RESPUESTA BACKEND:", res);
-        setProfile(res);
-      } catch (err) {
-        console.error(err);
-        setError(
-          err.response?.data?.message ||
-            "No se pudo cargar la información del estudiante"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (studentModalityId) {
-      fetchProfile();
-    }
+    fetchProfile();
   }, [studentModalityId]);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await getStudentModalityProfile(studentModalityId);
+      console.log("RESPUESTA BACKEND:", res);
+      setProfile(res);
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          "No se pudo cargar la información del estudiante"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleViewDocument = async (studentDocumentId) => {
     console.log("📄 Intentando ver documento:", studentDocumentId);
@@ -57,7 +56,8 @@ export default function StudentProfileProgramHead() {
       }, 60000);
     } catch (err) {
       console.error("❌ Error al cargar documento:", err);
-      alert(err.response?.data?.message || "Error al cargar el documento");
+      setError(err.response?.data?.message || "Error al cargar el documento");
+      setTimeout(() => setError(""), 5000);
     } finally {
       setLoadingDoc(null);
     }
@@ -65,12 +65,14 @@ export default function StudentProfileProgramHead() {
 
   const handleReviewDocument = async (studentDocumentId) => {
     if (!selectedStatus) {
-      alert("Por favor selecciona un estado");
+      setError("Por favor selecciona un estado");
+      setTimeout(() => setError(""), 3000);
       return;
     }
 
     if (!notes.trim()) {
-      alert("Por favor agrega un comentario");
+      setError("Por favor agrega un comentario");
+      setTimeout(() => setError(""), 3000);
       return;
     }
 
@@ -81,32 +83,39 @@ export default function StudentProfileProgramHead() {
         notes: notes.trim(),
       });
 
-      alert("Documento revisado exitosamente");
+      setSuccessMessage("✅ Documento revisado exitosamente");
+      setTimeout(() => setSuccessMessage(""), 5000);
 
-      const res = await getStudentModalityProfile(studentModalityId);
-      setProfile(res);
+      await fetchProfile();
 
       setReviewingDocId(null);
       setSelectedStatus("");
       setNotes("");
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Error al revisar el documento");
+      setError(err.response?.data?.message || "Error al revisar el documento");
+      setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleApproveAll = async () => {
-    const uploadedDocs = profile.documents.filter((d) => d.uploaded);
-    const allAccepted = uploadedDocs.every(
+    const mandatoryDocs = profile.documents.filter(d => d.mandatory);
+    const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
+    const allMandatoryAccepted = uploadedMandatory.every(
       (d) => d.status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW"
     );
 
-    if (!allAccepted) {
-      alert(
-        "Debes aceptar todos los documentos cargados antes de enviar al Comité de Currículo de Programa"
-      );
+    if (uploadedMandatory.length < mandatoryDocs.length) {
+      setError("El estudiante debe cargar todos los documentos obligatorios");
+      setTimeout(() => setError(""), 5000);
+      return;
+    }
+
+    if (!allMandatoryAccepted) {
+      setError("Debes aceptar todos los documentos obligatorios antes de enviar al Comité");
+      setTimeout(() => setError(""), 5000);
       return;
     }
 
@@ -121,16 +130,22 @@ export default function StudentProfileProgramHead() {
     setSubmitting(true);
     try {
       await approveProgramhead(studentModalityId);
-      alert("Estudiante enviado al Comité de Currículo de Programa exitosamente");
-      navigate("/jefeprograma");
+      setSuccessMessage("✅ Estudiante enviado al Comité de Currículo de Programa exitosamente");
+      setTimeout(() => {
+        navigate("/jefeprograma");
+      }, 2000);
     } catch (err) {
       console.error(err);
-      alert(
-        err.response?.data?.message || "Error al enviar al Comité de Currículo de Programa"
-      );
+      setError(err.response?.data?.message || "Error al enviar al Comité");
+      setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Helper para determinar si un documento puede ser editado
+  const canEditDocument = (doc) => {
+    return doc.status !== "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW";
   };
 
   // Helper para obtener clase de badge
@@ -145,12 +160,13 @@ export default function StudentProfileProgramHead() {
   const getStatusLabel = (status) => {
     const statusLabels = {
       "PENDING": "Pendiente",
-      "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW": "Aceptado por Jefe de Programa",
-      "REJECTED_FOR_PROGRAM_HEAD_REVIEW": "Rechazado por Jefe de Programa",
-      "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD": "Correcciones solicitadas por Jefe de Programa",
-      "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Aceptado por Comité de Currículo",
-      "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité de Currículo",
-      "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité de Currículo",
+      "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW": "Aceptado",
+      "REJECTED_FOR_PROGRAM_HEAD_REVIEW": "Rechazado",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD": "Correcciones solicitadas",
+      "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Aceptado por Comité",
+      "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité",
+      "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité",
+      "CORRECTION_RESUBMITTED": "Corrección reenviada",
     };
     return statusLabels[status] || status;
   };
@@ -163,10 +179,13 @@ export default function StudentProfileProgramHead() {
     );
   }
 
-  if (error) {
+  if (error && !profile) {
     return (
       <div className="student-profile-error">
         <p>{error}</p>
+        <button onClick={() => navigate("/jefeprograma")} className="back-btn">
+          ← Volver al listado
+        </button>
       </div>
     );
   }
@@ -179,8 +198,10 @@ export default function StudentProfileProgramHead() {
     );
   }
 
+  const mandatoryDocs = profile.documents.filter(d => d.mandatory);
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
-  const allAccepted = uploadedDocs.every(
+  const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
+  const allMandatoryAccepted = uploadedMandatory.every(
     (d) => d.status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW"
   );
 
@@ -194,12 +215,30 @@ export default function StudentProfileProgramHead() {
         </p>
       </div>
 
-      {/* Student Info Card */}
+      {/* Messages */}
+      {error && (
+        <div className="alert-message error">
+          <span>⚠️ {error}</span>
+          <button onClick={() => setError("")} className="alert-close">✕</button>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="alert-message success">
+          <span>{successMessage}</span>
+          <button onClick={() => setSuccessMessage("")} className="alert-close">✕</button>
+        </div>
+      )}
+
+      {/* Student Info Card - EXPANDIDA */}
       <div className="student-info-card">
+        <h3 className="card-section-title">👤 Información del Estudiante</h3>
         <div className="student-info-grid">
           <div className="student-info-item">
-            <span className="student-info-label">Nombre</span>
-            <span className="student-info-value">{profile.studentName}</span>
+            <span className="student-info-label">Nombre Completo</span>
+            <span className="student-info-value">
+              {profile.studentName} {profile.studentLastName}
+            </span>
           </div>
 
           <div className="student-info-item">
@@ -210,22 +249,160 @@ export default function StudentProfileProgramHead() {
           </div>
 
           <div className="student-info-item">
-            <span className="student-info-label">Modalidad</span>
-            <span className="student-info-value">{profile.modalityName}</span>
+            <span className="student-info-label">Código Estudiantil</span>
+            <span className="student-info-value">
+              {profile.studentCode || "N/A"}
+            </span>
           </div>
 
           <div className="student-info-item">
-            <span className="student-info-label">Estado actual</span>
-            <span className="student-info-value status">
-              {profile.currentStatusDescription}
+            <span className="student-info-label">Programa Académico</span>
+            <span className="student-info-value">
+              {profile.academicProgramName}
+            </span>
+          </div>
+
+          <div className="student-info-item">
+            <span className="student-info-label">Facultad</span>
+            <span className="student-info-value">
+              {profile.facultyName}
+            </span>
+          </div>
+
+          <div className="student-info-item">
+            <span className="student-info-label">Créditos Aprobados</span>
+            <span className="student-info-value">
+              {profile.approvedCredits || "N/A"}
+            </span>
+          </div>
+
+          <div className="student-info-item">
+            <span className="student-info-label">Promedio (GPA)</span>
+            <span className="student-info-value">
+              {profile.gpa || "N/A"}
+            </span>
+          </div>
+
+          <div className="student-info-item">
+            <span className="student-info-label">Semestre</span>
+            <span className="student-info-value">
+              {profile.semester || "N/A"}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Documents Section */}
+      {/* Modality Info Card */}
+      <div className="student-info-card">
+        <h3 className="card-section-title">📚 Información de la Modalidad</h3>
+        <div className="student-info-grid">
+          <div className="student-info-item">
+            <span className="student-info-label">Modalidad</span>
+            <span className="student-info-value">{profile.modalityName}</span>
+          </div>
+
+          <div className="student-info-item">
+            <span className="student-info-label">Estado Actual</span>
+            <span className="student-info-value status">
+              {profile.currentStatusDescription}
+            </span>
+          </div>
+
+          <div className="student-info-item">
+            <span className="student-info-label">Última Actualización</span>
+            <span className="student-info-value">
+              {profile.lastUpdatedAt 
+                ? new Date(profile.lastUpdatedAt).toLocaleString("es-CO", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })
+                : "N/A"}
+            </span>
+          </div>
+
+          <div className="student-info-item">
+            <span className="student-info-label">Créditos Requeridos</span>
+            <span className="student-info-value">
+              {profile.creditsRequired || "N/A"}
+            </span>
+          </div>
+
+          {profile.projectDirectorName && (
+            <>
+              <div className="student-info-item">
+                <span className="student-info-label">Director de Proyecto</span>
+                <span className="student-info-value">
+                  {profile.projectDirectorName}
+                </span>
+              </div>
+
+              <div className="student-info-item">
+                <span className="student-info-label">Email del Director</span>
+                <span className="student-info-value email">
+                  {profile.projectDirectorEmail}
+                </span>
+              </div>
+            </>
+          )}
+
+          {profile.defenseDate && (
+            <>
+              <div className="student-info-item">
+                <span className="student-info-label">Fecha de Sustentación</span>
+                <span className="student-info-value">
+                  {new Date(profile.defenseDate).toLocaleString("es-CO", {
+                    dateStyle: "long",
+                    timeStyle: "short",
+                  })}
+                </span>
+              </div>
+
+              <div className="student-info-item">
+                <span className="student-info-label">Lugar de Sustentación</span>
+                <span className="student-info-value">
+                  {profile.defenseLocation || "N/A"}
+                </span>
+              </div>
+            </>
+          )}
+
+          {profile.academicDistinction && (
+            <div className="student-info-item">
+              <span className="student-info-label">Resultado</span>
+              <span className="student-info-value distinction">
+                {profile.academicDistinction}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Documents Statistics */}
+      <div className="documents-stats-card">
+        <h3 className="card-section-title">📊 Estadísticas de Documentos</h3>
+        <div className="stats-grid">
+          <div className="stat-item total">
+            <div className="stat-number">{profile.totalDocuments || 0}</div>
+            <div className="stat-label">Total</div>
+          </div>
+          <div className="stat-item approved">
+            <div className="stat-number">{profile.approvedDocuments || 0}</div>
+            <div className="stat-label">Aprobados</div>
+          </div>
+          <div className="stat-item pending">
+            <div className="stat-number">{profile.pendingDocuments || 0}</div>
+            <div className="stat-label">Pendientes</div>
+          </div>
+          <div className="stat-item rejected">
+            <div className="stat-number">{profile.rejectedDocuments || 0}</div>
+            <div className="stat-label">Rechazados</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Documents Section - SOLO DOCUMENTOS CARGADOS */}
       <div className="documents-section">
-        <h3 className="documents-section-title">Documentos Cargados</h3>
+        <h3 className="documents-section-title">📄 Documentos</h3>
 
         {uploadedDocs.length === 0 ? (
           <div className="documents-empty">
@@ -241,6 +418,7 @@ export default function StudentProfileProgramHead() {
                 <thead>
                   <tr>
                     <th>Documento</th>
+                    <th>Obligatorio</th>
                     <th>Estado</th>
                     <th>Notas</th>
                     <th>Última actualización</th>
@@ -249,9 +427,14 @@ export default function StudentProfileProgramHead() {
                 </thead>
                 <tbody>
                   {uploadedDocs.map((doc) => (
-                    <tr key={doc.studentDocumentId}>
+                    <tr key={doc.studentDocumentId || doc.documentName}>
                       <td>
                         <strong>{doc.documentName}</strong>
+                      </td>
+                      <td>
+                        <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>
+                          {doc.mandatory ? "Sí" : "No"}
+                        </span>
                       </td>
                       <td>
                         <span
@@ -295,32 +478,37 @@ export default function StudentProfileProgramHead() {
                               : "Ver documento"}
                           </button>
 
-                          <button
-                            onClick={() => {
-                              if (reviewingDocId === doc.studentDocumentId) {
-                                setReviewingDocId(null);
-                                setSelectedStatus("");
-                                setNotes("");
-                              } else {
-                                setReviewingDocId(doc.studentDocumentId);
-                                setSelectedStatus("");
-                                setNotes("");
-                              }
-                            }}
-                            className={`doc-btn ${
-                              reviewingDocId === doc.studentDocumentId
-                                ? "doc-btn-cancel"
-                                : "doc-btn-review"
-                            }`}
-                          >
-                            {reviewingDocId === doc.studentDocumentId
-                              ? "Cancelar"
-                              : "Cambiar estado"}
-                          </button>
+                          {canEditDocument(doc) ? (
+                            <button
+                              onClick={() => {
+                                if (reviewingDocId === doc.studentDocumentId) {
+                                  setReviewingDocId(null);
+                                  setSelectedStatus("");
+                                  setNotes("");
+                                } else {
+                                  setReviewingDocId(doc.studentDocumentId);
+                                  setSelectedStatus("");
+                                  setNotes("");
+                                }
+                              }}
+                              className={`doc-btn ${
+                                reviewingDocId === doc.studentDocumentId
+                                  ? "doc-btn-cancel"
+                                  : "doc-btn-review"
+                              }`}
+                            >
+                              {reviewingDocId === doc.studentDocumentId
+                                ? "Cancelar"
+                                : "Cambiar estado"}
+                            </button>
+                          ) : (
+                            <span className="locked-badge">
+                              🔒 Aprobado
+                            </span>
+                          )}
                         </div>
 
-                        {/* Review Panel */}
-                        {reviewingDocId === doc.studentDocumentId && (
+                        {reviewingDocId === doc.studentDocumentId && canEditDocument(doc) && (
                           <div className="review-panel">
                             <h4 className="review-panel-title">
                               Revisión de documento
@@ -339,13 +527,13 @@ export default function StudentProfileProgramHead() {
                               >
                                 <option value="">Seleccionar estado</option>
                                 <option value="ACCEPTED_FOR_PROGRAM_HEAD_REVIEW">
-                                  Aceptado
+                                  ✅ Aceptado
                                 </option>
                                 <option value="REJECTED_FOR_PROGRAM_HEAD_REVIEW">
-                                  Rechazado
+                                  ❌ Rechazado
                                 </option>
                                 <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD">
-                                  Requiere correcciones
+                                  🔄 Requiere correcciones
                                 </option>
                               </select>
                             </div>
@@ -359,6 +547,7 @@ export default function StudentProfileProgramHead() {
                                 onChange={(e) => setNotes(e.target.value)}
                                 className="review-textarea"
                                 placeholder="Escribe aquí el motivo de tu decisión..."
+                                rows={4}
                               />
                             </div>
 
@@ -385,9 +574,9 @@ export default function StudentProfileProgramHead() {
               <div className="approve-all-content">
                 <button
                   onClick={handleApproveAll}
-                  disabled={!allAccepted || submitting}
+                  disabled={!allMandatoryAccepted || submitting || uploadedMandatory.length < mandatoryDocs.length}
                   className={`approve-all-btn ${
-                    allAccepted ? "enabled" : "disabled"
+                    allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length ? "enabled" : "disabled"
                   }`}
                 >
                   {submitting
@@ -395,10 +584,15 @@ export default function StudentProfileProgramHead() {
                     : "Enviar al Comité de Currículo de Programa"}
                 </button>
 
-                {!allAccepted && (
+                {uploadedMandatory.length < mandatoryDocs.length && (
                   <div className="approve-warning">
-                    ⚠️ Debes aceptar todos los documentos cargados antes de
-                    enviar al comité de currículo de programa
+                    ⚠️ El estudiante debe cargar todos los documentos obligatorios ({uploadedMandatory.length}/{mandatoryDocs.length})
+                  </div>
+                )}
+
+                {uploadedMandatory.length === mandatoryDocs.length && !allMandatoryAccepted && (
+                  <div className="approve-warning">
+                    ⚠️ Debes aceptar todos los documentos obligatorios antes de enviar al comité
                   </div>
                 )}
               </div>

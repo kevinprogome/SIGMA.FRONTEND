@@ -1,4 +1,3 @@
-//components/council/AssignDirectorModal.jsx//
 import { useState, useEffect } from "react";
 import { getProjectDirectors, assignProjectDirector } from "../../services/committeeService";
 import "../../styles/council/modals.css";
@@ -9,6 +8,7 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetchDirectors();
@@ -39,7 +39,24 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
 
     try {
       await assignProjectDirector(studentModalityId, selectedDirector);
-      onSuccess();
+
+      // Obtener nombre del director seleccionado
+      const selectedDirectorData = directors.find(
+        (d) => d.id === parseInt(selectedDirector)
+      );
+      const directorName = selectedDirectorData
+        ? `${selectedDirectorData.name}`
+        : "";
+
+      // Mostrar mensaje de éxito
+      setSuccessMessage(
+        `✅ Director asignado correctamente: ${directorName}`
+      );
+
+      // Esperar antes de cerrar
+      setTimeout(() => {
+        onSuccess();
+      }, 100000);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Error al asignar director");
@@ -59,7 +76,15 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
         </div>
 
         <div className="modal-body">
-          {loading ? (
+          {successMessage ? (
+            <div className="modal-success-animation">
+              <div className="success-icon">✅</div>
+              <div className="success-message">{successMessage}</div>
+              <div className="success-submessage">
+                El estudiante fue notificado de esta novedad
+              </div>
+            </div>
+          ) : loading ? (
             <div className="loading-message">Cargando directores...</div>
           ) : (
             <form onSubmit={handleSubmit}>
@@ -69,7 +94,10 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
                 <label>Selecciona un Director *</label>
                 <select
                   value={selectedDirector}
-                  onChange={(e) => setSelectedDirector(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedDirector(e.target.value);
+                    setError("");
+                  }}
                   className="form-select"
                   disabled={submitting}
                 >

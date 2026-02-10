@@ -248,7 +248,7 @@ export default function CommitteeDashboard() {
                 <th>Email</th>
                 <th>Modalidad</th>
                 <th>Estado</th>
-                <th>Última Actualización</th>
+                <th>Fecha</th>
                 <th>Acciones</th>
               </tr>
             </thead>

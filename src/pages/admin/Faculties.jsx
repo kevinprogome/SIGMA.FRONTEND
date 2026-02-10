@@ -156,14 +156,6 @@ export default function Faculties() {
                   <button onClick={() => handleOpenEdit(faculty)} className="admin-btn-edit">
                     ✏️ Editar
                   </button>
-                  {faculty.active && (
-                    <button
-                      onClick={() => handleDeactivate(faculty.id)}
-                      className="admin-btn-delete"
-                    >
-                      🚫 Desactivar
-                    </button>
-                  )}
                   <button
                     onClick={() => navigate(`/admin/programs?facultyId=${faculty.id}`)}
                     className="admin-btn-action"

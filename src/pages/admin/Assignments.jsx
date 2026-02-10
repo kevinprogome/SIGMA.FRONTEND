@@ -6,33 +6,39 @@ import {
   assignProgramHead,
   assignProjectDirector,
   assignCommitteeMember,
-  getCommitteeMembers,
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
 
 const ASSIGNMENT_TYPES = [
-  { value: "PROGRAM_HEAD", label: "Jefe de Programa", endpoint: assignProgramHead },
-  { value: "PROJECT_DIRECTOR", label: "Director de Proyecto", endpoint: assignProjectDirector },
-  { value: "COMMITTEE_MEMBER", label: "Miembro de Comité", endpoint: assignCommitteeMember },
+  { value: "PROGRAM_HEAD", label: "Jefe de Programa" },
+  { value: "PROJECT_DIRECTOR", label: "Director de Proyecto" },
+  { value: "PROGRAM_CURRICULUM_COMMITTEE", label: "Miembro de Comité" },
 ];
+
+const ASSIGNMENT_ENDPOINTS = {
+  PROGRAM_HEAD: assignProgramHead,
+  PROJECT_DIRECTOR: assignProjectDirector,
+  PROGRAM_CURRICULUM_COMMITTEE: assignCommitteeMember,
+};
 
 export default function Assignments() {
   const [users, setUsers] = useState([]);
+  const [assignedUsers, setAssignedUsers] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [faculties, setFaculties] = useState([]);
-  const [committeeMembers, setCommitteeMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [loadingAssignments, setLoadingAssignments] = useState(false);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+
+  // Filtros para ver asignaciones
+  const [roleFilter, setRoleFilter] = useState("PROGRAM_CURRICULUM_COMMITTEE"); // Por defecto Comité
+  const [facultyFilter, setFacultyFilter] = useState("");
+  const [programFilter, setProgramFilter] = useState("");
 
   // Filtros para crear asignación
   const [selectedFacultyId, setSelectedFacultyId] = useState("");
   const [filteredPrograms, setFilteredPrograms] = useState([]);
-
-  // Filtros para ver asignaciones
-  const [viewFacultyFilter, setViewFacultyFilter] = useState("");
-  const [viewProgramFilter, setViewProgramFilter] = useState("");
 
   const [formData, setFormData] = useState({
     assignmentType: "",
@@ -55,7 +61,7 @@ export default function Assignments() {
 
   useEffect(() => {
     fetchAssignments();
-  }, [viewFacultyFilter, viewProgramFilter]);
+  }, [roleFilter, facultyFilter, programFilter]);
 
   const fetchInitialData = async () => {
     try {
@@ -69,9 +75,6 @@ export default function Assignments() {
       setPrograms(Array.isArray(programsData) ? programsData : []);
       setFaculties(Array.isArray(facultiesData) ? facultiesData : []);
       setFilteredPrograms(Array.isArray(programsData) ? programsData : []);
-      
-      // Cargar asignaciones inmediatamente
-      await fetchAssignments();
     } catch (err) {
       console.error("❌ Error loading data:", err);
       setMessage("Error al cargar datos: " + (err.response?.data || err.message));
@@ -81,28 +84,34 @@ export default function Assignments() {
   };
 
   const fetchAssignments = async () => {
-    setLoadingMembers(true);
+    if (!roleFilter) {
+      setAssignedUsers([]);
+      return;
+    }
+
+    setLoadingAssignments(true);
     try {
-      const filters = {};
-      if (viewProgramFilter) filters.academicProgramId = viewProgramFilter;
-      if (viewFacultyFilter) filters.facultyId = viewFacultyFilter;
-
-      console.log("📋 Fetching committee members with filters:", filters);
+      const filters = { role: roleFilter };
       
-      const committeeData = await getCommitteeMembers(filters);
+      if (facultyFilter) filters.facultyId = parseInt(facultyFilter);
+      if (programFilter) filters.programId = parseInt(programFilter);
 
-      console.log("✅ Committee Members received:", committeeData);
+      console.log("🔍 Fetching assignments with filters:", filters);
+      
+      const assignmentsData = await getAllUsers(filters);
 
-      setCommitteeMembers(Array.isArray(committeeData) ? committeeData : []);
+      console.log("✅ Assignments received:", assignmentsData);
+
+      setAssignedUsers(Array.isArray(assignmentsData) ? assignmentsData : []);
     } catch (err) {
       console.error("❌ Error fetching assignments:", err);
-      console.error("❌ Error details:", err.response?.data);
-      setCommitteeMembers([]);
+      setAssignedUsers([]);
       
       const errorMsg = err.response?.data?.message || err.response?.data || err.message;
-      setMessage("Error al cargar miembros del comité: " + errorMsg);
+      setMessage("Error al cargar asignaciones: " + errorMsg);
+      setTimeout(() => setMessage(""), 5000);
     } finally {
-      setLoadingMembers(false);
+      setLoadingAssignments(false);
     }
   };
 
@@ -113,35 +122,32 @@ export default function Assignments() {
       academicProgramId: "",
     });
     setSelectedFacultyId("");
-    setMessage(""); // Limpiar mensajes anteriores
+    setMessage("");
     setShowModal(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const assignmentConfig = ASSIGNMENT_TYPES.find(
-      t => t.value === formData.assignmentType
-    );
+    const assignEndpoint = ASSIGNMENT_ENDPOINTS[formData.assignmentType];
     
-    if (!assignmentConfig) {
+    if (!assignEndpoint) {
       setMessage("Tipo de asignación no válido");
       return;
     }
 
     try {
-      await assignmentConfig.endpoint({
+      await assignEndpoint({
         userId: parseInt(formData.userId),
         academicProgramId: parseInt(formData.academicProgramId),
       });
       
-      setMessage(`✅ ${assignmentConfig.label} asignado exitosamente`);
+      const assignmentLabel = ASSIGNMENT_TYPES.find(t => t.value === formData.assignmentType)?.label;
+      setMessage(`✅ ${assignmentLabel} asignado exitosamente`);
       setShowModal(false);
       
-      // Refrescar la lista
       await fetchAssignments();
       
-      // Limpiar mensaje después de 3 segundos
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("❌ Error assigning user:", err);
@@ -150,21 +156,16 @@ export default function Assignments() {
     }
   };
 
-  const getFullName = (member) => {
-    if (!member) return "Usuario no encontrado";
-    const name = member.name || "";
-    const lastName = member.lastName || "";
+  const getFullName = (user) => {
+    if (!user) return "Usuario no encontrado";
+    const name = user.name || "";
+    const lastName = user.lastname || user.lastName || "";
     return `${name} ${lastName}`.trim() || "Sin nombre";
   };
 
-  const getProgramName = (programId) => {
-    const program = programs.find(p => p.id === programId);
-    return program ? program.name : "Programa no encontrado";
-  };
-
-  const getFacultyName = (facultyId) => {
-    const faculty = faculties.find(f => f.id === facultyId);
-    return faculty ? faculty.name : "Sin facultad";
+  const getRoleLabel = (roleValue) => {
+    const role = ASSIGNMENT_TYPES.find(r => r.value === roleValue);
+    return role ? role.label : roleValue;
   };
 
   if (loading) {
@@ -175,9 +176,9 @@ export default function Assignments() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Gestión de Asignaciones</h1>
+          <h1 className="admin-page-title">Gestión de Asignaciones Especiales</h1>
           <p className="admin-page-subtitle">
-            Asigna usuarios a programas y visualiza los miembros del comité curricular
+            Asigna y visualiza Jefes de Programa, Directores de Proyecto y Miembros del Comité Curricular
           </p>
         </div>
         <button onClick={handleOpenModal} className="admin-btn-primary">
@@ -206,22 +207,44 @@ export default function Assignments() {
 
       {/* Filtros */}
       <div style={{ 
-        display: "flex", 
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
         gap: "1rem", 
         marginBottom: "2rem",
         padding: "1.5rem",
         background: "#f8f9fa",
         borderRadius: "8px"
       }}>
-        <div className="admin-form-group" style={{ flex: 1, marginBottom: 0 }}>
-          <label className="admin-label">Filtrar por Facultad</label>
+        <div className="admin-form-group" style={{ marginBottom: 0 }}>
+          <label className="admin-label">Tipo de Asignación *</label>
           <select
-            value={viewFacultyFilter}
+            value={roleFilter}
             onChange={(e) => {
-              setViewFacultyFilter(e.target.value);
-              setViewProgramFilter(""); // Reset program filter
+              setRoleFilter(e.target.value);
+              setFacultyFilter("");
+              setProgramFilter("");
             }}
             className="admin-select"
+          >
+            <option value="">-- Selecciona un tipo --</option>
+            {ASSIGNMENT_TYPES.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="admin-form-group" style={{ marginBottom: 0 }}>
+          <label className="admin-label">Filtrar por Facultad</label>
+          <select
+            value={facultyFilter}
+            onChange={(e) => {
+              setFacultyFilter(e.target.value);
+              setProgramFilter("");
+            }}
+            className="admin-select"
+            disabled={!roleFilter}
           >
             <option value="">-- Todas las facultades --</option>
             {faculties.map((faculty) => (
@@ -232,19 +255,17 @@ export default function Assignments() {
           </select>
         </div>
 
-        <div className="admin-form-group" style={{ flex: 1, marginBottom: 0 }}>
+        <div className="admin-form-group" style={{ marginBottom: 0 }}>
           <label className="admin-label">Filtrar por Programa</label>
           <select
-            value={viewProgramFilter}
-            onChange={(e) => setViewProgramFilter(e.target.value)}
+            value={programFilter}
+            onChange={(e) => setProgramFilter(e.target.value)}
             className="admin-select"
-            disabled={!viewFacultyFilter && programs.length > 20} // Deshabilitar si no hay facultad y hay muchos programas
+            disabled={!roleFilter}
           >
-            <option value="">
-              {viewFacultyFilter ? "-- Todos los programas --" : "-- Primero selecciona una facultad --"}
-            </option>
+            <option value="">-- Todos los programas --</option>
             {programs
-              .filter(p => !viewFacultyFilter || p.facultyId === parseInt(viewFacultyFilter))
+              .filter(p => !facultyFilter || p.facultyId === parseInt(facultyFilter))
               .map((program) => (
                 <option key={program.id} value={program.id}>
                   {program.name}
@@ -254,16 +275,29 @@ export default function Assignments() {
         </div>
       </div>
 
-      {/* Tabla de Miembros del Comité Curricular */}
+      {/* Tabla de Asignaciones */}
       <div>
         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>
-          Miembros del Comité Curricular
+          {roleFilter ? getRoleLabel(roleFilter) + "s" : "Selecciona un tipo de asignación"}
         </h2>
         
-        {loadingMembers ? (
+        {!roleFilter ? (
+          <div style={{ 
+            textAlign: "center", 
+            padding: "4rem 2rem", 
+            background: "white",
+            borderRadius: "8px",
+            border: "2px dashed #e0e0e0"
+          }}>
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>👆</div>
+            <p style={{ fontSize: "1.1rem", color: "#666", margin: 0 }}>
+              Selecciona un tipo de asignación para ver los usuarios asignados
+            </p>
+          </div>
+        ) : loadingAssignments ? (
           <div style={{ textAlign: "center", padding: "3rem", color: "#666" }}>
             <div className="admin-loading" style={{ display: "inline-block" }}>
-              Cargando miembros...
+              Cargando asignaciones...
             </div>
           </div>
         ) : (
@@ -271,32 +305,38 @@ export default function Assignments() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
+                  <th>Nombre Completo</th>
                   <th>Email</th>
                   <th>Programa Académico</th>
+                  <th>Facultad</th>
+                  <th>Estado</th>
                 </tr>
               </thead>
               <tbody>
-                {committeeMembers.length === 0 ? (
+                {assignedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan="3" style={{ textAlign: "center", padding: "3rem", color: "#999" }}>
-                      {viewFacultyFilter || viewProgramFilter 
-                        ? "No hay miembros asignados con los filtros seleccionados" 
-                        : "No hay miembros del comité asignados"}
+                    <td colSpan="5" style={{ textAlign: "center", padding: "3rem", color: "#999" }}>
+                      {facultyFilter || programFilter 
+                        ? `No hay ${getRoleLabel(roleFilter).toLowerCase()}s asignados con los filtros seleccionados` 
+                        : `No hay ${getRoleLabel(roleFilter).toLowerCase()}s asignados`}
                     </td>
                   </tr>
                 ) : (
-                  committeeMembers.map((member, idx) => (
-                    <tr key={member.id || idx}>
+                  assignedUsers.map((user, idx) => (
+                    <tr key={user.id || idx}>
                       <td>
-                        <strong>{getFullName(member)}</strong>
+                        <strong>{getFullName(user)}</strong>
                       </td>
-                      <td>{member.email || "N/A"}</td>
+                      <td>{user.email || "N/A"}</td>
                       <td>
                         <span className="admin-tag">
-                          {viewProgramFilter 
-                            ? getProgramName(parseInt(viewProgramFilter))
-                            : "Múltiples programas"}
+                          {user.academicProgram || "N/A"}
+                        </span>
+                      </td>
+                      <td>{user.faculty || "N/A"}</td>
+                      <td>
+                        <span className={`admin-status-badge ${user.status?.toLowerCase()}`}>
+                          {user.status || "ACTIVE"}
                         </span>
                       </td>
                     </tr>
@@ -313,7 +353,7 @@ export default function Assignments() {
         <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
             <div className="admin-modal-header">
-              <h2>Nueva Asignación de Usuario</h2>
+              <h2>Nueva Asignación Especial</h2>
               <button onClick={() => setShowModal(false)} className="admin-modal-close">
                 ✕
               </button>
@@ -328,7 +368,7 @@ export default function Assignments() {
                   className="admin-select"
                   required
                 >
-                  <option value="">-- Selecciona el tipo de asignación --</option>
+                  <option value="">-- Selecciona el tipo --</option>
                   {ASSIGNMENT_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
                       {type.label}
@@ -360,7 +400,7 @@ export default function Assignments() {
                   value={selectedFacultyId}
                   onChange={(e) => {
                     setSelectedFacultyId(e.target.value);
-                    setFormData({ ...formData, academicProgramId: "" }); // Reset program
+                    setFormData({ ...formData, academicProgramId: "" });
                   }}
                   className="admin-select"
                 >
@@ -388,7 +428,6 @@ export default function Assignments() {
                   {filteredPrograms.map((program) => (
                     <option key={program.id} value={program.id}>
                       {program.name}
-                      {!selectedFacultyId && ` - ${getFacultyName(program.facultyId)}`}
                     </option>
                   ))}
                 </select>

@@ -1,5 +1,5 @@
 /* ========================================
-   COUNCIL - STUDENT PROFILE STYLES
+   COMMITTEE - STUDENT PROFILE STYLES
    (Basado en secretaryprofile.css)
    ======================================== */
 
@@ -81,6 +81,234 @@
   font-size: 1.1rem;
   color: #333;
   font-weight: 500;
+}
+
+/* Agregar estos estilos al final del archivo existente */
+
+/* ========================================
+   ALERTAS Y MENSAJES
+   ======================================== */
+
+.alert-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.alert-message.success {
+  background: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.alert-message.error {
+  background: #fde1e1;
+  color: #7A1117;
+  border-left: 4px solid #7A1117;
+}
+
+.alert-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.alert-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   SECCIONES DE INFORMACIÓN
+   ======================================== */
+
+.card-section-title {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.3rem;
+  color: #7A1117;
+  margin: 0 0 1.5rem 0;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.student-info-value.distinction {
+  color: #28a745;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ========================================
+   ESTADÍSTICAS DE DOCUMENTOS
+   ======================================== */
+
+.documents-stats-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-4px);
+}
+
+.stat-item.total {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.stat-item.approved {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: white;
+}
+
+.stat-item.pending {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+}
+
+.stat-item.rejected {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.95;
+}
+
+/* ========================================
+   TABLA DE DOCUMENTOS - MEJORAS
+   ======================================== */
+
+.mandatory-badge {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mandatory-badge.yes {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.mandatory-badge.no {
+  background: #e7f3ff;
+  color: #084298;
+  border: 1px solid #0c5da5;
+}
+
+.status-description {
+  font-size: 0.85rem;
+  color: #555;
+  font-style: italic;
+  display: block;
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.locked-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #d4edda;
+  color: #155724;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #28a745;
+}
+
+.not-uploaded-text {
+  font-size: 0.9rem;
+  color: #999;
+  font-style: italic;
+}
+
+/* ========================================
+   RESPONSIVE MEJORADO
+   ======================================== */
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .card-section-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .documents-table {
+    font-size: 0.85rem;
+  }
+
+  .doc-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
 }
 
 .student-info-value.email {

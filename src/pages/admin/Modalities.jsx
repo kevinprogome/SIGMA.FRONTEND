@@ -193,10 +193,6 @@ export default function Modalities() {
                     <strong>Facultad:</strong>
                     <span className="admin-tag">{getFacultyName(modality.facultyId)}</span>
                   </div>
-                  <div className="admin-card-meta-item">
-                    <strong>Tipo:</strong>
-                    <span className="admin-tag">{modality.type?.replace(/_/g, " ")}</span>
-                  </div>
                 </div>
 
                 {/* Acciones - Grid 2x2 */}
@@ -283,23 +279,6 @@ export default function Modalities() {
                   className="admin-textarea"
                   required
                 />
-              </div>
-
-              <div className="admin-form-group">
-                <label className="admin-label">Tipo de Modalidad</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="admin-select"
-                  required
-                >
-                  <option value="">-- Selecciona un tipo --</option>
-                  {MODALITY_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type.replace(/_/g, " ")}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               {editingModality && (

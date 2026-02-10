@@ -4,7 +4,7 @@ import {
   getModalitiesAdmin,
   getModalityRequirements,
   createModalityRequirements,
-  updateModalityRequirements,
+  updateModalityRequirement,
   deleteModalityRequirement,
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
@@ -22,6 +22,7 @@ export default function Requirements() {
   const [loadingRequirements, setLoadingRequirements] = useState(false);
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [editingRequirement, setEditingRequirement] = useState(null);
 
   const [formData, setFormData] = useState({
     requirementName: "",
@@ -68,12 +69,25 @@ export default function Requirements() {
   };
 
   const handleOpenCreate = () => {
+    setEditingRequirement(null);
     setFormData({
       requirementName: "",
       description: "",
       ruleType: "",
       expectedValue: "",
       active: true,
+    });
+    setShowModal(true);
+  };
+
+  const handleOpenEdit = (requirement) => {
+    setEditingRequirement(requirement);
+    setFormData({
+      requirementName: requirement.requirementName,
+      description: requirement.description,
+      ruleType: requirement.ruleType,
+      expectedValue: requirement.expectedValue,
+      active: requirement.active,
     });
     setShowModal(true);
   };
@@ -86,12 +100,17 @@ export default function Requirements() {
     }
 
     try {
-      await createModalityRequirements(selectedModalityId, [formData]);
-      setMessage("Requerimiento creado exitosamente");
+      if (editingRequirement) {
+        await updateModalityRequirement(selectedModalityId, editingRequirement.id, formData);
+        setMessage("Requerimiento actualizado exitosamente");
+      } else {
+        await createModalityRequirements(selectedModalityId, [formData]);
+        setMessage("Requerimiento creado exitosamente");
+      }
       setShowModal(false);
-      await fetchRequirements(); // ✅ Refresca la lista
+      await fetchRequirements();
     } catch (err) {
-      setMessage(err.response?.data || "Error al crear requerimiento");
+      setMessage(err.response?.data || "Error al procesar la solicitud");
     }
   };
 
@@ -101,7 +120,7 @@ export default function Requirements() {
     try {
       await deleteModalityRequirement(requirementId);
       setMessage("Requerimiento eliminado exitosamente");
-      await fetchRequirements(); // ✅ Refresca la lista
+      await fetchRequirements();
     } catch (err) {
       setMessage("Error al eliminar requerimiento");
     }
@@ -128,6 +147,7 @@ export default function Requirements() {
       {message && (
         <div className={`admin-message ${message.includes("Error") ? "error" : "success"}`}>
           {message}
+          <button onClick={() => setMessage("")} style={{ marginLeft: "1rem" }}>✕</button>
         </div>
       )}
 
@@ -190,6 +210,9 @@ export default function Requirements() {
                       </td>
                       <td>
                         <div className="admin-table-actions">
+                          <button onClick={() => handleOpenEdit(req)} className="admin-btn-edit">
+                            Editar
+                          </button>
                           <button onClick={() => handleDelete(req.id)} className="admin-btn-delete">
                             Eliminar
                           </button>
@@ -213,7 +236,7 @@ export default function Requirements() {
         <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
             <div className="admin-modal-header">
-              <h2>Crear Nuevo Requerimiento</h2>
+              <h2>{editingRequirement ? "Editar Requerimiento" : "Crear Nuevo Requerimiento"}</h2>
               <button onClick={() => setShowModal(false)} className="admin-modal-close">
                 ✕
               </button>
@@ -227,6 +250,7 @@ export default function Requirements() {
                   value={formData.requirementName}
                   onChange={(e) => setFormData({ ...formData, requirementName: e.target.value })}
                   className="admin-input"
+                  placeholder="Ej: Créditos mínimos aprobados"
                   required
                 />
               </div>
@@ -237,6 +261,7 @@ export default function Requirements() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="admin-textarea"
+                  placeholder="Describe el propósito del requerimiento"
                   required
                 />
               </div>
@@ -265,16 +290,31 @@ export default function Requirements() {
                   value={formData.expectedValue}
                   onChange={(e) => setFormData({ ...formData, expectedValue: e.target.value })}
                   className="admin-input"
+                  placeholder="Ej: 120 (para créditos)"
                   required
                 />
               </div>
+
+              {editingRequirement && (
+                <div className="admin-form-group">
+                  <label className="admin-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.active}
+                      onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                      className="admin-checkbox"
+                    />
+                    <span>Activo</span>
+                  </label>
+                </div>
+              )}
 
               <div className="admin-modal-actions">
                 <button type="button" onClick={() => setShowModal(false)} className="admin-btn-secondary">
                   Cancelar
                 </button>
                 <button type="submit" className="admin-btn-primary">
-                  Crear
+                  {editingRequirement ? "Actualizar" : "Crear"}
                 </button>
               </div>
             </form>
