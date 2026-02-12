@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyExaminerAssignments, getStatusLabel, getStatusBadgeClass, formatDate } from "../../services/examinerService";
-import "../../styles/admin/Roles.css";
+import { 
+  getMyExaminerAssignments, 
+  getStatusLabel, 
+  getStatusBadgeClass, 
+  formatDate,
+  EXAMINER_MODALITY_STATUS 
+} from "../../services/examinerService";
+import "../../styles/examiners/examinerdashboard.css";
 
 export default function ExaminerDashboard() {
   const navigate = useNavigate();
@@ -10,254 +16,262 @@ export default function ExaminerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [filters, setFilters] = useState({
+    statuses: [],
+    name: ""
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
   useEffect(() => {
     fetchAssignments();
   }, []);
 
-  const fetchAssignments = async () => {
+  const fetchAssignments = async (customFilters = null) => {
     try {
       setLoading(true);
-      const data = await getMyExaminerAssignments();
-      console.log("📋 Mis asignaciones:", data);
+      const params = customFilters || filters;
+      
+      const cleanParams = {};
+      if (params.statuses && params.statuses.length > 0) {
+        cleanParams.statuses = params.statuses;
+      }
+      if (params.name && params.name.trim()) {
+        cleanParams.name = params.name.trim();
+      }
+      
+      const data = await getMyExaminerAssignments(cleanParams);
+      console.log("📋 Asignaciones:", data);
       setAssignments(data);
     } catch (err) {
-      console.error("Error al obtener asignaciones:", err);
+      console.error("Error:", err);
       setError("Error al cargar tus asignaciones como juez");
     } finally {
       setLoading(false);
     }
   };
 
-  const getExaminerTypeLabel = (type) => {
-    const labels = {
-      PRIMARY_EXAMINER_1: "🥇 Juez Principal 1",
-      PRIMARY_EXAMINER_2: "🥈 Juez Principal 2",
-      TIEBREAKER_EXAMINER: "⚖️ Juez de Desempate",
-    };
-    return labels[type] || type;
+  const handleApplyFilters = () => {
+    fetchAssignments();
   };
 
-  const getActionButton = (assignment) => {
-    // Si ya evaluó, mostrar "Ver Evaluación"
-    if (assignment.hasEvaluated) {
-      return (
-        <button
-          onClick={() => navigate(`/examiner/student/${assignment.studentModalityId}`)}
-          className="admin-btn-secondary"
-          style={{ width: "100%" }}
-        >
-          ✅ Ver Mi Evaluación
-        </button>
-      );
-    }
+  const handleClearFilters = () => {
+    const emptyFilters = { statuses: [], name: "" };
+    setFilters(emptyFilters);
+    fetchAssignments(emptyFilters);
+  };
 
-    // Si puede evaluar
-    if (
-      assignment.currentStatus === "READY_FOR_DEFENSE" ||
-      assignment.currentStatus === "DEFENSE_COMPLETED" ||
-      assignment.currentStatus === "UNDER_EVALUATION_PRIMARY_EXAMINERS" ||
-      assignment.currentStatus === "UNDER_EVALUATION_TIEBREAKER" ||
-      assignment.currentStatus === "DISAGREEMENT_REQUIRES_TIEBREAKER"
-    ) {
-      return (
-        <button
-          onClick={() => navigate(`/examiner/student/${assignment.studentModalityId}`)}
-          className="admin-btn-primary"
-          style={{ width: "100%" }}
-        >
-          📊 Evaluar Sustentación
-        </button>
-      );
-    }
+  const handleStatusToggle = (status) => {
+    setFilters(prev => ({
+      ...prev,
+      statuses: prev.statuses.includes(status)
+        ? prev.statuses.filter(s => s !== status)
+        : [...prev.statuses, status]
+    }));
+  };
 
-    // Si necesita revisar documentos
-    if (assignment.currentStatus === "EXAMINERS_ASSIGNED") {
-      return (
-        <button
-          onClick={() => navigate(`/examiner/student/${assignment.studentModalityId}`)}
-          className="admin-btn-action"
-          style={{ width: "100%" }}
-        >
-          📄 Revisar Documentos
-        </button>
-      );
+  const getActionButtonClass = (status, hasEvaluated) => {
+    if (hasEvaluated) return "completed";
+    if (status === "READY_FOR_DEFENSE" || status === "DEFENSE_COMPLETED" || 
+        status === "UNDER_EVALUATION_PRIMARY_EXAMINERS" || 
+        status === "UNDER_EVALUATION_TIEBREAKER" ||
+        status === "DISAGREEMENT_REQUIRES_TIEBREAKER") {
+      return "evaluate";
     }
+    if (status === "EXAMINERS_ASSIGNED") return "review";
+    return "view";
+  };
 
-    // Botón genérico para ver detalles
-    return (
-      <button
-        onClick={() => navigate(`/examiner/student/${assignment.studentModalityId}`)}
-        className="admin-btn-secondary"
-        style={{ width: "100%" }}
-      >
-        👁️ Ver Detalles
-      </button>
-    );
+  const getActionButtonText = (status, hasEvaluated) => {
+    if (hasEvaluated) return "✅ Ver Mi Evaluación";
+    if (status === "READY_FOR_DEFENSE" || status === "DEFENSE_COMPLETED" || 
+        status === "UNDER_EVALUATION_PRIMARY_EXAMINERS" || 
+        status === "UNDER_EVALUATION_TIEBREAKER" ||
+        status === "DISAGREEMENT_REQUIRES_TIEBREAKER") {
+      return "📊 Evaluar Sustentación";
+    }
+    if (status === "EXAMINERS_ASSIGNED") return "📄 Revisar Documentos";
+    return "👁️ Ver Detalles";
   };
 
   if (loading) {
     return (
-      <div className="admin-page">
-        <div className="admin-loading">Cargando tus asignaciones como juez...</div>
+      <div className="examiner-dashboard-container">
+        <div className="examiner-loading">
+          Cargando tus asignaciones como juez...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="admin-page">
+    <div className="examiner-dashboard-container">
       {/* Header */}
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">Mis Asignaciones como Juez</h1>
-          <p className="admin-page-subtitle">
-            Modalidades de grado en las que participas como evaluador
-          </p>
-        </div>
+      <div className="examiner-header">
+        <h1 className="examiner-title">Mis Asignaciones como Juez</h1>
+        <p className="examiner-subtitle">
+          Modalidades de grado en las que participas como evaluador - Universidad Surcolombiana
+        </p>
       </div>
 
+      {/* Error Message */}
       {error && (
-        <div className="admin-message error">
+        <div className="examiner-message error">
           {error}
-          <button onClick={() => setError("")}>✕</button>
         </div>
       )}
 
-      {/* Estadísticas */}
-      {assignments.length > 0 && (
-        <div style={{
-          background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
-          color: "white",
-          padding: "1.5rem 2rem",
-          borderRadius: "12px",
-          marginBottom: "2rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
-          boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)"
-        }}>
-          <div style={{ fontSize: "3rem" }}>👨‍⚖️</div>
-          <div>
-            <div style={{ fontSize: "2rem", fontWeight: "700", marginBottom: "0.25rem" }}>
-              {assignments.length}
+      {/* Toolbar */}
+      <div className="examiner-toolbar">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="examiner-btn examiner-btn-primary"
+        >
+          {showFilters ? "🔽 Ocultar Filtros" : "🔍 Mostrar Filtros"}
+        </button>
+      </div>
+
+      {/* Filter Panel */}
+      {showFilters && (
+        <div className="examiner-filter-panel">
+          <h3 className="examiner-filter-title">🔍 Filtros de Búsqueda</h3>
+          
+          <div className="examiner-filter-group">
+            <label className="examiner-filter-label">
+              Buscar por nombre del estudiante
+            </label>
+            <input
+              type="text"
+              value={filters.name}
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+              placeholder="Ej: Juan Pérez"
+              className="examiner-input"
+            />
+          </div>
+
+          <div className="examiner-filter-group">
+            <label className="examiner-filter-label">Filtrar por estado</label>
+            <div className="examiner-checkbox-grid">
+              {Object.entries(EXAMINER_MODALITY_STATUS).map(([key, value]) => (
+                <label
+                  key={key}
+                  className={`examiner-checkbox-label ${filters.statuses.includes(value) ? 'active' : ''}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={filters.statuses.includes(value)}
+                    onChange={() => handleStatusToggle(value)}
+                    className="examiner-checkbox"
+                  />
+                  <span>{getStatusLabel(value)}</span>
+                </label>
+              ))}
             </div>
-            <div style={{ fontSize: "1rem", opacity: 0.95 }}>
-              {assignments.length === 1 
-                ? "Asignación activa" 
-                : "Asignaciones activas"}
+          </div>
+
+          <div className="examiner-filter-actions">
+            <button
+              onClick={handleApplyFilters}
+              className="examiner-btn examiner-btn-primary"
+              style={{ flex: 1 }}
+            >
+              Aplicar Filtros
+            </button>
+            <button
+              onClick={handleClearFilters}
+              className="examiner-btn examiner-btn-secondary"
+              style={{ flex: 1 }}
+            >
+              Limpiar Filtros
+            </button>
+          </div>
+
+          {(filters.statuses.length > 0 || filters.name.trim()) && (
+            <div className="examiner-filter-info">
+              <strong>Filtros activos:</strong>
+              {filters.name.trim() && ` Nombre: "${filters.name}"`}
+              {filters.statuses.length > 0 && ` | Estados: ${filters.statuses.length} seleccionado(s)`}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Statistics */}
+      {assignments.length > 0 && (
+        <div className="examiner-stats-card">
+          <div className="examiner-stats-content">
+            <div className="examiner-stats-number">{assignments.length}</div>
+            <div className="examiner-stats-text">
+              {assignments.length === 1 ? "Asignación Encontrada" : "Asignaciones Encontradas"}
             </div>
           </div>
         </div>
       )}
 
-      {/* Lista de Asignaciones */}
+      {/* Empty State */}
       {assignments.length === 0 ? (
-        <div className="admin-card" style={{ textAlign: "center", padding: "4rem 2rem" }}>
-          <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.5 }}>📭</div>
-          <h3 style={{ color: "#666", marginBottom: "0.5rem" }}>
-            No tienes asignaciones pendientes
+        <div className="examiner-empty">
+          <div className="examiner-empty-icon">📭</div>
+          <h3 className="examiner-empty-title">
+            {filters.statuses.length > 0 || filters.name.trim() 
+              ? "No se encontraron asignaciones con los filtros aplicados" 
+              : "No tienes asignaciones pendientes"}
           </h3>
-          <p style={{ color: "#999" }}>
-            Cuando el comité te asigne como juez de una sustentación,
-            aparecerá aquí para tu revisión.
+          <p className="examiner-empty-text">
+            {filters.statuses.length > 0 || filters.name.trim()
+              ? "Intenta ajustar los filtros de búsqueda"
+              : "Cuando el comité te asigne como juez de una sustentación, aparecerá aquí."}
           </p>
+          {(filters.statuses.length > 0 || filters.name.trim()) && (
+            <button
+              onClick={handleClearFilters}
+              className="examiner-btn examiner-btn-secondary"
+            >
+              Limpiar Filtros
+            </button>
+          )}
         </div>
       ) : (
-        <div className="admin-cards-grid">
-          {assignments.map((assignment) => (
-            <div key={assignment.studentModalityId} className="admin-card">
-              <div className="admin-card-header">
-                <h3 className="admin-card-title">{assignment.studentName}</h3>
-                <span className={`admin-status-badge ${getStatusBadgeClass(assignment.currentStatus)}`}>
-                  {getStatusLabel(assignment.currentStatus)}
-                </span>
-              </div>
-
-              <div className="admin-card-body">
-                {/* Mi Rol como Juez */}
-                <div style={{
-                  background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
-                  padding: "1rem",
-                  borderRadius: "8px",
-                  border: "2px solid #0ea5e9",
-                  marginBottom: "1.5rem"
-                }}>
-                  <div style={{ fontWeight: "700", color: "#0c4a6e", marginBottom: "0.5rem" }}>
-                    {getExaminerTypeLabel(assignment.examinerType)}
-                  </div>
-                  <div style={{ fontSize: "0.85rem", color: "#0369a1" }}>
-                    Asignado: {formatDate(assignment.assignmentDate)}
-                  </div>
-                </div>
-
-                {/* Información del Estudiante */}
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <div className="admin-card-label">Información del Estudiante</div>
-                  <div style={{ display: "grid", gap: "0.5rem", fontSize: "0.9rem" }}>
-                    <div>
-                      <strong>Email:</strong> {assignment.studentEmail}
-                    </div>
-                    {assignment.studentCode && (
-                      <div>
-                        <strong>Código:</strong> {assignment.studentCode}
-                      </div>
-                    )}
-                    <div>
-                      <strong>Programa:</strong> {assignment.academicProgram}
-                    </div>
-                    <div>
-                      <strong>Modalidad:</strong> {assignment.modalityName}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Información de Sustentación */}
-                {assignment.defenseDate && (
-                  <div style={{
-                    background: "#fef3c7",
-                    padding: "1rem",
-                    borderRadius: "8px",
-                    border: "1px solid #fbbf24",
-                    marginBottom: "1.5rem"
-                  }}>
-                    <div style={{ fontWeight: "700", color: "#92400e", marginBottom: "0.5rem" }}>
-                      📅 Fecha de Sustentación
-                    </div>
-                    <div style={{ fontSize: "0.9rem", color: "#78350f" }}>
-                      {formatDate(assignment.defenseDate)}
-                    </div>
-                    {assignment.defenseLocation && (
-                      <div style={{ fontSize: "0.9rem", color: "#78350f", marginTop: "0.25rem" }}>
-                        📍 {assignment.defenseLocation}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Estado de Evaluación */}
-                {assignment.hasEvaluated && (
-                  <div style={{
-                    background: "#d1fae5",
-                    padding: "1rem",
-                    borderRadius: "8px",
-                    border: "1px solid #10b981",
-                    marginBottom: "1.5rem"
-                  }}>
-                    <div style={{ fontWeight: "700", color: "#065f46", marginBottom: "0.25rem" }}>
-                      ✅ Evaluación Registrada
-                    </div>
-                    <div style={{ fontSize: "0.85rem", color: "#047857" }}>
-                      Ya completaste tu evaluación para esta sustentación
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Acciones */}
-              <div className="admin-card-actions" style={{ display: "block" }}>
-                {getActionButton(assignment)}
-              </div>
-            </div>
-          ))}
+        <div className="examiner-table-container">
+          <table className="examiner-table">
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Modalidad</th>
+                <th>Estado</th>
+                <th>Última Actualización</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assignments.map((assignment) => (
+                <tr key={assignment.studentModalityId}>
+                  <td>
+                    <div className="examiner-student-name">{assignment.studentName}</div>
+                    <div className="examiner-student-email">{assignment.studentEmail}</div>
+                  </td>
+                  <td>
+                    <span className="examiner-modality">{assignment.modalityName}</span>
+                  </td>
+                  <td>
+                    <span className={`examiner-status-badge ${getStatusBadgeClass(assignment.currentStatus)}`}>
+                      {getStatusLabel(assignment.currentStatus)}
+                    </span>
+                  </td>
+                  <td style={{ fontSize: "0.95rem", color: "#666" }}>
+                    {formatDate(assignment.lastUpdatedAt)}
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => navigate(`/examiner/student/${assignment.studentModalityId}`)}
+                      className={`examiner-action-btn ${getActionButtonClass(assignment.currentStatus, assignment.hasEvaluated)}`}
+                    >
+                      {getActionButtonText(assignment.currentStatus, assignment.hasEvaluated)}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

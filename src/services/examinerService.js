@@ -5,11 +5,52 @@ import axios from "../api/axios";
 // ========================================
 /**
  * Obtener lista de modalidades asignadas al juez autenticado
+ * Endpoint: GET /modalities/students/examiner
+ * 
+ * @param {Object} params - Parámetros opcionales de filtrado
+ * @param {Array<string>} params.statuses - Estados de modalidad a filtrar (ej: ['DEFENSE_SCHEDULED', 'EXAMINERS_ASSIGNED'])
+ * @param {string} params.name - Nombre del estudiante a buscar
  * @returns {Promise<Array>} Lista de modalidades
+ * 
+ * @example
+ * // Sin filtros
+ * getMyExaminerAssignments()
+ * 
+ * // Con filtro de estado
+ * getMyExaminerAssignments({ statuses: ['DEFENSE_SCHEDULED'] })
+ * 
+ * // Con filtro de nombre
+ * getMyExaminerAssignments({ name: 'Juan' })
+ * 
+ * // Con ambos filtros
+ * getMyExaminerAssignments({ 
+ *   statuses: ['DEFENSE_SCHEDULED', 'PROPOSAL_APPROVED'], 
+ *   name: 'Perez' 
+ * })
  */
-export const getMyExaminerAssignments = async () => {
-  console.log("📋 Obteniendo mis asignaciones como juez");
-  const response = await axios.get("/modalities/examiner/my-assignments");
+export const getMyExaminerAssignments = async (params = {}) => {
+  console.log("📋 Obteniendo mis asignaciones como juez", params);
+  
+  const queryParams = new URLSearchParams();
+  
+  // Agregar estados si existen (puede ser múltiple)
+  if (params.statuses && params.statuses.length > 0) {
+    params.statuses.forEach(status => {
+      queryParams.append('statuses', status);
+    });
+  }
+  
+  // Agregar nombre si existe
+  if (params.name) {
+    queryParams.append('name', params.name);
+  }
+  
+  const queryString = queryParams.toString();
+  const url = queryString 
+    ? `/modalities/students/examiner?${queryString}` 
+    : '/modalities/students/examiner';
+  
+  const response = await axios.get(url);
   return response.data;
 };
 
@@ -18,8 +59,13 @@ export const getMyExaminerAssignments = async () => {
 // ========================================
 /**
  * Obtener detalle completo de una modalidad asignada al juez
+ * Endpoint: GET /modalities/students/{studentModalityId}/examiner
+ * 
  * @param {number} studentModalityId - ID de la modalidad del estudiante
  * @returns {Promise<Object>} Detalle del estudiante y su modalidad
+ * 
+ * @example
+ * getExaminerStudentProfile(24)
  */
 export const getExaminerStudentProfile = async (studentModalityId) => {
   console.log("🔍 Obteniendo perfil del estudiante:", studentModalityId);
@@ -32,6 +78,11 @@ export const getExaminerStudentProfile = async (studentModalityId) => {
 // ========================================
 // 📄 VER DOCUMENTO (BLOB/PDF)
 // ========================================
+/**
+ * Obtener documento como blob para visualización
+ * @param {number} studentDocumentId - ID del documento del estudiante
+ * @returns {Promise<string>} URL del blob para visualización
+ */
 export const getDocumentBlobUrl = async (studentDocumentId) => {
   console.log("🔍 Descargando documento ID:", studentDocumentId);
 
@@ -60,6 +111,8 @@ export const getDocumentBlobUrl = async (studentDocumentId) => {
 // ========================================
 /**
  * Revisar documento como juez (aceptar, rechazar o solicitar correcciones)
+ * Endpoint: PUT /modalities/documents/{studentDocumentId}/review-examiner
+ * 
  * @param {number} studentDocumentId - ID del documento del estudiante
  * @param {Object} data - Datos de la revisión
  * @param {string} data.status - Estado del documento (ACCEPTED_FOR_EXAMINER_REVIEW, REJECTED_FOR_EXAMINER_REVIEW, CORRECTIONS_REQUESTED_BY_EXAMINER)
@@ -80,6 +133,8 @@ export const reviewDocumentExaminer = async (studentDocumentId, data) => {
 // ========================================
 /**
  * Registrar evaluación final de la sustentación
+ * Endpoint: POST /modalities/{studentModalityId}/final-evaluation/register
+ * 
  * @param {number} studentModalityId - ID de la modalidad del estudiante
  * @param {Object} evaluationData - Datos de la evaluación
  * @param {number} evaluationData.grade - Calificación (0.0 - 5.0)
@@ -120,12 +175,29 @@ export const EXAMINER_DECISIONS = {
 };
 
 /**
+ * Estados de modalidad relevantes para examiners
+ */
+export const EXAMINER_MODALITY_STATUS = {
+  EXAMINERS_ASSIGNED: "EXAMINERS_ASSIGNED",
+  READY_FOR_DEFENSE: "READY_FOR_DEFENSE",
+  DEFENSE_COMPLETED: "DEFENSE_COMPLETED",
+  UNDER_EVALUATION_PRIMARY_EXAMINERS: "UNDER_EVALUATION_PRIMARY_EXAMINERS",
+  UNDER_EVALUATION_TIEBREAKER: "UNDER_EVALUATION_TIEBREAKER",
+  DISAGREEMENT_REQUIRES_TIEBREAKER: "DISAGREEMENT_REQUIRES_TIEBREAKER",
+  GRADED_APPROVED: "GRADED_APPROVED",
+  GRADED_FAILED: "GRADED_FAILED",
+  CORRECTIONS_REQUESTED_EXAMINERS: "CORRECTIONS_REQUESTED_EXAMINERS",
+};
+
+/**
  * Obtener clase CSS para badge de estado
  */
 export const getStatusBadgeClass = (status) => {
   if (status?.includes("ACCEPTED")) return "success";
   if (status?.includes("REJECTED")) return "error";
   if (status?.includes("CORRECTIONS")) return "warning";
+  if (status === "GRADED_APPROVED") return "success";
+  if (status === "GRADED_FAILED") return "error";
   return "inactive";
 };
 
@@ -143,6 +215,8 @@ export const getStatusLabel = (status) => {
     GRADED_APPROVED: "Aprobado",
     GRADED_FAILED: "Reprobado",
     CORRECTIONS_REQUESTED_EXAMINERS: "Correcciones Solicitadas por Jueces",
+    PROPOSAL_APPROVED: "Propuesta Aprobada",
+    DEFENSE_SCHEDULED: "Sustentación Programada",
   };
   return statusMap[status] || status;
 };

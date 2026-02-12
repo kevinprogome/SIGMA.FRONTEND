@@ -1,0 +1,518 @@
+/* ========================================
+   EXAMINER STUDENT PROFILE - Universidad Surcolombiana
+   Colores: #7A1117 (Granate), #FFD700 (Dorado)
+   Tipografía: Georgia para títulos, Arial para texto
+   ======================================== */
+
+.examiner-profile-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  min-height: 100vh;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+}
+
+.examiner-profile-loading {
+  text-align: center;
+  padding: 5rem 2rem;
+  font-size: 1.3rem;
+  color: #7A1117;
+  font-weight: 600;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.examiner-profile-header {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(122, 17, 23, 0.4);
+}
+
+.examiner-profile-back-btn {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.examiner-profile-back-btn:hover {
+  background: white;
+  color: #7A1117;
+  transform: translateX(-5px);
+}
+
+.examiner-profile-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 2.3rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.examiner-profile-subtitle {
+  font-size: 1.1rem;
+  margin-top: 0.75rem;
+  opacity: 0.95;
+  font-weight: 400;
+}
+
+.examiner-profile-message {
+  padding: 1.25rem 1.75rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  animation: examinerProfileSlideIn 0.4s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.examiner-profile-message.error {
+  background: linear-gradient(135deg, #fde1e1 0%, #fcc8c8 100%);
+  color: #7A1117;
+  border-left: 5px solid #7A1117;
+}
+
+.examiner-profile-message.success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border-left: 5px solid #28a745;
+}
+
+.examiner-profile-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.examiner-profile-close-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.examiner-profile-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 2px solid #e0e0e0;
+}
+
+.examiner-profile-card-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.7rem;
+  color: #7A1117;
+  margin: 0 0 2rem 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #e0e0e0;
+}
+
+.examiner-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.examiner-profile-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.examiner-profile-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.examiner-profile-value {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.examiner-profile-value.email {
+  color: #7A1117;
+}
+
+.examiner-role-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 3px solid #7A1117;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(122, 17, 23, 0.2);
+}
+
+.examiner-role-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.7rem;
+  color: #7A1117;
+  margin: 0 0 1.5rem 0;
+  font-weight: 700;
+}
+
+.examiner-role-type {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #7A1117;
+  margin-bottom: 0.75rem;
+}
+
+.examiner-role-date {
+  font-size: 1rem;
+  color: #666;
+}
+
+.examiner-doc-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 2px solid #e0e0e0;
+}
+
+.examiner-doc-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.7rem;
+  color: #7A1117;
+  margin: 0 0 2rem 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.examiner-doc-item {
+  padding: 2rem;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.examiner-doc-item:hover {
+  border-color: #7A1117;
+  box-shadow: 0 6px 18px rgba(122, 17, 23, 0.15);
+}
+
+.examiner-doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.examiner-doc-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #7A1117;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.examiner-doc-type {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.examiner-doc-status {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.examiner-doc-status.approved {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border: 2px solid #28a745;
+}
+
+.examiner-doc-status.pending {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+  color: #856404;
+  border: 2px solid #ffc107;
+}
+
+.examiner-doc-notes {
+  background: #f8f9fa;
+  padding: 1.25rem;
+  border-radius: 8px;
+  border-left: 4px solid #666;
+  margin-bottom: 1.5rem;
+}
+
+.examiner-doc-notes strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.examiner-doc-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.examiner-doc-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Arial', 'Helvetica', sans-serif;
+}
+
+.examiner-doc-btn.view {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+}
+
+.examiner-doc-btn.review {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+}
+
+.examiner-doc-btn.cancel {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.examiner-doc-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.examiner-doc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.examiner-review-panel {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 5px solid #7A1117;
+}
+
+.examiner-review-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #7A1117;
+  margin: 0 0 1.5rem 0;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.examiner-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.examiner-form-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.75rem;
+}
+
+.examiner-form-select,
+.examiner-form-textarea {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.examiner-form-select:focus,
+.examiner-form-textarea:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 4px rgba(122, 17, 23, 0.1);
+}
+
+.examiner-form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.examiner-form-submit {
+  width: 100%;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+}
+
+.examiner-form-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(122, 17, 23, 0.4);
+}
+
+.examiner-form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.examiner-eval-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 2px solid #e0e0e0;
+}
+
+.examiner-eval-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.examiner-eval-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.examiner-eval-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+}
+
+.examiner-eval-text {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.examiner-eval-completed {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 3px solid #28a745;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.examiner-eval-completed-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+}
+
+.examiner-eval-completed-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.8rem;
+  color: #155724;
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+}
+
+.examiner-eval-completed-text {
+  font-size: 1.1rem;
+  color: #155724;
+}
+
+.examiner-form-actions {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+@keyframes examinerProfileSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1200px) {
+  .examiner-profile-container {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .examiner-profile-container {
+    padding: 1.5rem;
+  }
+  .examiner-profile-header {
+    padding: 2rem 1.5rem;
+  }
+  .examiner-profile-title {
+    font-size: 1.8rem;
+  }
+  .examiner-profile-grid {
+    grid-template-columns: 1fr;
+  }
+  .examiner-doc-actions {
+    flex-direction: column;
+  }
+  .examiner-doc-btn {
+    width: 100%;
+  }
+  .examiner-form-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .examiner-profile-title {
+    font-size: 1.5rem;
+  }
+  .examiner-profile-card {
+    padding: 1.5rem;
+  }
+}
