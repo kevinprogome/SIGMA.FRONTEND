@@ -11,7 +11,48 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // 🔹 Lista de roles válidos del sistema
-  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "PROGRAM_HEAD", "PROGRAM_CURRICULUM_COMMITTEE", "STUDENT", "PROJECT_DIRECTOR"];
+  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "PROGRAM_HEAD", "PROGRAM_CURRICULUM_COMMITTEE", "STUDENT", "PROJECT_DIRECTOR", "EXAMINER"];
+
+  // 🧠 Inferir rol basado en los permisos que tiene
+  const inferRoleFromPermissions = (permissions) => {
+    if (!permissions || permissions.length === 0) return null;
+
+    const permissionsStr = permissions.join(",").toUpperCase();
+
+    // ✅ PRIMERO verificar EXAMINER (ANTES que los demás)
+    if (permissionsStr.includes("EVALUATE_DEFENSE") || 
+        permissionsStr.includes("GRADE_DEFENSE") ||
+        permissionsStr.includes("VIEW_DEFENSE_ASSIGNMENTS")) {
+      return "EXAMINER";
+    }
+
+    // Si tiene permisos de director
+    if (permissionsStr.includes("PROPOSE_DEFENSE") ||
+        permissionsStr.includes("MANAGE_STUDENT_PROJECT")) {
+      return "PROJECT_DIRECTOR";
+    }
+
+    // Si tiene permisos de ADMIN (crear roles, permisos, etc.)
+    if (permissionsStr.includes("CREATE_ROLE") || 
+        permissionsStr.includes("CREATE_PERMISSION") ||
+        permissionsStr.includes("CREATE_MODALITY")) {
+      return "ADMIN";
+    }
+
+    // Si tiene permisos de jefe programa
+    if (permissionsStr.includes("REVIEW_DOCUMENTS") || 
+        permissionsStr.includes("APPROVE_DOCUMENTS")) {
+      return "PROGRAM_HEAD";
+    }
+
+    // Si tiene permisos de comite
+    if (permissionsStr.includes("COUNCIL_REVIEW")) {
+      return "PROGRAM_CURRICULUM_COMMITTEE";
+    }
+
+    // Por defecto, si no podemos inferir, asumimos STUDENT
+    return "STUDENT";
+  };
 
   // 🔹 Extrae y normaliza el rol desde el JWT
   const extractRole = (decoded) => {
@@ -67,34 +108,6 @@ export const AuthProvider = ({ children }) => {
 
     console.error("❌ No se pudo extraer un rol válido del token");
     return null;
-  };
-
-  // 🧠 Inferir rol basado en los permisos que tiene
-  const inferRoleFromPermissions = (permissions) => {
-    if (!permissions || permissions.length === 0) return null;
-
-    const permissionsStr = permissions.join(",").toUpperCase();
-
-    // Si tiene permisos de ADMIN (crear roles, permisos, etc.)
-    if (permissionsStr.includes("CREATE_ROLE") || 
-        permissionsStr.includes("CREATE_PERMISSION") ||
-        permissionsStr.includes("CREATE_MODALITY")) {
-      return "ADMIN";
-    }
-
-    // Si tiene permisos de jefe programa
-    if (permissionsStr.includes("REVIEW_DOCUMENTS") || 
-        permissionsStr.includes("APPROVE_DOCUMENTS")) {
-      return "PROGRAM_HEAD";
-    }
-
-    // Si tiene permisos de comite
-    if (permissionsStr.includes("COUNCIL_REVIEW")) {
-      return "PROGRAM_CURRICULUM_COMMITTEE";
-    }
-
-    // Por defecto, si no podemos inferir, asumimos STUDENT
-    return "STUDENT";
   };
 
   // 🔹 Extrae información del usuario desde el JWT

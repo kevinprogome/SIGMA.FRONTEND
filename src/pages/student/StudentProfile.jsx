@@ -30,11 +30,21 @@ export default function StudentProfile() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   
-  // Estado para controlar si el perfil ya fue guardado
   const [profileSaved, setProfileSaved] = useState(false);
-  
-  // Estado para el modal de confirmación
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // ✅ NUEVO: Obtener créditos máximos del programa seleccionado
+  const getMaxCredits = () => {
+    if (!profile.academicProgramId) return 180; // Valor por defecto
+    
+    const selectedProgram = allPrograms.find(
+      p => p.id === parseInt(profile.academicProgramId)
+    );
+    
+    return selectedProgram?.totalCredits || 180;
+  };
+
+  const maxCredits = getMaxCredits();
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -166,6 +176,13 @@ export default function StudentProfile() {
       return;
     }
 
+    // ✅ Validar créditos aprobados
+    const approvedCredits = parseInt(profile.approvedCredits);
+    if (approvedCredits > maxCredits) {
+      setMessage(`Los créditos aprobados no pueden superar el total del programa (${maxCredits})`);
+      return;
+    }
+
     // Mostrar modal de confirmación
     setShowConfirmModal(true);
   };
@@ -263,7 +280,7 @@ export default function StudentProfile() {
           )}
 
           {message && (
-            <div className={`profile-message ${message.includes("Error") || message.includes("favor") || message.includes("pudo") || message.includes("inválidos") ? "error" : "success"}`}>
+            <div className={`profile-message ${message.includes("Error") || message.includes("favor") || message.includes("pudo") || message.includes("inválidos") || message.includes("superar") ? "error" : "success"}`}>
               {message}
             </div>
           )}
@@ -372,12 +389,14 @@ export default function StudentProfile() {
                 value={profile.approvedCredits}
                 onChange={handleChange}
                 min="0"
-                max="180"
+                max={maxCredits}
                 required
                 disabled={saving}
               />
               <small style={{ color: "#666", fontSize: "0.85rem" }}>
-                Máximo 180 créditos
+                {profile.academicProgramId 
+                  ? `Máximo ${maxCredits} créditos (total del programa)`
+                  : "Selecciona un programa para ver el máximo de créditos"}
               </small>
             </div>
 
@@ -455,7 +474,7 @@ export default function StudentProfile() {
 
                 <div className="profile-modal-item editable">
                   <span className="profile-modal-label">Créditos Aprobados:</span>
-                  <span className="profile-modal-value">{profile.approvedCredits}</span>
+                  <span className="profile-modal-value">{profile.approvedCredits} / {maxCredits}</span>
                 </div>
 
                 <div className="profile-modal-item editable">

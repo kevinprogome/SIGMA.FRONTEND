@@ -6,6 +6,7 @@ import {
   assignProgramHead,
   assignProjectDirector,
   assignCommitteeMember,
+  assignExaminer,
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
 
@@ -13,12 +14,15 @@ const ASSIGNMENT_TYPES = [
   { value: "PROGRAM_HEAD", label: "Jefe de Programa" },
   { value: "PROJECT_DIRECTOR", label: "Director de Proyecto" },
   { value: "PROGRAM_CURRICULUM_COMMITTEE", label: "Miembro de Comité" },
+  { value: "EXAMINER", label: "Jurado" }
+
 ];
 
 const ASSIGNMENT_ENDPOINTS = {
   PROGRAM_HEAD: assignProgramHead,
   PROJECT_DIRECTOR: assignProjectDirector,
   PROGRAM_CURRICULUM_COMMITTEE: assignCommitteeMember,
+  EXAMINER: assignExaminer
 };
 
 export default function Assignments() {

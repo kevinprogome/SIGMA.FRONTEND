@@ -15,6 +15,7 @@ import SecretaryLayout from "../layouts/SecretaryLayout";
 import CouncilLayout from "../layouts/CouncilLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import DirectorLayout from "../layouts/DirectorLayout";
+import ExaminerLayout from "../layouts/ExaminerLayout";
 
 // STUDENT
 import StudentDashboard from "../pages/student/Dashboard";
@@ -32,12 +33,16 @@ import StudentProfileSecretary from "../pages/programhead/StudentProfile";
 import CouncilDashboard from "../pages/committee/councilDashboard";
 import CouncilStudentProfile from "../pages/committee/councilStudentProfile";
 import CancellationRequests from "../pages/committee/CancellationRequests";
-import CommitteeDefenseProposals from "../pages/committee/defenseProposals"
+import CommitteeDefenseProposals from "../pages/committee/defenseProposals";
 
 // DIRECTOR
 import DirectorDashboard from "../pages/director/DirectorDashboard";
 import DirectorStudentProfile from "../pages/director/DirectorStudentProfile";
 import DirectorCancellationRequests from "../pages/director/DirectorCancellationRequest";
+
+// EXAMINER
+import ExaminerDashboard from "../pages/examiner/examinerDashboard";
+import ExaminerStudentProfile from "../pages/examiner/examinerStudentProfile";
 
 // ADMIN
 import Roles from "../pages/admin/Roles";
@@ -50,7 +55,6 @@ import Requirements from "../pages/admin/Requirements";
 import Documents from "../pages/admin/Documents";
 import Assignments from "../pages/admin/Assignments";
 import ProgramDegreeModalities from "../pages/admin/ProgramDegreeModalities";
-import DefenseProposals from "../pages/committee/defenseProposals";
 
 function AppRoutes() {
   return (
@@ -67,7 +71,7 @@ function AppRoutes() {
           <Route index element={<StudentDashboard />} />
           <Route path="profile" element={<StudentProfile />} />
           <Route path="modalities" element={<StudentModalities />} />
-          <Route path="documents" element={<StudentDocuments />} /> {/* ✅ NUEVA RUTA */}
+          <Route path="documents" element={<StudentDocuments />} />
           <Route path="status" element={<StudentStatus />} />
           <Route path="cancellation" element={<StudentCancellation />} />
         </Route>
@@ -93,8 +97,7 @@ function AppRoutes() {
             element={<CouncilStudentProfile />}
           />
           <Route path="cancellations" element={<CancellationRequests />} />
-          <Route path="proposals" element={<DefenseProposals/>} />
-
+          <Route path="proposals" element={<CommitteeDefenseProposals />} />
         </Route>
       </Route>
 
@@ -109,6 +112,17 @@ function AppRoutes() {
           <Route 
             path="cancellations" 
             element={<DirectorCancellationRequests />} 
+          />
+        </Route>
+      </Route>
+
+      {/* EXAMINER */}
+      <Route element={<ProtectedRoute allowedRoles={["EXAMINER"]} />}>
+        <Route path="/examiner" element={<ExaminerLayout />}>
+          <Route index element={<ExaminerDashboard />} />
+          <Route 
+            path="student/:studentModalityId" 
+            element={<ExaminerStudentProfile />} 
           />
         </Route>
       </Route>

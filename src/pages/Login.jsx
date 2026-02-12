@@ -15,7 +15,7 @@ function Login() {
   const { login } = useAuth();
 
   // 🔹 Lista de roles válidos
-  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "PROGRAM_HEAD", "PROGRAM_CURRICULUM_COMMITTEE", "STUDENT", "PROJECT_DIRECTOR"];
+  const VALID_ROLES = ["ADMIN", "SUPERADMIN", "PROGRAM_HEAD", "PROGRAM_CURRICULUM_COMMITTEE", "STUDENT", "PROJECT_DIRECTOR", "EXAMINER"];
 
   // 🔹 Redirigir según el rol
   const redirectByRole = (role) => {
@@ -40,6 +40,9 @@ function Login() {
       case "PROJECT_DIRECTOR":
         navigate("/project-director", { replace: true });
         break;
+      case "EXAMINER":
+        navigate("/examiner", { replace: true });
+        break;
       default:
         console.error("❌ Rol desconocido:", role);
         setError(`Rol no reconocido: ${role}. Contacta al administrador.`);
@@ -54,6 +57,20 @@ function Login() {
 
     const permissionsStr = permissions.join(",").toUpperCase();
 
+    // ✅ PRIMERO verificar EXAMINER
+    if (permissionsStr.includes("EVALUATE_DEFENSE") || 
+        permissionsStr.includes("GRADE_DEFENSE") ||
+        permissionsStr.includes("VIEW_DEFENSE_ASSIGNMENTS")) {
+      return "EXAMINER";
+    }
+
+    // Verificar PROJECT_DIRECTOR
+    if (permissionsStr.includes("PROPOSE_DEFENSE") ||
+        permissionsStr.includes("MANAGE_STUDENT_PROJECT")) {
+      return "PROJECT_DIRECTOR";
+    }
+
+    // Verificar ADMIN
     if (permissionsStr.includes("CREATE_ROLE") || 
         permissionsStr.includes("CREATE_PERMISSION") ||
         permissionsStr.includes("CREATE_MODALITY") ||
@@ -61,11 +78,13 @@ function Login() {
       return "ADMIN";
     }
 
+    // Verificar PROGRAM_HEAD
     if (permissionsStr.includes("REVIEW_DOCUMENTS") || 
         permissionsStr.includes("APPROVE_DOCUMENTS")) {
       return "PROGRAM_HEAD";
     }
 
+    // Verificar COMMITTEE
     if (permissionsStr.includes("COUNCIL_REVIEW")) {
       return "PROGRAM_CURRICULUM_COMMITTEE";
     }
@@ -79,6 +98,7 @@ function Login() {
 
     // 1️⃣ Buscar en campo 'role'
     if (decoded?.role && VALID_ROLES.includes(decoded.role.toUpperCase())) {
+      console.log("✅ Rol encontrado en campo 'role':", decoded.role.toUpperCase());
       return decoded.role.toUpperCase();
     }
 
@@ -98,7 +118,7 @@ function Login() {
       for (const auth of authorities) {
         const cleanAuth = auth.replace("ROLE_", "").trim().toUpperCase();
         if (VALID_ROLES.includes(cleanAuth)) {
-          console.log("✅ Rol encontrado:", cleanAuth);
+          console.log("✅ Rol encontrado en authorities:", cleanAuth);
           return cleanAuth;
         }
       }
@@ -106,7 +126,7 @@ function Login() {
       // Si no encontramos rol, intentar inferir de permisos
       const inferred = inferRoleFromPermissions(authorities);
       if (inferred) {
-        console.log("🧠 Rol inferido:", inferred);
+        console.log("🧠 Rol inferido de permisos:", inferred);
         return inferred;
       }
     }
@@ -115,6 +135,7 @@ function Login() {
     if (decoded?.authority) {
       const cleanAuth = decoded.authority.replace("ROLE_", "").trim().toUpperCase();
       if (VALID_ROLES.includes(cleanAuth)) {
+        console.log("✅ Rol encontrado en authority:", cleanAuth);
         return cleanAuth;
       }
     }
@@ -141,6 +162,13 @@ function Login() {
 
       // Decodificar y extraer rol
       const decoded = jwtDecode(token);
+      
+      // Debug completo del token
+      console.log("🔍 TOKEN COMPLETO DECODIFICADO:", JSON.stringify(decoded, null, 2));
+      console.log("🔍 decoded.role:", decoded.role);
+      console.log("🔍 decoded.authorities:", decoded.authorities);
+      console.log("🔍 decoded.authority:", decoded.authority);
+      
       const role = extractRole(decoded);
 
       if (!role) {
@@ -154,17 +182,15 @@ function Login() {
 
       // Esperar un tick para que el contexto procese
       setTimeout(() => {
+        console.log("🎯 A punto de redirigir, rol:", role);
         const success = redirectByRole(role);
         if (!success) {
-          // Si la redirección falló, limpiar el estado
           setIsLoading(false);
         }
       }, 100);
 
     } catch (err) {
       console.error("❌ Error en login:", err);
-      // El backend ya maneja este mensaje:
-      // - "Credenciales incorrectas. Por favor, verifica tu correo institucional y contraseña."
       setError(err.response?.data || err.message || "Error al iniciar sesión");
       setIsLoading(false);
     }

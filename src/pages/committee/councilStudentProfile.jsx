@@ -8,8 +8,7 @@ import {
   getModalityDetails,
 } from "../../services/committeeService";
 import AssignDirectorModal from "../../components/committee/AssignDirectorModal";
-import ScheduleDefenseModal from "../../components/committee/ScheduleDefenseModal";
-import FinalEvaluationModal from "../../components/committee/FinalEvaluationModal";
+import AssignExaminersModal from "../../components/committee/AssignExaminerModal";
 import ModalityDetailsModal from "../../components/committee/ModalityDetailsModal";
 import "../../styles/council/studentprofile.css";
 
@@ -29,8 +28,7 @@ export default function CommitteeStudentProfile() {
 
   // Estados para modales
   const [showAssignDirectorModal, setShowAssignDirectorModal] = useState(false);
-  const [showScheduleDefenseModal, setShowScheduleDefenseModal] = useState(false);
-  const [showFinalEvaluationModal, setShowFinalEvaluationModal] = useState(false);
+  const [showAssignExaminersModal, setShowAssignExaminersModal] = useState(false);
   const [showModalityDetailsModal, setShowModalityDetailsModal] = useState(false);
   const [modalityDetails, setModalityDetails] = useState(null);
 
@@ -633,29 +631,30 @@ export default function CommitteeStudentProfile() {
       <div className="council-actions-section">
         <h3 className="section-title">🎯 Acciones del Comité de Currículo</h3>
         <div className="council-actions-grid">
-          <button
-            onClick={() => setShowAssignDirectorModal(true)}
-            className="council-action-btn assign-director"
-          >
-            <span className="action-icon">👨‍🏫</span>
-            <span className="action-text">Asignar Director</span>
-          </button>
+          {/* Asignar Director - Solo si NO tiene director */}
+          {!profile.projectDirectorName && (
+            <button
+              onClick={() => setShowAssignDirectorModal(true)}
+              className="council-action-btn assign-director"
+            >
+              <span className="action-icon">👨‍🏫</span>
+              <span className="action-text">Asignar Director</span>
+            </button>
+          )}
 
-          <button
-            onClick={() => setShowScheduleDefenseModal(true)}
-            className="council-action-btn schedule-defense"
-          >
-            <span className="action-icon">📅</span>
-            <span className="action-text">Programar Sustentación</span>
-          </button>
-
-          <button
-            onClick={() => setShowFinalEvaluationModal(true)}
-            className="council-action-btn final-evaluation"
-          >
-            <span className="action-icon">📊</span>
-            <span className="action-text">Evaluación Final</span>
-          </button>
+          {/* Asignar Jueces - Solo si estado = DEFENSE_SCHEDULED */}
+          {profile.currentStatus === "DEFENSE_SCHEDULED" && (
+            <button
+              onClick={() => setShowAssignExaminersModal(true)}
+              className="council-action-btn assign-director"
+              style={{
+                background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)"
+              }}
+            >
+              <span className="action-icon">👨‍⚖️</span>
+              <span className="action-text">Asignar Jueces de Sustentación</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -693,24 +692,13 @@ export default function CommitteeStudentProfile() {
         />
       )}
 
-      {showScheduleDefenseModal && (
-        <ScheduleDefenseModal
+      {showAssignExaminersModal && (
+        <AssignExaminersModal
           studentModalityId={studentModalityId}
-          onClose={() => setShowScheduleDefenseModal(false)}
+          onClose={() => setShowAssignExaminersModal(false)}
           onSuccess={() => {
-            setShowScheduleDefenseModal(false);
-            handleModalSuccess("✅ Sustentación programada correctamente");
-          }}
-        />
-      )}
-
-      {showFinalEvaluationModal && (
-        <FinalEvaluationModal
-          studentModalityId={studentModalityId}
-          onClose={() => setShowFinalEvaluationModal(false)}
-          onSuccess={() => {
-            setShowFinalEvaluationModal(false);
-            handleModalSuccess("✅ Evaluación final registrada correctamente");
+            setShowAssignExaminersModal(false);
+            handleModalSuccess("✅ Jueces asignados correctamente");
           }}
         />
       )}

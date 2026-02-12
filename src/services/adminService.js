@@ -258,6 +258,14 @@ export const assignProjectDirector = async (data) => {
   return response.data;
 };
 
+export const assignExaminer = async (data) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.post(`${API_URL}/assign-examiner`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 export const assignCommitteeMember = async (data) => {
   const token = localStorage.getItem("token");
   const response = await axios.post(`${API_URL}/assign-committee-member`, data, {

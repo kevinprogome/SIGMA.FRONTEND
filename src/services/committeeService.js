@@ -224,6 +224,7 @@ export const viewCancellationDocument = async (studentModalityId) => {
     throw error;
   }
 };
+
 // ==========================================
 // 🆕 NUEVAS FUNCIONES PARA PROPUESTAS DE DEFENSA
 // ==========================================
@@ -268,3 +269,35 @@ export const rescheduleDefense = async (studentModalityId, defenseData) => {
   return response.data;
 };
 
+// ==========================================
+// 👨‍⚖️ FUNCIONES PARA JUECES/EXAMINERS
+// ==========================================
+
+/**
+ * Obtener lista de jueces disponibles para el comité
+ * Solo muestra jueces del programa académico del comité
+ * @returns {Promise<Array>} Lista de jueces
+ */
+export const getExaminersForCommittee = async () => {
+  console.log("👨‍⚖️ Obteniendo jueces disponibles para el comité");
+  const response = await axios.get("/modalities/examiners/for-committee");
+  return response.data;
+};
+
+/**
+ * Asignar jueces a una modalidad
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @param {Object} examinersData - Datos de los jueces
+ * @param {number} examinersData.primaryExaminer1Id - ID del juez principal 1
+ * @param {number} examinersData.primaryExaminer2Id - ID del juez principal 2
+ * @param {number|null} examinersData.tiebreakerExaminerId - ID del juez de desempate (opcional)
+ * @returns {Promise<Object>} Respuesta de confirmación
+ */
+export const assignExaminers = async (studentModalityId, examinersData) => {
+  console.log("👨‍⚖️ Asignando jueces:", { studentModalityId, examinersData });
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/examiners/assign`,
+    examinersData
+  );
+  return response.data;
+};

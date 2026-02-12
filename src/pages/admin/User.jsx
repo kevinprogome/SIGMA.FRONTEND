@@ -13,7 +13,8 @@ import "../../styles/admin/Roles.css";
 const ROLES_REQUIRING_PROGRAM = [
   "PROGRAM_HEAD",
   "PROJECT_DIRECTOR",
-  "PROGRAM_CURRICULUM_COMMITTEE"
+  "PROGRAM_CURRICULUM_COMMITTEE",
+  "EXAMINER"
 ];
 
 export default function Users() {
