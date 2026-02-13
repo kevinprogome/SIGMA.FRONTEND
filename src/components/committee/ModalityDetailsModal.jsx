@@ -67,7 +67,7 @@ export default function ModalityDetailsModal({ modalityDetails, onClose }) {
                     <div className="document-item-header">
                       <span className="document-item-name">
                         {doc.documentName}
-                        {doc.mandatory && (
+                        {doc.documentType === "MANDATORY" && (
                           <span className="mandatory-badge">Obligatorio</span>
                         )}
                       </span>

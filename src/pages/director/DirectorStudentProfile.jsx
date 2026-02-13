@@ -5,6 +5,8 @@ import {
   proposeDefenseByDirector,
   approveModalityCancellationByDirector,
   rejectModalityCancellationByDirector,
+  getDocumentBlobUrl,
+  viewCancellationDocument,
   canProposeDefense,
   hasCancellationRequest,
   formatDate,
@@ -22,6 +24,8 @@ export default function DirectorStudentProfile() {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [loadingDoc, setLoadingDoc] = useState(null);
+  const [loadingCancellationDoc, setLoadingCancellationDoc] = useState(false);
  
   // Modals
   const [showDefenseModal, setShowDefenseModal] = useState(false);
@@ -51,6 +55,51 @@ export default function DirectorStudentProfile() {
       setMessage("Error al cargar detalle: " + getErrorMessage(err));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ NUEVA FUNCIÓN: Ver documento
+  const handleViewDocument = async (studentDocumentId, documentName) => {
+    console.log("📄 Intentando ver documento:", studentDocumentId);
+    setLoadingDoc(studentDocumentId);
+
+    try {
+      const blobUrl = await getDocumentBlobUrl(studentDocumentId);
+      console.log("✅ Abriendo documento en nueva pestaña");
+      window.open(blobUrl, "_blank");
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 60000);
+    } catch (err) {
+      console.error("❌ Error al cargar documento:", err);
+      setMessage(`Error al cargar el documento "${documentName}": ${getErrorMessage(err)}`);
+      setTimeout(() => setMessage(""), 5000);
+    } finally {
+      setLoadingDoc(null);
+    }
+  };
+
+  // ✅ NUEVA FUNCIÓN: Ver documento de cancelación
+  const handleViewCancellationDocument = async () => {
+    console.log("📄 Intentando ver documento de cancelación");
+    setLoadingCancellationDoc(true);
+
+    try {
+      const blob = await viewCancellationDocument(studentModalityId);
+      const blobUrl = window.URL.createObjectURL(blob);
+      console.log("✅ Abriendo documento de cancelación en nueva pestaña");
+      window.open(blobUrl, "_blank");
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 60000);
+    } catch (err) {
+      console.error("❌ Error al cargar documento de cancelación:", err);
+      setMessage(`Error al cargar el documento de cancelación: ${getErrorMessage(err)}`);
+      setTimeout(() => setMessage(""), 5000);
+    } finally {
+      setLoadingCancellationDoc(false);
     }
   };
 
@@ -84,7 +133,7 @@ export default function DirectorStudentProfile() {
         `✅ Propuesta de sustentación enviada correctamente para el ${formattedDate} en ${defenseData.defenseLocation}`
       );
 
-      // Esperar segundos antes de cerrar
+      // Esperar 10 segundos antes de cerrar
       setTimeout(() => {
         setShowDefenseModal(false);
         setSuccessMessage("");
@@ -140,6 +189,29 @@ export default function DirectorStudentProfile() {
     }
   };
 
+  // Helper para obtener clase de badge de documento
+  const getDocStatusBadgeClass = (status) => {
+    if (status?.includes("ACCEPTED")) return "accepted";
+    if (status?.includes("REJECTED")) return "rejected";
+    if (status?.includes("CORRECTIONS")) return "corrections";
+    return "pending";
+  };
+
+  // Helper para obtener etiqueta legible del estado del documento
+  const getDocStatusLabel = (status) => {
+    const labels = {
+      PENDING: "Pendiente de revisión",
+      ACCEPTED_FOR_PROGRAM_HEAD_REVIEW: "Aceptado por Jefe de Programa",
+      REJECTED_FOR_PROGRAM_HEAD_REVIEW: "Rechazado por Jefe de Programa",
+      CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD: "Correcciones solicitadas",
+      ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW: "Aceptado por Comité",
+      REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW: "Rechazado por Comité",
+      CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE: "Correcciones solicitadas por Comité",
+      CORRECTION_RESUBMITTED: "Corrección reenviada",
+    };
+    return labels[status] || status;
+  };
+
   // Obtener fecha mínima (hoy)
   const today = new Date().toISOString().split("T")[0];
 
@@ -159,6 +231,10 @@ export default function DirectorStudentProfile() {
       </div>
     );
   }
+
+  // Separar documentos subidos de no subidos
+  const uploadedDocs = student.documents?.filter(d => d.uploaded) || [];
+  const notUploadedDocs = student.documents?.filter(d => !d.uploaded) || [];
 
   return (
     <div className="admin-page">
@@ -211,7 +287,15 @@ export default function DirectorStudentProfile() {
             El estudiante ha solicitado cancelar esta modalidad. Como director de proyecto,
             debes revisar y decidir si apruebas o rechazas esta solicitud.
           </p>
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <button
+              onClick={handleViewCancellationDocument}
+              disabled={loadingCancellationDoc}
+              className="admin-btn-primary"
+              style={{ background: "#3b82f6" }}
+            >
+              {loadingCancellationDoc ? "⏳ Cargando..." : "📄 Ver Documento de Cancelación"}
+            </button>
             <button
               onClick={handleApproveCancellation}
               className="admin-btn-primary"
@@ -316,67 +400,233 @@ export default function DirectorStudentProfile() {
         </div>
       </div>
 
-      {/* Documentos */}
+      {/* ✅ SECCIÓN DE DOCUMENTOS - NUEVA Y MEJORADA */}
       {student.documents && student.documents.length > 0 && (
         <div className="admin-card" style={{ marginBottom: "2rem" }}>
           <div className="admin-card-header">
-            <h2>📄 Documentos</h2>
+            <h2>📄 Documentos del Estudiante</h2>
           </div>
           <div className="admin-card-body">
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              {student.documents.map((doc, index) => (
-                <div
-                  key={index}
-                  style={{
-                    padding: "1rem",
-                    background: doc.uploaded ? "#f0fdf4" : "#f9fafb",
-                    border: `1px solid ${doc.uploaded ? "#86efac" : "#e5e7eb"}`,
-                    borderRadius: "6px"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.5rem" }}>
-                    <div style={{ flex: 1 }}>
-                      <strong style={{ display: "block", marginBottom: "0.25rem" }}>
-                        {doc.documentName}
-                        {doc.mandatory && (
-                          <span style={{ color: "#dc2626", marginLeft: "0.5rem" }}>*</span>
-                        )}
-                      </strong>
-                      <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-                        {doc.statusDescription}
-                      </span>
-                    </div>
-                    <span
-                      className={`admin-status-badge ${doc.uploaded ? 'success' : 'inactive'}`}
-                      style={{ fontSize: "0.75rem" }}
-                    >
-                      {doc.uploaded ? "✓ Subido" : "Sin subir"}
-                    </span>
-                  </div>
-                 
-                  {doc.notes && (
-                    <p style={{
-                      margin: "0.5rem 0 0 0",
-                      fontSize: "0.875rem",
-                      fontStyle: "italic",
-                      color: "#4b5563"
-                    }}>
-                      <strong>Notas:</strong> {doc.notes}
-                    </p>
-                  )}
-                 
-                  {doc.lastUpdate && (
-                    <p style={{
-                      margin: "0.5rem 0 0 0",
-                      fontSize: "0.75rem",
-                      color: "#9ca3af"
-                    }}>
-                      Última actualización: {formatDate(doc.lastUpdate)}
-                    </p>
-                  )}
+            {/* Documentos Subidos */}
+            {uploadedDocs.length > 0 && (
+              <>
+                <h3 style={{ 
+                  marginTop: 0, 
+                  marginBottom: "1rem", 
+                  color: "#059669",
+                  fontSize: "1.1rem",
+                  fontWeight: 600
+                }}>
+                  ✅ Documentos Subidos ({uploadedDocs.length})
+                </h3>
+                
+                <div style={{ overflowX: "auto", marginBottom: "2rem" }}>
+                  <table style={{ 
+                    width: "100%", 
+                    borderCollapse: "collapse",
+                    fontSize: "0.9rem"
+                  }}>
+                    <thead>
+                      <tr style={{ 
+                        background: "#f9fafb", 
+                        borderBottom: "2px solid #e5e7eb" 
+                      }}>
+                        <th style={{ 
+                          padding: "0.75rem", 
+                          textAlign: "left",
+                          fontWeight: 600,
+                          color: "#374151"
+                        }}>Documento</th>
+                        <th style={{ 
+                          padding: "0.75rem", 
+                          textAlign: "center",
+                          fontWeight: 600,
+                          color: "#374151"
+                        }}>Obligatorio</th>
+                        <th style={{ 
+                          padding: "0.75rem", 
+                          textAlign: "left",
+                          fontWeight: 600,
+                          color: "#374151"
+                        }}>Estado</th>
+                        <th style={{ 
+                          padding: "0.75rem", 
+                          textAlign: "left",
+                          fontWeight: 600,
+                          color: "#374151"
+                        }}>Notas</th>
+                        <th style={{ 
+                          padding: "0.75rem", 
+                          textAlign: "left",
+                          fontWeight: 600,
+                          color: "#374151"
+                        }}>Fecha</th>
+                        <th style={{ 
+                          padding: "0.75rem", 
+                          textAlign: "center",
+                          fontWeight: 600,
+                          color: "#374151"
+                        }}>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {uploadedDocs.map((doc, index) => (
+                        <tr 
+                          key={doc.studentDocumentId || index}
+                          style={{ 
+                            borderBottom: "1px solid #e5e7eb",
+                            background: index % 2 === 0 ? "white" : "#f9fafb"
+                          }}
+                        >
+                          <td style={{ padding: "0.75rem" }}>
+                            <strong style={{ display: "block", marginBottom: "0.25rem" }}>
+                              {doc.documentName}
+                            </strong>
+                            {doc.description && (
+                              <small style={{ color: "#6b7280", fontSize: "0.85rem" }}>
+                                {doc.description}
+                              </small>
+                            )}
+                          </td>
+                          <td style={{ padding: "0.75rem", textAlign: "center" }}>
+                            {doc.documentType === "MANDATORY" ? (
+                              <span style={{
+                                background: "#fef3c7",
+                                color: "#92400e",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "4px",
+                                fontSize: "0.75rem",
+                                fontWeight: 600
+                              }}>
+                                Sí
+                              </span>
+                            ) : (
+                              <span style={{
+                                background: "#e5e7eb",
+                                color: "#4b5563",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "4px",
+                                fontSize: "0.75rem"
+                              }}>
+                                No
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ padding: "0.75rem" }}>
+                            <span className={`admin-status-badge ${getDocStatusBadgeClass(doc.status)}`}>
+                              {getDocStatusLabel(doc.status)}
+                            </span>
+                          </td>
+                          <td style={{ padding: "0.75rem" }}>
+                            {doc.notes ? (
+                              <span style={{ 
+                                fontSize: "0.875rem", 
+                                color: "#4b5563",
+                                fontStyle: "italic"
+                              }}>
+                                {doc.notes}
+                              </span>
+                            ) : (
+                              <span style={{ color: "#9ca3af", fontSize: "0.875rem" }}>
+                                Sin comentarios
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ padding: "0.75rem" }}>
+                            <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                              {doc.lastUpdate 
+                                ? formatDate(doc.lastUpdate) 
+                                : formatDate(doc.uploadDate) || "N/A"}
+                            </span>
+                          </td>
+                          <td style={{ padding: "0.75rem", textAlign: "center" }}>
+                            <button
+                              onClick={() => handleViewDocument(doc.studentDocumentId, doc.documentName)}
+                              disabled={loadingDoc === doc.studentDocumentId}
+                              className="admin-btn-primary"
+                              style={{ 
+                                fontSize: "0.875rem",
+                                padding: "0.5rem 1rem",
+                                minWidth: "120px"
+                              }}
+                            >
+                              {loadingDoc === doc.studentDocumentId 
+                                ? "⏳ Cargando..." 
+                                : "👁️ Ver PDF"}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              ))}
-            </div>
+              </>
+            )}
+
+            {/* Documentos NO Subidos */}
+            {notUploadedDocs.length > 0 && (
+              <>
+                <h3 style={{ 
+                  marginTop: uploadedDocs.length > 0 ? "1.5rem" : 0, 
+                  marginBottom: "1rem", 
+                  color: "#dc2626",
+                  fontSize: "1.1rem",
+                  fontWeight: 600
+                }}>
+                  ❌ Documentos Pendientes ({notUploadedDocs.length})
+                </h3>
+                
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {notUploadedDocs.map((doc, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: "1rem",
+                        background: "#fef2f2",
+                        border: "1px solid #fecaca",
+                        borderRadius: "6px"
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                        <div>
+                          <strong style={{ display: "block", marginBottom: "0.25rem", color: "#991b1b" }}>
+                            {doc.documentName}
+                            {doc.documentType === "MANDATORY" && (
+                              <span style={{ 
+                                marginLeft: "0.5rem",
+                                background: "#fef3c7",
+                                color: "#92400e",
+                                padding: "0.125rem 0.5rem",
+                                borderRadius: "4px",
+                                fontSize: "0.75rem",
+                                fontWeight: 600
+                              }}>
+                                Obligatorio
+                              </span>
+                            )}
+                          </strong>
+                          {doc.description && (
+                            <span style={{ fontSize: "0.875rem", color: "#7f1d1d" }}>
+                              {doc.description}
+                            </span>
+                          )}
+                        </div>
+                        <span style={{
+                          background: "#fee2e2",
+                          color: "#991b1b",
+                          padding: "0.25rem 0.75rem",
+                          borderRadius: "4px",
+                          fontSize: "0.75rem",
+                          fontWeight: 600
+                        }}>
+                          Sin subir
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -444,7 +694,7 @@ export default function DirectorStudentProfile() {
         </div>
       )}
 
-      {/* Modal Proponer Sustentación - CON DISEÑO DE MODALS.CSS */}
+      {/* Modal Proponer Sustentación */}
       {showDefenseModal && (
         <div className="modal-overlay" onClick={() => !submitting && setShowDefenseModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

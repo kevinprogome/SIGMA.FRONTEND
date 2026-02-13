@@ -8,6 +8,8 @@ import {
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
 
+const DOCUMENT_TYPES = ["MANDATORY", "SECONDARY", "CANCELLATION"];
+
 export default function Documents() {
   const [modalities, setModalities] = useState([]);
   const [selectedModalityId, setSelectedModalityId] = useState("");
@@ -17,14 +19,14 @@ export default function Documents() {
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingDocument, setEditingDocument] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("all"); // 'all', 'active', 'inactive'
+  const [activeFilter, setActiveFilter] = useState("all");
 
   const [formData, setFormData] = useState({
     modalityId: "",
     documentName: "",
     allowedFormat: "",
     maxFileSizeMB: 5,
-    isMandatory: true,
+    documentType: "MANDATORY",
     description: "",
     active: true,
   });
@@ -60,7 +62,6 @@ export default function Documents() {
     try {
       let data;
       if (activeFilter === "all") {
-        // Llamar sin filtro de activo (puedes usar el endpoint sin /filter)
         data = await getRequiredDocumentsByModalityAndStatus(selectedModalityId, null);
       } else {
         const isActive = activeFilter === "active";
@@ -82,7 +83,7 @@ export default function Documents() {
       documentName: "",
       allowedFormat: "",
       maxFileSizeMB: 5,
-      isMandatory: true,
+      documentType: "MANDATORY",
       description: "",
       active: true,
     });
@@ -96,7 +97,7 @@ export default function Documents() {
       documentName: document.documentName,
       allowedFormat: document.allowedFormat,
       maxFileSizeMB: document.maxFileSizeMB,
-      isMandatory: document.mandatory,
+      documentType: document.documentType || "MANDATORY",
       description: document.description,
       active: document.active,
     });
@@ -137,6 +138,19 @@ export default function Documents() {
     }
   };
 
+  const getDocumentTypeBadge = (documentType) => {
+    if (documentType === "MANDATORY") {
+      return <span className="admin-tag mandatory">Obligatorio</span>;
+    }
+    if (documentType === "SECONDARY") {
+      return <span className="admin-tag secondary">Secundario</span>;
+    }
+        if (documentType === "CANCELLATION") {
+      return <span className="admin-tag cancellation">Cancelación</span>;
+    }
+    return <span className="admin-tag">{documentType || "N/A"}</span>;
+  };
+
   if (loading) {
     return <div className="admin-loading">Cargando datos...</div>;
   }
@@ -146,7 +160,7 @@ export default function Documents() {
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title">Gestión de Documentos Requeridos</h1>
-          <p className="admin-page-subtitle">Administra los documentos por modalidad</p>
+          <p className="admin-page-subtitle">Administra los documentos por modalidad (Obligatorios y Secundarios)</p>
         </div>
         {selectedModalityId && (
           <button onClick={handleOpenCreate} className="admin-btn-primary">
@@ -213,10 +227,10 @@ export default function Documents() {
               <thead>
                 <tr>
                   <th>Documento</th>
+                  <th>Tipo</th>
                   <th>Descripción</th>
                   <th>Formato</th>
                   <th>Tamaño Máx</th>
-                  <th>Obligatorio</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -237,16 +251,12 @@ export default function Documents() {
                       <td>
                         <strong>{doc.documentName}</strong>
                       </td>
+                      <td>{getDocumentTypeBadge(doc.documentType)}</td>
                       <td>{doc.description}</td>
                       <td>
                         <span className="admin-tag">{doc.allowedFormat}</span>
                       </td>
                       <td>{doc.maxFileSizeMB} MB</td>
-                      <td>
-                        <span className={`admin-status-badge ${doc.mandatory ? "active" : "inactive"}`}>
-                          {doc.mandatory ? "SÍ" : "NO"}
-                        </span>
-                      </td>
                       <td>
                         <span className={`admin-status-badge ${doc.active ? "active" : "inactive"}`}>
                           {doc.active ? "ACTIVO" : "INACTIVO"}
@@ -296,9 +306,30 @@ export default function Documents() {
                   value={formData.documentName}
                   onChange={(e) => setFormData({ ...formData, documentName: e.target.value })}
                   className="admin-input"
-                  placeholder="Ej: Carta de Presentación"
+                  placeholder="Ej: Propuesta detallada de pasantía"
                   required
                 />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">Tipo de Documento *</label>
+                <select
+                  value={formData.documentType}
+                  onChange={(e) => setFormData({ ...formData, documentType: e.target.value })}
+                  className="admin-select"
+                  required
+                >
+                  <option value="">-- Selecciona el tipo --</option>
+                  {DOCUMENT_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type === "MANDATORY" ? "📋 Obligatorio (al inicio)" : "📎 Secundario (durante la modalidad)"}
+                    </option>
+                  ))}
+                </select>
+                <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
+                  <strong>Obligatorio:</strong> Documentos que el estudiante debe subir al iniciar la modalidad.<br/>
+                  <strong>Secundario:</strong> Documentos que se suben durante el desarrollo de la modalidad.
+                </small>
               </div>
 
               <div className="admin-form-group">
@@ -335,18 +366,6 @@ export default function Documents() {
                   max="50"
                   required
                 />
-              </div>
-
-              <div className="admin-form-group">
-                <label className="admin-checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.isMandatory}
-                    onChange={(e) => setFormData({ ...formData, isMandatory: e.target.checked })}
-                    className="admin-checkbox"
-                  />
-                  <span>¿Es obligatorio?</span>
-                </label>
               </div>
 
               {editingDocument && (

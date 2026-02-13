@@ -101,7 +101,7 @@ export default function StudentProfileProgramHead() {
   };
 
   const handleApproveAll = async () => {
-    const mandatoryDocs = profile.documents.filter(d => d.mandatory);
+    const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
     const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
     const allMandatoryAccepted = uploadedMandatory.every(
       (d) => d.status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW"
@@ -198,7 +198,7 @@ export default function StudentProfileProgramHead() {
     );
   }
 
-  const mandatoryDocs = profile.documents.filter(d => d.mandatory);
+  const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
   const allMandatoryAccepted = uploadedMandatory.every(
@@ -432,8 +432,8 @@ export default function StudentProfileProgramHead() {
                         <strong>{doc.documentName}</strong>
                       </td>
                       <td>
-                        <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>
-                          {doc.mandatory ? "Sí" : "No"}
+                        <span className={`mandatory-badge ${doc.documentType === "MANDATORY" ? "yes" : "no"}`}>
+                          {doc.documentType === "MANDATORY" ? "Sí" : "No"}
                         </span>
                       </td>
                       <td>

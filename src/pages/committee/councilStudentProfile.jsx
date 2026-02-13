@@ -111,7 +111,7 @@ export default function CommitteeStudentProfile() {
   };
 
   const handleApproveModality = async () => {
-    const mandatoryDocs = profile.documents.filter(d => d.mandatory);
+    const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
     const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
     const allMandatoryAccepted = uploadedMandatory.every(
       (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
@@ -229,7 +229,7 @@ export default function CommitteeStudentProfile() {
     );
   }
 
-  const mandatoryDocs = profile.documents.filter(d => d.mandatory);
+  const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
   const allMandatoryAccepted = uploadedMandatory.every(
@@ -461,8 +461,8 @@ export default function CommitteeStudentProfile() {
                         <strong>{doc.documentName}</strong>
                       </td>
                       <td>
-                        <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>
-                          {doc.mandatory ? "Sí" : "No"}
+                        <span className={`mandatory-badge ${doc.documentType === "MANDATORY" ? "yes" : "no"}`}>
+                          {doc.documentType === "MANDATORY" ? "Sí" : "No"}
                         </span>
                       </td>
                       <td>

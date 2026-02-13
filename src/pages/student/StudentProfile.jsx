@@ -14,13 +14,14 @@ export default function StudentProfile() {
     approvedCredits: "",
     gpa: "",
     semester: "",
-    studentCode: "",
+    // ❌ ELIMINADO: studentCode - ahora lo extrae el backend del email
   });
 
   const [userInfo, setUserInfo] = useState({
     name: "",
     lastname: "",
     email: "",
+    studentCode: "", // ✅ Solo para mostrar, no para editar
   });
 
   const [faculties, setFaculties] = useState([]);
@@ -29,13 +30,12 @@ export default function StudentProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  
   const [profileSaved, setProfileSaved] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // ✅ NUEVO: Obtener créditos máximos del programa seleccionado
+  // Obtener créditos máximos del programa seleccionado
   const getMaxCredits = () => {
-    if (!profile.academicProgramId) return 180; // Valor por defecto
+    if (!profile.academicProgramId) return 180;
     
     const selectedProgram = allPrograms.find(
       p => p.id === parseInt(profile.academicProgramId)
@@ -71,10 +71,12 @@ export default function StudentProfile() {
         setFaculties(Array.isArray(facultiesData) ? facultiesData : []);
         setAllPrograms(Array.isArray(programsData) ? programsData : []);
 
+        // ✅ Incluir studentCode en userInfo para mostrar
         setUserInfo({
           name: profileData.name || "",
           lastname: profileData.lastname || "",
           email: profileData.email || "",
+          studentCode: profileData.studentCode || "", // Backend lo genera automáticamente
         });
 
         let facultyId = "";
@@ -103,11 +105,12 @@ export default function StudentProfile() {
           approvedCredits: profileData.approvedCredits ?? "",
           gpa: profileData.gpa ?? "",
           semester: profileData.semester ?? "",
-          studentCode: profileData.studentCode ?? "",
+          // ❌ NO incluimos studentCode aquí - solo en userInfo
         });
 
         // Si los campos inmutables están llenos, marcar como guardado
-        if (facultyId && academicProgramId && profileData.studentCode && profileData.semester) {
+        // ✅ ACTUALIZADO: Ya no verificamos studentCode porque lo genera el backend
+        if (facultyId && academicProgramId && profileData.semester) {
           setProfileSaved(true);
         }
 
@@ -139,11 +142,11 @@ export default function StudentProfile() {
         p => p.facultyId === parseInt(profile.facultyId)
       );
       setPrograms(filtered);
-     
+      
       const programBelongsToFaculty = filtered.some(
         p => p.id === parseInt(profile.academicProgramId)
       );
-     
+      
       if (!programBelongsToFaculty && profile.academicProgramId) {
         setProfile(prev => ({ ...prev, academicProgramId: "" }));
       }
@@ -155,7 +158,7 @@ export default function StudentProfile() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-   
+    
     setProfile({
       ...profile,
       [name]: value,
@@ -170,13 +173,12 @@ export default function StudentProfile() {
       setMessage("Por favor selecciona una facultad");
       return;
     }
-
     if (!profile.academicProgramId) {
       setMessage("Por favor selecciona un programa académico");
       return;
     }
 
-    // ✅ Validar créditos aprobados
+    // Validar créditos aprobados
     const approvedCredits = parseInt(profile.approvedCredits);
     if (approvedCredits > maxCredits) {
       setMessage(`Los créditos aprobados no pueden superar el total del programa (${maxCredits})`);
@@ -205,30 +207,38 @@ export default function StudentProfile() {
         return;
       }
 
+      // ✅ ACTUALIZADO: Ya NO enviamos studentCode
       const profileData = {
         facultyId,
         academicProgramId,
         approvedCredits,
         gpa,
         semester,
-        studentCode: profile.studentCode.trim(),
+        // ❌ ELIMINADO: studentCode - el backend lo genera del email
       };
 
-      console.log("📤 Enviando perfil:", profileData);
+      console.log("📤 Enviando perfil (sin studentCode):", profileData);
 
       const response = await saveStudentProfile(profileData);
-     
+      
       console.log("✅ Respuesta del servidor:", response);
-     
+      
       setMessage(response.message || response.data || "Perfil actualizado correctamente");
       
       // Marcar como guardado (bloquear campos inmutables)
       setProfileSaved(true);
 
+      // ✅ Actualizar studentCode en userInfo con la respuesta del backend
+      if (response.studentCode) {
+        setUserInfo(prev => ({
+          ...prev,
+          studentCode: response.studentCode
+        }));
+      }
     } catch (err) {
       console.error("❌ Error al guardar:", err);
       console.error("❌ Respuesta del error:", err.response);
-     
+      
       const errorMsg = err.response?.data?.message
         || err.response?.data
         || err.message
@@ -263,6 +273,20 @@ export default function StudentProfile() {
             <p>
               <strong>Email:</strong> {userInfo.email}
             </p>
+            {/* ✅ NUEVO: Mostrar código estudiantil (generado por backend) */}
+            {userInfo.studentCode && userInfo.studentCode !== "Será tomado de tu correo" && (
+              <p>
+                <strong>Código Estudiantil:</strong> {userInfo.studentCode}
+                <span style={{ 
+                  marginLeft: "0.5rem", 
+                  fontSize: "0.85rem", 
+                  color: "#10b981",
+                  fontWeight: "600"
+                }}>
+                  ✅ Generado automáticamente
+                </span>
+              </p>
+            )}
           </div>
 
           {/* Advertencia si el perfil ya fue guardado */}
@@ -271,8 +295,8 @@ export default function StudentProfile() {
               <div className="profile-lock-warning-content">
                 <strong>Información bloqueada</strong>
                 <p>
-                  Los campos de Facultad, Programa Académico, Código Estudiantil y Semestre 
-                  no pueden modificarse una vez guardados. Solo puedes actualizar 
+                  Los campos de Facultad, Programa Académico y Semestre
+                  no pueden modificarse una vez guardados. Solo puedes actualizar
                   tus <strong>Créditos Aprobados</strong> y <strong>Promedio (GPA)</strong>.
                 </p>
               </div>
@@ -290,7 +314,7 @@ export default function StudentProfile() {
             {/* FACULTAD */}
             <div className="profile-group">
               <label>
-                Facultad * 
+                Facultad *
                 {isFieldLocked && <span className="locked-badge">🔒 Bloqueado</span>}
               </label>
               <select
@@ -313,7 +337,7 @@ export default function StudentProfile() {
             {/* PROGRAMA ACADÉMICO */}
             <div className="profile-group">
               <label>
-                Programa Académico * 
+                Programa Académico *
                 {isFieldLocked && <span className="locked-badge">🔒 Bloqueado</span>}
               </label>
               <select
@@ -337,28 +361,13 @@ export default function StudentProfile() {
               </select>
             </div>
 
-            {/* CÓDIGO ESTUDIANTIL */}
-            <div className="profile-group">
-              <label>
-                Código estudiantil * 
-                {isFieldLocked && <span className="locked-badge">🔒 Bloqueado</span>}
-              </label>
-              <input
-                type="text"
-                name="studentCode"
-                value={profile.studentCode}
-                onChange={handleChange}
-                placeholder="Ej: 20221204357"
-                required
-                disabled={saving || isFieldLocked}
-                className={isFieldLocked ? "locked-field" : ""}
-              />
-            </div>
+            {/* ❌ ELIMINADO: Campo de Código Estudiantil */}
+            {/* El backend lo genera automáticamente del email */}
 
             {/* SEMESTRE */}
             <div className="profile-group">
               <label>
-                Semestre * 
+                Semestre *
                 {isFieldLocked && <span className="locked-badge">🔒 Bloqueado</span>}
               </label>
               <input
@@ -380,7 +389,7 @@ export default function StudentProfile() {
             {/* CRÉDITOS APROBADOS - SIEMPRE EDITABLE */}
             <div className="profile-group">
               <label>
-                Créditos aprobados * 
+                Créditos aprobados *
                 {isFieldLocked && <span className="editable-badge">✏️ Editable</span>}
               </label>
               <input
@@ -394,7 +403,7 @@ export default function StudentProfile() {
                 disabled={saving}
               />
               <small style={{ color: "#666", fontSize: "0.85rem" }}>
-                {profile.academicProgramId 
+                {profile.academicProgramId
                   ? `Máximo ${maxCredits} créditos (total del programa)`
                   : "Selecciona un programa para ver el máximo de créditos"}
               </small>
@@ -403,7 +412,7 @@ export default function StudentProfile() {
             {/* GPA - SIEMPRE EDITABLE */}
             <div className="profile-group">
               <label>
-                Promedio (GPA) * 
+                Promedio (GPA) *
                 {isFieldLocked && <span className="editable-badge">✏️ Editable</span>}
               </label>
               <input
@@ -440,13 +449,11 @@ export default function StudentProfile() {
             <div className="profile-modal-header">
               <h3>Confirmar información del perfil</h3>
             </div>
-
             <div className="profile-modal-body">
               <p className="profile-modal-warning">
-                <strong>IMPORTANTE:</strong> Una vez guardada, la siguiente información 
+                <strong>IMPORTANTE:</strong> Una vez guardada, la siguiente información
                 <strong> NO PODRÁ ser modificada</strong>:
               </p>
-
               <div className="profile-modal-summary">
                 <div className="profile-modal-item">
                   <span className="profile-modal-label">Facultad:</span>
@@ -454,45 +461,43 @@ export default function StudentProfile() {
                     {faculties.find(f => f.id === parseInt(profile.facultyId))?.name || "No seleccionado"}
                   </span>
                 </div>
-
                 <div className="profile-modal-item">
                   <span className="profile-modal-label">Programa Académico:</span>
                   <span className="profile-modal-value">
                     {programs.find(p => p.id === parseInt(profile.academicProgramId))?.name || "No seleccionado"}
                   </span>
                 </div>
-
+                {/* ✅ ACTUALIZADO: Código se muestra pero no se edita */}
                 <div className="profile-modal-item">
                   <span className="profile-modal-label">Código Estudiantil:</span>
-                  <span className="profile-modal-value">{profile.studentCode}</span>
+                  <span className="profile-modal-value">
+                    {userInfo.studentCode} 
+                    <span style={{ fontSize: "0.85rem", color: "#10b981", marginLeft: "0.5rem" }}>
+                      (generado automáticamente)
+                    </span>
+                  </span>
                 </div>
-
                 <div className="profile-modal-item">
                   <span className="profile-modal-label">Semestre:</span>
                   <span className="profile-modal-value">{profile.semester}</span>
                 </div>
-
                 <div className="profile-modal-item editable">
                   <span className="profile-modal-label">Créditos Aprobados:</span>
                   <span className="profile-modal-value">{profile.approvedCredits} / {maxCredits}</span>
                 </div>
-
                 <div className="profile-modal-item editable">
                   <span className="profile-modal-label">Promedio (GPA):</span>
                   <span className="profile-modal-value">{profile.gpa}</span>
                 </div>
               </div>
-
               <p className="profile-modal-note">
-                Solo podrás actualizar los <strong>Créditos Aprobados</strong> y el <strong>Promedio</strong> 
+                Solo podrás actualizar los <strong>Créditos Aprobados</strong> y el <strong>Promedio</strong>
                 en el futuro.
               </p>
-
               <p className="profile-modal-question">
                 ¿Estás seguro de que toda la información es correcta?
               </p>
             </div>
-
             <div className="profile-modal-actions">
               <button
                 className="profile-button secondary"
