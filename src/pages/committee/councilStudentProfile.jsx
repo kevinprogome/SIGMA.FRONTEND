@@ -6,6 +6,7 @@ import {
   approveCommittee,
   getDocumentBlobUrl,
   getModalityDetails,
+  closeModalityByCommittee,
 } from "../../services/committeeService";
 import AssignDirectorModal from "../../components/committee/AssignDirectorModal";
 import AssignExaminersModal from "../../components/committee/AssignExaminerModal";
@@ -30,7 +31,9 @@ export default function CommitteeStudentProfile() {
   const [showAssignDirectorModal, setShowAssignDirectorModal] = useState(false);
   const [showAssignExaminersModal, setShowAssignExaminersModal] = useState(false);
   const [showModalityDetailsModal, setShowModalityDetailsModal] = useState(false);
+  const [showCloseModalityModal, setShowCloseModalityModal] = useState(false);
   const [modalityDetails, setModalityDetails] = useState(null);
+  const [closeReason, setCloseReason] = useState("");
 
   useEffect(() => {
     fetchProfile();
@@ -111,7 +114,7 @@ export default function CommitteeStudentProfile() {
   };
 
   const handleApproveModality = async () => {
-    const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
+    const mandatoryDocs = profile.documents.filter(d => d.mandatory);
     const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
     const allMandatoryAccepted = uploadedMandatory.every(
       (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
@@ -153,6 +156,36 @@ export default function CommitteeStudentProfile() {
     }
   };
 
+  // ✅ NUEVA FUNCIÓN: Cerrar modalidad
+  const handleCloseModality = async (e) => {
+    e.preventDefault();
+
+    if (!closeReason.trim()) {
+      setError("Debe proporcionar el motivo del cierre");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const response = await closeModalityByCommittee(studentModalityId, closeReason);
+      
+      setSuccessMessage(`✅ ${response.message || "Modalidad cerrada exitosamente"}`);
+      setShowCloseModalityModal(false);
+      setCloseReason("");
+      
+      await fetchProfile();
+      
+      setTimeout(() => setSuccessMessage(""), 10000);
+    } catch (err) {
+      console.error("❌ Error al cerrar modalidad:", err);
+      setError(err.response?.data?.message || err.message || "Error al cerrar la modalidad");
+      setTimeout(() => setError(""), 5000);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleViewModalityDetails = async () => {
     try {
       const details = await getModalityDetails(profile.modalityId);
@@ -171,12 +204,10 @@ export default function CommitteeStudentProfile() {
     fetchProfile();
   };
 
-  // Helper para determinar si un documento puede ser editado
   const canEditDocument = (doc) => {
     return doc.status !== "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW";
   };
 
-  // Helper para obtener clase de badge
   const getStatusBadgeClass = (status) => {
     if (status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW") return "accepted";
     if (status === "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW") return "rejected";
@@ -187,7 +218,6 @@ export default function CommitteeStudentProfile() {
     return "pending";
   };
 
-  // Helper para obtener etiqueta legible del estado
   const getStatusLabel = (status) => {
     const statusLabels = {
       "PENDING": "Pendiente",
@@ -229,12 +259,15 @@ export default function CommitteeStudentProfile() {
     );
   }
 
-  const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
+  const mandatoryDocs = profile.documents.filter(d => d.mandatory);
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
   const allMandatoryAccepted = uploadedMandatory.every(
     (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
   );
+
+  // Verificar si la modalidad ya está cerrada
+  const isModalityClosed = profile.currentStatus === "MODALITY_CLOSED";
 
   return (
     <div className="student-profile-container">
@@ -248,7 +281,7 @@ export default function CommitteeStudentProfile() {
         </p>
       </div>
 
-      {/* Student Info Card - EXPANDIDA */}
+      {/* Student Info Card */}
       <div className="student-info-card">
         <h3 className="card-section-title">👤 Información del Estudiante</h3>
         <div className="student-info-grid">
@@ -258,49 +291,42 @@ export default function CommitteeStudentProfile() {
               {profile.studentName} {profile.studentLastName}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Email</span>
             <span className="student-info-value email">
               {profile.studentEmail}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Código Estudiantil</span>
             <span className="student-info-value">
               {profile.studentCode || "N/A"}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Programa Académico</span>
             <span className="student-info-value">
               {profile.academicProgramName}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Facultad</span>
             <span className="student-info-value">
               {profile.facultyName}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Créditos Aprobados</span>
             <span className="student-info-value">
               {profile.approvedCredits || "N/A"}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Promedio (GPA)</span>
             <span className="student-info-value">
               {profile.gpa || "N/A"}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Semestre</span>
             <span className="student-info-value">
@@ -318,14 +344,13 @@ export default function CommitteeStudentProfile() {
             <span className="student-info-label">Modalidad</span>
             <span className="student-info-value">{profile.modalityName}</span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Estado Actual</span>
-            <span className="student-info-value status">
+            <span className={`student-info-value status ${isModalityClosed ? "closed" : ""}`}>
+              {isModalityClosed && "🔒 "}
               {profile.currentStatusDescription}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Última Actualización</span>
             <span className="student-info-value">
@@ -337,14 +362,12 @@ export default function CommitteeStudentProfile() {
                 : "N/A"}
             </span>
           </div>
-
           <div className="student-info-item">
             <span className="student-info-label">Créditos Requeridos</span>
             <span className="student-info-value">
               {profile.creditsRequired || "N/A"}
             </span>
           </div>
-
           {profile.projectDirectorName && (
             <>
               <div className="student-info-item">
@@ -353,7 +376,6 @@ export default function CommitteeStudentProfile() {
                   {profile.projectDirectorName}
                 </span>
               </div>
-
               <div className="student-info-item">
                 <span className="student-info-label">Email del Director</span>
                 <span className="student-info-value email">
@@ -362,7 +384,6 @@ export default function CommitteeStudentProfile() {
               </div>
             </>
           )}
-
           {profile.defenseDate && (
             <>
               <div className="student-info-item">
@@ -374,7 +395,6 @@ export default function CommitteeStudentProfile() {
                   })}
                 </span>
               </div>
-
               <div className="student-info-item">
                 <span className="student-info-label">Lugar de Sustentación</span>
                 <span className="student-info-value">
@@ -383,7 +403,6 @@ export default function CommitteeStudentProfile() {
               </div>
             </>
           )}
-
           {profile.academicDistinction && (
             <div className="student-info-item">
               <span className="student-info-label">Resultado</span>
@@ -393,7 +412,6 @@ export default function CommitteeStudentProfile() {
             </div>
           )}
         </div>
-
         {profile.modalityId && (
           <div className="modality-details-btn-container">
             <button
@@ -432,7 +450,6 @@ export default function CommitteeStudentProfile() {
       {/* Documents Section */}
       <div className="documents-section">
         <h3 className="documents-section-title">📄 Documentos</h3>
-
         {uploadedDocs.length === 0 ? (
           <div className="documents-empty">
             <div className="documents-empty-icon">📭</div>
@@ -461,16 +478,12 @@ export default function CommitteeStudentProfile() {
                         <strong>{doc.documentName}</strong>
                       </td>
                       <td>
-                        <span className={`mandatory-badge ${doc.documentType === "MANDATORY" ? "yes" : "no"}`}>
-                          {doc.documentType === "MANDATORY" ? "Sí" : "No"}
+                        <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>
+                          {doc.mandatory ? "Sí" : "No"}
                         </span>
                       </td>
                       <td>
-                        <span
-                          className={`doc-status-badge ${getStatusBadgeClass(
-                            doc.status
-                          )}`}
-                        >
+                        <span className={`doc-status-badge ${getStatusBadgeClass(doc.status)}`}>
                           {getStatusLabel(doc.status)}
                         </span>
                       </td>
@@ -492,21 +505,16 @@ export default function CommitteeStudentProfile() {
                       <td>
                         <div className="doc-actions">
                           <button
-                            onClick={() =>
-                              handleViewDocument(doc.studentDocumentId)
-                            }
+                            onClick={() => handleViewDocument(doc.studentDocumentId)}
                             disabled={loadingDoc === doc.studentDocumentId}
                             className={`doc-btn doc-btn-view ${
-                              loadingDoc === doc.studentDocumentId
-                                ? "loading"
-                                : ""
+                              loadingDoc === doc.studentDocumentId ? "loading" : ""
                             }`}
                           >
                             {loadingDoc === doc.studentDocumentId
                               ? "Cargando..."
                               : "Ver documento"}
                           </button>
-
                           {canEditDocument(doc) ? (
                             <button
                               onClick={() => {
@@ -536,22 +544,18 @@ export default function CommitteeStudentProfile() {
                             </span>
                           )}
                         </div>
-
                         {reviewingDocId === doc.studentDocumentId && canEditDocument(doc) && (
                           <div className="review-panel">
                             <h4 className="review-panel-title">
                               Revisión de documento
                             </h4>
-
                             <div className="review-form-group">
                               <label className="review-label">
                                 Nuevo estado:
                               </label>
                               <select
                                 value={selectedStatus}
-                                onChange={(e) =>
-                                  setSelectedStatus(e.target.value)
-                                }
+                                onChange={(e) => setSelectedStatus(e.target.value)}
                                 className="review-select"
                               >
                                 <option value="">Seleccionar estado</option>
@@ -566,7 +570,6 @@ export default function CommitteeStudentProfile() {
                                 </option>
                               </select>
                             </div>
-
                             <div className="review-form-group">
                               <label className="review-label">
                                 Comentario:
@@ -579,11 +582,8 @@ export default function CommitteeStudentProfile() {
                                 rows={4}
                               />
                             </div>
-
                             <button
-                              onClick={() =>
-                                handleReviewDocument(doc.studentDocumentId)
-                              }
+                              onClick={() => handleReviewDocument(doc.studentDocumentId)}
                               disabled={submitting}
                               className="review-submit-btn"
                             >
@@ -597,7 +597,6 @@ export default function CommitteeStudentProfile() {
                 </tbody>
               </table>
             </div>
-
             <div className="approve-all-section">
               <div className="approve-all-content">
                 <button
@@ -609,13 +608,11 @@ export default function CommitteeStudentProfile() {
                 >
                   {submitting ? "Procesando..." : "Aprobar Modalidad Para Inicio"}
                 </button>
-
                 {uploadedMandatory.length < mandatoryDocs.length && (
                   <div className="approve-warning">
                     ⚠️ El estudiante debe cargar todos los documentos obligatorios ({uploadedMandatory.length}/{mandatoryDocs.length})
                   </div>
                 )}
-
                 {uploadedMandatory.length === mandatoryDocs.length && !allMandatoryAccepted && (
                   <div className="approve-warning">
                     ⚠️ Debes aceptar todos los documentos obligatorios antes de aprobar la modalidad
@@ -641,7 +638,6 @@ export default function CommitteeStudentProfile() {
               <span className="action-text">Asignar Director</span>
             </button>
           )}
-
           {/* Asignar Jueces - Solo si estado = DEFENSE_SCHEDULED */}
           {profile.currentStatus === "DEFENSE_SCHEDULED" && (
             <button
@@ -655,17 +651,29 @@ export default function CommitteeStudentProfile() {
               <span className="action-text">Asignar Jueces de Sustentación</span>
             </button>
           )}
+          {/* ✅ NUEVO: Cerrar Modalidad - Siempre disponible si NO está cerrada */}
+          {!isModalityClosed && (
+            <button
+              onClick={() => setShowCloseModalityModal(true)}
+              className="council-action-btn close-modality"
+              style={{
+                background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+              }}
+            >
+              <span className="action-icon">🔒</span>
+              <span className="action-text">Cerrar Modalidad</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Messages - DESPUÉS de las acciones del comité */}
+      {/* Messages */}
       {error && (
         <div className="alert-message error">
           <span>⚠️ {error}</span>
           <button onClick={() => setError("")} className="alert-close">✕</button>
         </div>
       )}
-
       {successMessage && (
         <div className="alert-message success">
           <span>{successMessage}</span>
@@ -691,7 +699,6 @@ export default function CommitteeStudentProfile() {
           }}
         />
       )}
-
       {showAssignExaminersModal && (
         <AssignExaminersModal
           studentModalityId={studentModalityId}
@@ -702,12 +709,84 @@ export default function CommitteeStudentProfile() {
           }}
         />
       )}
-
       {showModalityDetailsModal && modalityDetails && (
         <ModalityDetailsModal
           modalityDetails={modalityDetails}
           onClose={() => setShowModalityDetailsModal(false)}
         />
+      )}
+
+      {/* ✅ NUEVO MODAL: Cerrar Modalidad */}
+      {showCloseModalityModal && (
+        <div className="modal-overlay" onClick={() => !submitting && setShowCloseModalityModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>🔒 Cerrar Modalidad</h2>
+              <button 
+                onClick={() => setShowCloseModalityModal(false)} 
+                className="modal-close"
+                disabled={submitting}
+              >
+                ✕
+              </button>
+            </div>
+            <form onSubmit={handleCloseModality} className="modal-form">
+              <div className="form-group">
+                <label>Estudiante</label>
+                <input
+                  type="text"
+                  value={profile.studentName}
+                  className="input"
+                  disabled
+                />
+              </div>
+              <div className="form-group">
+                <label>Motivo del Cierre *</label>
+                <textarea
+                  value={closeReason}
+                  onChange={(e) => setCloseReason(e.target.value)}
+                  className="textarea"
+                  placeholder="Explica por qué se cierra esta modalidad..."
+                  required
+                  rows="5"
+                />
+                <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
+                  El estudiante será notificado por correo electrónico
+                </small>
+              </div>
+              <div style={{
+                background: "#fef3c7",
+                border: "1px solid #f59e0b",
+                padding: "1rem",
+                borderRadius: "6px",
+                marginTop: "1rem"
+              }}>
+                <p style={{ margin: 0, color: "#92400e", fontSize: "0.875rem" }}>
+                  <strong>⚠️ Advertencia:</strong> Esta acción cerrará permanentemente la modalidad del estudiante.
+                  El estudiante no podrá continuar con este proceso de grado.
+                </p>
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowCloseModalityModal(false)}
+                  className="btn-cancel"
+                  disabled={submitting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn-confirm-reject"
+                  disabled={submitting}
+                  style={{ background: "#dc2626" }}
+                >
+                  {submitting ? "Cerrando..." : "Cerrar Modalidad"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -301,3 +301,26 @@ export const assignExaminers = async (studentModalityId, examinersData) => {
   );
   return response.data;
 };
+
+// ==========================================
+// 🔒 CERRAR MODALIDAD (COMITÉ)
+// =========================================
+
+export const closeModalityByCommittee = async (studentModalityId, reason) => {
+  if (!reason || reason.trim() === "") {
+    throw new Error("El motivo del cierre es obligatorio");
+  }
+  
+  console.log("🔒 Cerrando modalidad por decisión del comité:", { 
+    studentModalityId, 
+    reason: reason.substring(0, 50) + "..." 
+  });
+  
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/close-by-committee`,
+    { reason: reason.trim() }
+  );
+  
+  console.log("✅ Modalidad cerrada:", response.data);
+  return response.data;
+};
