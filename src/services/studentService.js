@@ -164,6 +164,19 @@ export const getCurrentModalityStatus = async () => {
   return res.data;
 };
 
+/**
+ * Obtener el historial de modalidades completadas del estudiante
+ */
+export const getCompletedModalitiesHistory = async () => {
+  try {
+    const res = await api.get("/students/modalities/history");
+    return res.data;
+  } catch (error) {
+    console.warn("⚠️ No se pudo cargar el historial de modalidades:", error);
+    return [];
+  }
+};
+
 // ========================================
 // 🎓 MODALIDADES
 // ========================================

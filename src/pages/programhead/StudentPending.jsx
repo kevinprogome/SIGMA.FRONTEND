@@ -7,8 +7,6 @@ import "../../styles/programhead/studentpending.css";
    ESTADOS DISPONIBLES
    ========================= */
 const AVAILABLE_STATUSES = [
-  { value: "MODALITY_SELECTED", label: "Modalidad Seleccionada" },
-
   { value: "UNDER_REVIEW_PROGRAM_HEAD", label: "En Revisión (Jefe de Programa)" },
   { value: "CORRECTIONS_REQUESTED_PROGRAM_HEAD", label: "Correcciones (Jefe de Programa)" },
 
@@ -38,7 +36,7 @@ export default function StudentsPending() {
   const [message, setMessage] = useState("");
 
   /* Filtros */
-  const [selectedStatuses, setSelectedStatuses] = useState([]);
+  const [selectedStatuses, setSelectedStatuses] = useState(["UNDER_REVIEW_PROGRAM_HEAD"]);
   const [searchName, setSearchName] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
@@ -55,7 +53,11 @@ export default function StudentsPending() {
         selectedStatuses,
         searchName
       );
-      setStudents(res);
+      // Excluir estudiantes con estado MODALITY_SELECTED
+      const filteredStudents = res.filter(
+        (student) => student.currentStatus !== "MODALITY_SELECTED"
+      );
+      setStudents(filteredStudents);
       setMessage("");
     } catch (err) {
       console.error(err);
@@ -95,8 +97,6 @@ export default function StudentsPending() {
      ========================= */
   const getStatusClass = (status) => {
     switch (status) {
-      case "MODALITY_SELECTED":
-        return "pending";
 
       case "UNDER_REVIEW_PROGRAM_HEAD":
       case "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE":

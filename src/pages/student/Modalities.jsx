@@ -5,6 +5,7 @@ import {
   getStudentProfile,
   getCurrentModalityStatus,
   getModalityById,
+  getCompletedModalitiesHistory,
 } from "../../services/studentService";
 import {
   startGroupModality,
@@ -27,6 +28,9 @@ export default function Modalities() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [modalityDetail, setModalityDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+
+  // ✅ NUEVOS ESTADOS PARA HISTORIAL DE MODALIDADES
+  const [modalityHistory, setModalityHistory] = useState([]);
 
   // ✅ NUEVOS ESTADOS PARA FLUJO GRUPAL
   const [showModalityTypeModal, setShowModalityTypeModal] = useState(false);
@@ -60,13 +64,23 @@ export default function Modalities() {
 
         try {
           const currentModality = await getCurrentModalityStatus();
-          if (currentModality) {
+          // ✅ Solo establecer como activa si el estado es uno de procesamiento
+          if (currentModality && isModalityActive(currentModality.currentStatus)) {
             const smId = currentModality.studentModalityId || currentModality.id;
             setStudentModalityId(smId);
             setSelectedModalityId(currentModality.modalityId);
           }
         } catch {
           // No modalidad activa
+        }
+
+        // ✅ CARGAR HISTORIAL DE MODALIDADES
+        try {
+          const history = await getCompletedModalitiesHistory();
+          setModalityHistory(history || []);
+        } catch (historyErr) {
+          console.warn("⚠️ No se pudo cargar el historial de modalidades:", historyErr);
+          setModalityHistory([]);
         }
       } catch (err) {
         console.error("❌ Error al cargar modalidades:", err);
@@ -100,6 +114,97 @@ export default function Modalities() {
     return hasBasicInfo && hasFaculty && hasProgram;
   };
 
+  /**
+   * ✅ VERIFICAR SI UNA MODALIDAD ESTÁ VERDADERAMENTE ACTIVA
+   * (no es uno de los estados finales)
+   */
+  const isModalityActive = (modalityStatus) => {
+    if (!modalityStatus) return false;
+
+    // Estados finales: no se considera como modalidad activa
+    const finalStates = [
+      "MODALITY_CANCELLED",      // Cancelada
+      "MODALITY_CLOSED",         // Cerrada
+      "GRADED_APPROVED",         // Aprobada
+      "GRADED_FAILED",           // Reprobada
+      "CANCELLATION_REQUESTED",  // Cancelación solicitada
+      "CANCELLATION_REJECTED",   // Cancelación rechazada
+      "CANCELLED_WITHOUT_REPROVAL" // Cancelada sin reprobación
+    ];
+
+    return !finalStates.includes(modalityStatus);
+  };
+
+  // ✅ NUEVAS FUNCIONES DE VALIDACIÓN PARA REGLAS DE NEGOCIO
+  /**
+   * Obtiene la información de una modalidad anterior del historial
+   */
+  const getPreviousModalityInfo = (modalityId) => {
+    return modalityHistory.find(m => m.modalityId === modalityId);
+  };
+
+  /**
+   * Valida si puede iniciar o reiniciar una modalidad según su estado anterior
+   * Retorna: { canStart: boolean, canRestart: boolean, message: string }
+   */
+  const validateModalityStatus = (modalityId) => {
+    const previousModality = getPreviousModalityInfo(modalityId);
+
+    // Si no hay historial de esta modalidad, puede iniciarla
+    if (!previousModality) {
+      return {
+        canStart: true,
+        canRestart: false,
+        message: ""
+      };
+    }
+
+    const status = previousModality.currentStatus;
+
+    // Regla 1: MODALITY_CLOSED - No puede reiniciar la misma, pero sí puede iniciar otra diferente
+    if (status === "MODALITY_CLOSED") {
+      return {
+        canStart: false,
+        canRestart: false,
+        message: "❌ Esta modalidad fue cerrada y no puede reiniciarse. Puedes intentar con otra modalidad diferente."
+      };
+    }
+
+    // Regla 2: MODALITY_CANCELLED - Puede reiniciar la misma y también iniciar otra diferente
+    if (status === "MODALITY_CANCELLED") {
+      return {
+        canStart: true,
+        canRestart: true,
+        message: ""
+      };
+    }
+
+    // Regla 3: GRADED_APPROVED - Ya aprobó, no puede reiniciar ni iniciar otra modalidad
+    if (status === "GRADED_APPROVED") {
+      return {
+        canStart: false,
+        canRestart: false,
+        message: "Estudiante ya aprobaste tu modalidad. No puedes reiniciarla ni iniciar otra modalidad diferente."
+      };
+    }
+
+    // Regla 4: GRADED_FAILED - Puede reiniciar la misma y también iniciar otra diferente
+    if (status === "GRADED_FAILED") {
+      return {
+        canStart: true,
+        canRestart: true,
+        message: ""
+      };
+    }
+
+    // Regla 5: Cualquier otro estado (en proceso) - No puede reiniciar ni iniciar nueva
+    return {
+      canStart: false,
+      canRestart: false,
+      message: "⏳ Esta modalidad está en proceso. No puedes reiniciarla ni iniciar una nueva mientras haya una modalidad activa."
+    };
+  };
+
   // ✅ PASO 1: Mostrar modal de tipo de modalidad
   const handleStartModalitySelection = (modalityId) => {
     if (!isProfileComplete()) {
@@ -107,6 +212,30 @@ export default function Modalities() {
         [modalityId]: {
           type: 'error',
           text: 'Debes completar tu perfil antes de seleccionar una modalidad'
+        }
+      });
+      return;
+    }
+
+    // ✅ VALIDAR REGLAS DE NEGOCIO
+    if (studentModalityId) {
+      // Si ya tiene una modalidad VERDADERAMENTE activa, no puede iniciar otra
+      setModalityMessages({
+        [modalityId]: {
+          type: 'error',
+          text: '⏳ Ya tienes una modalidad activa. No puedes iniciar una nueva mientras esté en proceso.'
+        }
+      });
+      return;
+    }
+
+    const validation = validateModalityStatus(modalityId);
+    
+    if (!validation.canStart) {
+      setModalityMessages({
+        [modalityId]: {
+          type: 'error',
+          text: validation.message
         }
       });
       return;
@@ -129,21 +258,13 @@ export default function Modalities() {
     setModalityType("GROUP");
     setShowModalityTypeModal(false);
     
-    try {
-      // ✅ SOLO cargar estudiantes elegibles, NO iniciar modalidad aún
-      await loadEligibleStudents();
-      
-      // Mostrar formulario de invitación
-      setShowGroupFormModal(true);
-    } catch (err) {
-      console.error("❌ Error al cargar estudiantes:", err);
-      setModalityMessages({
-        [pendingModalityId]: {
-          type: 'error',
-          text: 'Error al cargar estudiantes disponibles'
-        }
-      });
-    }
+    // ✅ NO cargar estudiantes automáticamente, esperar a que el usuario escriba en el filtro
+    setEligibleStudents([]); // Limpiar lista
+    setSearchFilter(""); // Limpiar filtro
+    setSelectedStudents([]); // Limpiar seleccionados
+    
+    // Mostrar formulario de invitación
+    setShowGroupFormModal(true);
   };
 
   // ✅ Cargar estudiantes elegibles
@@ -498,12 +619,29 @@ export default function Modalities() {
                   </p>
                 )}
 
+                {/* ✅ MOSTRAR ADVERTENCIA SI NO PUEDE INICIAR MODALIDAD */}
+                {profileComplete && !studentModalityId && 
+                  modalityDetail && 
+                  !validateModalityStatus(modalityDetail.id).canStart && (
+                  <div className="modality-warning-box">
+                    <strong>⚠️ No puedes iniciar esta modalidad:</strong>
+                    <p>{validateModalityStatus(modalityDetail.id).message}</p>
+                  </div>
+                )}
+
                 <button
                   className="modality-button"
-                  disabled={!profileComplete || studentModalityId}
+                  disabled={!profileComplete || studentModalityId || 
+                            (profileComplete && !studentModalityId && 
+                             modalityDetail && 
+                             !validateModalityStatus(modalityDetail.id).canStart)}
                   onClick={() => handleStartModalitySelection(modalityDetail.id)}
                 >
-                  {studentModalityId ? "Ya tienes una modalidad" : "Seleccionar modalidad"}
+                  {studentModalityId 
+                    ? "Ya tienes una modalidad" 
+                    : validateModalityStatus(modalityDetail?.id).canStart 
+                    ? "Seleccionar modalidad" 
+                    : "No disponible"}
                 </button>
               </>
             )}
@@ -603,8 +741,10 @@ export default function Modalities() {
             <div className="eligible-students-list">
               {loadingStudents ? (
                 <p>Cargando estudiantes...</p>
+              ) : searchFilter.trim() === "" ? (
+                <p className="no-students" style={{ color: '#666', fontStyle: 'italic' }}>📝 Escribe el nombre de un compañero para buscar</p>
               ) : eligibleStudents.length === 0 ? (
-                <p className="no-students">No hay estudiantes disponibles</p>
+                <p className="no-students">No hay estudiantes disponibles con ese nombre</p>
               ) : (
                 eligibleStudents.map(student => {
                   const isSelected = selectedStudents.find(s => s.userId === student.userId);

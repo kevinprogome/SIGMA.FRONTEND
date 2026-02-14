@@ -24,6 +24,7 @@ import StudentDocuments from "../pages/student/Documents";
 import StudentStatus from "../pages/student/Status";
 import StudentCancellation from "../pages/student/Cancellation";
 import StudentProfile from "../pages/student/StudentProfile";
+import Notifications from "../pages/student/Notifications";
 
 // SECRETARY
 import StudentsPending from "../pages/programhead/StudentPending";
@@ -74,6 +75,7 @@ function AppRoutes() {
           <Route path="documents" element={<StudentDocuments />} />
           <Route path="status" element={<StudentStatus />} />
           <Route path="cancellation" element={<StudentCancellation />} />
+          <Route path="notifications" element={<Notifications />} />
         </Route>
       </Route>
 

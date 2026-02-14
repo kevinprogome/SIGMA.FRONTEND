@@ -484,6 +484,366 @@
 }
 
 /* ========================================
+   ✅ ESTILOS ADICIONALES PARA MODALIDADES GRUPALES
+   AGREGAR AL FINAL DE modalities.css
+   ======================================== */
+
+/* Título de sección en modales */
+.section-title-modal {
+  font-weight: 600;
+  color: #7A1117;
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.doc-format-info {
+  display: block;
+  margin-top: 0.5rem;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* ========================================
+   MODAL SELECCIÓN TIPO (INDIVIDUAL/GRUPAL)
+   ======================================== */
+
+.modality-type-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.modality-type-btn {
+  background: white;
+  border: 3px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.modality-type-btn:hover:not(:disabled) {
+  border-color: #7A1117;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(122, 17, 23, 0.2);
+}
+
+.modality-type-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modality-type-btn .type-icon {
+  font-size: 3rem;
+}
+
+.modality-type-btn .type-label {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #7A1117;
+}
+
+.modality-type-btn .type-description {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.modality-type-btn.individual:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+}
+
+.modality-type-btn.group:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+/* ========================================
+   MODAL FORMULARIO GRUPAL
+   ======================================== */
+
+.modal-group-form {
+  background: white;
+  width: 100%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.3s ease-out;
+}
+
+.group-form-subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/* Buscador de estudiantes */
+.student-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.student-search-input:focus {
+  outline: none;
+  border-color: #7A1117;
+}
+
+/* Resumen de seleccionados */
+.selected-students-summary {
+  background: #f0f9ff;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.selected-students-summary h4 {
+  margin: 0 0 0.75rem 0;
+  color: #1e40af;
+  font-size: 1rem;
+}
+
+.selected-students-summary ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.selected-students-summary li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.selected-students-summary li button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.selected-students-summary li button:hover {
+  background: #dc2626;
+}
+
+/* Lista de estudiantes elegibles */
+.eligible-students-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.eligible-students-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.eligible-students-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.eligible-students-list::-webkit-scrollbar-thumb {
+  background: #7A1117;
+  border-radius: 4px;
+}
+
+.eligible-students-list::-webkit-scrollbar-thumb:hover {
+  background: #5d0d12;
+}
+
+.no-students {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-style: italic;
+}
+
+/* Item de estudiante */
+.student-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.student-item:hover {
+  background: #f9fafb;
+  border-color: #7A1117;
+}
+
+.student-item.selected {
+  background: #f0fdf4;
+  border-color: #10b981;
+}
+
+.student-info h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  color: #111;
+}
+
+.student-info p {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.student-info small {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.student-checkbox {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #10b981;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.student-item.selected .student-checkbox {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+/* Lista de invitados en confirmación */
+.invited-students-list {
+  list-style: none;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: #f9fafb;
+  border-radius: 8px;
+  border-left: 4px solid #7A1117;
+}
+
+.invited-students-list li {
+  padding: 0.5rem 0;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* ========================================
+   VALIDATION ERROR STYLES
+   ======================================== */
+
+.validation-error-details {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.validation-error-header {
+  font-weight: 600;
+  color: #856404;
+  margin-bottom: 0.75rem;
+}
+
+.validation-error-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.validation-error-item {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  border-left: 3px solid #ffc107;
+}
+
+.validation-error-item strong {
+  display: block;
+  color: #856404;
+  margin-bottom: 0.25rem;
+}
+
+.validation-values {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .modality-type-options {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-group-form {
+    padding: 1.5rem;
+    max-height: 90vh;
+  }
+
+  .eligible-students-list {
+    max-height: 300px;
+  }
+
+  .student-item {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-group-form {
+    padding: 1rem;
+  }
+
+  .student-search-input {
+    font-size: 0.9rem;
+  }
+
+  .student-info h4 {
+    font-size: 0.95rem;
+  }
+}
+
+/* ========================================
    ANIMATIONS
    ======================================== */
 
@@ -511,6 +871,31 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ========================================
+   MODALIDAD WARNING BOX - REGLAS DE NEGOCIO
+   ======================================== */
+
+.modality-warning-box {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: #856404;
+}
+
+.modality-warning-box strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.modality-warning-box p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 /* ========================================
