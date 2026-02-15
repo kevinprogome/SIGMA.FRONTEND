@@ -110,7 +110,8 @@ export default function StudentProfile() {
 
         // Si los campos inmutables están llenos, marcar como guardado
         // ✅ ACTUALIZADO: Ya no verificamos studentCode porque lo genera el backend
-        if (facultyId && academicProgramId && profileData.semester) {
+        // Nota: El semestre ya NO es inmutable, puede editarse siempre
+        if (facultyId && academicProgramId) {
           setProfileSaved(true);
         }
 
@@ -185,8 +186,13 @@ export default function StudentProfile() {
       return;
     }
 
-    // Mostrar modal de confirmación
-    setShowConfirmModal(true);
+    // Mostrar modal de confirmación solo si es la primera vez
+    if (!profileSaved) {
+      setShowConfirmModal(true);
+    } else {
+      // Si ya está guardado, guardar directamente
+      handleConfirmSave();
+    }
   };
 
   const handleConfirmSave = async () => {
@@ -295,9 +301,9 @@ export default function StudentProfile() {
               <div className="profile-lock-warning-content">
                 <strong>Información bloqueada</strong>
                 <p>
-                  Los campos de Facultad, Programa Académico y Semestre
-                  no pueden modificarse una vez guardados. Solo puedes actualizar
-                  tus <strong>Créditos Aprobados</strong> y <strong>Promedio (GPA)</strong>.
+                  Los campos de Facultad y Programa Académico
+                  no pueden modificarse una vez guardados. Puedes actualizar
+                  tu <strong>Semestre</strong><strong>Créditos Aprobados</strong><strong>Promedio (GPA)</strong> en cualquier momento.
                 </p>
               </div>
             </div>
@@ -364,11 +370,11 @@ export default function StudentProfile() {
             {/* ❌ ELIMINADO: Campo de Código Estudiantil */}
             {/* El backend lo genera automáticamente del email */}
 
-            {/* SEMESTRE */}
+            {/* SEMESTRE - SIEMPRE EDITABLE */}
             <div className="profile-group">
               <label>
                 Semestre *
-                {isFieldLocked && <span className="locked-badge">🔒 Bloqueado</span>}
+                {isFieldLocked && <span className="editable-badge">✏️ Editable</span>}
               </label>
               <input
                 type="number"
@@ -378,8 +384,7 @@ export default function StudentProfile() {
                 min="1"
                 max="10"
                 required
-                disabled={saving || isFieldLocked}
-                className={isFieldLocked ? "locked-field" : ""}
+                disabled={saving}
               />
               <small style={{ color: "#666", fontSize: "0.85rem" }}>
                 Debe estar entre 1 y 10
@@ -436,7 +441,7 @@ export default function StudentProfile() {
               type="submit"
               disabled={saving}
             >
-              {saving ? "⏳ Guardando..." : "💾 Guardar perfil"}
+              {saving ? "Guardando..." : profileSaved ? "Actualizar información" : "Guardar perfil"}
             </button>
           </form>
         </div>
@@ -452,7 +457,7 @@ export default function StudentProfile() {
             <div className="profile-modal-body">
               <p className="profile-modal-warning">
                 <strong>IMPORTANTE:</strong> Una vez guardada, la siguiente información
-                <strong> NO PODRÁ ser modificada</strong>:
+                <strong> NO PODRÁ ser modificada</strong>
               </p>
               <div className="profile-modal-summary">
                 <div className="profile-modal-item">
@@ -477,7 +482,7 @@ export default function StudentProfile() {
                     </span>
                   </span>
                 </div>
-                <div className="profile-modal-item">
+                <div className="profile-modal-item editable">
                   <span className="profile-modal-label">Semestre:</span>
                   <span className="profile-modal-value">{profile.semester}</span>
                 </div>
@@ -491,8 +496,8 @@ export default function StudentProfile() {
                 </div>
               </div>
               <p className="profile-modal-note">
-                Solo podrás actualizar los <strong>Créditos Aprobados</strong> y el <strong>Promedio</strong>
-                en el futuro.
+                Podrás actualizar el <strong>Semestre</strong><strong>Créditos Aprobados</strong><strong>Promedio</strong>
+                en cualquier momento.
               </p>
               <p className="profile-modal-question">
                 ¿Estás seguro de que toda la información es correcta?
