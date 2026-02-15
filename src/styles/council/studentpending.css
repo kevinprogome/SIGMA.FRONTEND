@@ -135,14 +135,15 @@
 }
 
 .students-pending-table th {
-  padding: 1.25rem 1.5rem;
+  padding: 0.95rem 1rem;
   text-align: left;
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   border-bottom: 3px solid #5d0d12;
+  white-space: nowrap;
 }
 
 /* ========================================
@@ -165,21 +166,24 @@
 }
 
 .students-pending-table td {
-  padding: 1.25rem 1.5rem;
-  font-size: 0.95rem;
+  padding: 0.9rem 1rem;
+  font-size: 0.9rem;
   color: #333;
 }
 
 .student-name {
   font-weight: 600;
   color: #7A1117;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .modality-name {
   color: #555;
   font-weight: 500;
   font-size: 0.95rem;
+  max-width: 250px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ========================================
@@ -243,12 +247,12 @@
    ======================================== */
 
 .view-profile-button {
-  padding: 0.6rem 0.6rem;
+  padding: 0.7rem 0.9rem;
   background-color: #7A1117;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -361,7 +365,12 @@
 
   .students-pending-table th,
   .students-pending-table td {
-    padding: 0.75rem;
-    font-size: 0.85rem;
+    padding: 0.7rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .view-profile-button {
+    padding: 0.6rem 0.7rem;
+    font-size: 0.75rem;
   }
 }

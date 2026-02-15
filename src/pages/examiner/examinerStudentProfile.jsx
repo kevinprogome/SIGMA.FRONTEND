@@ -6,6 +6,7 @@ import {
   reviewDocumentExaminer,
   registerEvaluation,
   getStatusLabel,
+  getDocumentStatusLabel,
   formatDate,
   getErrorMessage,
   EXAMINER_DOCUMENT_STATUS,
@@ -366,7 +367,7 @@ export default function ExaminerStudentProfile() {
                   <div className="examiner-doc-type">Tipo: {doc.documentType}</div>
                 </div>
                 <span className={`examiner-doc-status ${doc.status?.includes("ACCEPTED") ? 'approved' : 'pending'}`}>
-                  {doc.status}
+                  {getDocumentStatusLabel(doc.status)}
                 </span>
               </div>
 

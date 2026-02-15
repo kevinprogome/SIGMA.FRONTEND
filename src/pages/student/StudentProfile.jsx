@@ -302,9 +302,7 @@ export default function StudentProfile() {
                 <strong>Información bloqueada</strong>
                 <p>
                   Los campos de Facultad y Programa Académico
-                  no pueden modificarse una vez guardados. Puedes actualizar
-                  tu <strong>Semestre</strong><strong>Créditos Aprobados</strong><strong>Promedio (GPA)</strong> en cualquier momento.
-                </p>
+                  no pueden modificarse una vez guardados.</p>
               </div>
             </div>
           )}
@@ -374,7 +372,7 @@ export default function StudentProfile() {
             <div className="profile-group">
               <label>
                 Semestre *
-                {isFieldLocked && <span className="editable-badge">✏️ Editable</span>}
+                {isFieldLocked && <span className="editable-badge">Editable</span>}
               </label>
               <input
                 type="number"
@@ -395,7 +393,7 @@ export default function StudentProfile() {
             <div className="profile-group">
               <label>
                 Créditos aprobados *
-                {isFieldLocked && <span className="editable-badge">✏️ Editable</span>}
+                {isFieldLocked && <span className="editable-badge">Editable</span>}
               </label>
               <input
                 type="number"
@@ -418,7 +416,7 @@ export default function StudentProfile() {
             <div className="profile-group">
               <label>
                 Promedio (GPA) *
-                {isFieldLocked && <span className="editable-badge">✏️ Editable</span>}
+                {isFieldLocked && <span className="editable-badge">Editable</span>}
               </label>
               <input
                 type="number"

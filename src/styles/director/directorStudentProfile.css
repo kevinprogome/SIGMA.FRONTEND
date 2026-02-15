@@ -1,0 +1,884 @@
+/* ========================================
+   DIRECTOR STUDENT PROFILE - Universidad Surcolombiana
+   Colores: #7A1117 (Granate), Oro/Amarillo
+   Tipografía: Georgia para títulos, Arial para texto
+   ======================================== */
+
+.director-profile-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  min-height: 100vh;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+}
+
+.director-profile-loading {
+  text-align: center;
+  padding: 5rem 2rem;
+  font-size: 1.2rem;
+  color: #7A1117;
+  font-weight: 600;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+/* Header */
+.director-profile-header {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(122, 17, 23, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.director-profile-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+}
+
+.director-profile-header-content {
+  position: relative;
+  z-index: 1;
+}
+
+.director-profile-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 2rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.director-profile-subtitle {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  opacity: 0.95;
+  font-weight: 400;
+}
+
+.director-profile-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Messages */
+.director-profile-message {
+  padding: 1.25rem 1.75rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  animation: slideDown 0.4s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.director-profile-message.error {
+  background: linear-gradient(135deg, #fde1e1 0%, #fcc8c8 100%);
+  color: #7A1117;
+  border-left: 5px solid #7A1117;
+}
+
+.director-profile-message.success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border-left: 5px solid #28a745;
+}
+
+.director-profile-message button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  margin-left: 1rem;
+}
+
+.director-profile-message button:hover {
+  opacity: 1;
+}
+
+/* Alerts */
+.director-alert-warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.director-alert-warning h3 {
+  margin: 0 0 1rem 0;
+  color: #92400e;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.director-alert-warning p {
+  margin: 0 0 1rem 0;
+  color: #78350f;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.director-alert-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.director-alert-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.director-alert-actions .btn-view {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.director-alert-actions .btn-approve {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+}
+
+.director-alert-actions .btn-reject {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+}
+
+.director-alert-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Card Container */
+.director-profile-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e0e0;
+}
+
+.director-profile-card-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.3rem;
+  color: #7A1117;
+  margin: 0 0 1.5rem 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px solid #e0e0e0;
+}
+
+.director-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.director-profile-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.director-profile-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.director-profile-value {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.director-profile-description {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.director-profile-description-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.director-profile-description-text {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Documents Section */
+.director-documents-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e0e0;
+}
+
+.director-documents-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.3rem;
+  color: #7A1117;
+  margin: 0 0 1.5rem 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px solid #e0e0e0;
+}
+
+.director-uploaded-docs {
+  margin-bottom: 2rem;
+}
+
+.director-uploaded-title {
+  font-size: 1.1rem;
+  color: #059669;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+}
+
+.director-docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.director-docs-table thead {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+}
+
+.director-docs-table th {
+  padding: 1rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+}
+
+.director-docs-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: top;
+}
+
+.director-docs-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.director-docs-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.director-docs-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.director-doc-name {
+  font-weight: 700;
+  color: #333;
+  display: block;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.director-doc-description {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.director-doc-mandatory {
+  display: inline-block;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.director-doc-optional {
+  display: inline-block;
+  background: #e5e7eb;
+  color: #4b5563;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.director-doc-status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.director-doc-status-badge.accepted {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #28a745;
+}
+
+.director-doc-status-badge.rejected {
+  background-color: #fde1e1;
+  color: #7A1117;
+  border: 1px solid #7A1117;
+}
+
+.director-doc-status-badge.corrections {
+  background-color: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ff9800;
+}
+
+.director-doc-status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.director-doc-btn {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 36px;
+}
+
+.director-doc-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+}
+
+.director-doc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.director-pending-docs {
+  margin-top: 1.5rem;
+}
+
+.director-pending-title {
+  font-size: 1.1rem;
+  color: #dc2626;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+}
+
+.director-pending-doc-item {
+  padding: 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.director-pending-doc-info {
+  flex: 1;
+}
+
+.director-pending-doc-name {
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.director-pending-doc-description {
+  font-size: 0.85rem;
+  color: #7f1d1d;
+}
+
+.director-pending-badge {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* History Section */
+.director-history-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e0e0;
+}
+
+.director-history-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.3rem;
+  color: #7A1117;
+  margin: 0 0 1.5rem 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px solid #e0e0e0;
+}
+
+.director-history-item {
+  padding: 1rem;
+  background: #f9fafb;
+  border-left: 3px solid #3b82f6;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.director-history-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.director-history-item-status {
+  font-weight: 700;
+}
+
+.director-history-item-date {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.director-history-item-description {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.5rem 0 0 0;
+  line-height: 1.5;
+}
+
+.director-history-item-observations {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #666;
+}
+
+.director-history-item-responsible {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* Modal Styles */
+.director-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.director-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+.director-modal-header {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.director-modal-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.director-modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.director-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.director-modal-body {
+  padding: 2rem;
+}
+
+.director-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.director-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.director-form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.director-form-input,
+.director-form-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.director-form-input:focus,
+.director-form-textarea:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 4px rgba(122, 17, 23, 0.1);
+}
+
+.director-form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.director-form-small {
+  display: block;
+  color: #666;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.director-modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.director-btn-cancel,
+.director-btn-submit {
+  flex: 1;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.director-btn-cancel {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+}
+
+.director-btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.director-btn-submit {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+}
+
+.director-btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(122, 17, 23, 0.4);
+}
+
+.director-btn-reject {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+}
+
+.director-btn-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+
+.director-info-box {
+  padding: 1rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  color: #92400e;
+}
+
+.director-info-box p {
+  margin: 0;
+}
+
+/* Success Animation */
+.director-success-animation {
+  text-align: center;
+  padding: 2rem;
+}
+
+.director-success-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: scaleIn 0.5s ease-out;
+}
+
+.director-success-message {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #059669;
+  margin-bottom: 0.5rem;
+}
+
+.director-success-submessage {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .director-profile-container {
+    padding: 2rem;
+  }
+
+  .director-profile-title {
+    font-size: 1.6rem;
+  }
+
+  .director-profile-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .director-profile-container {
+    padding: 1.5rem;
+  }
+
+  .director-profile-header {
+    padding: 2rem 1.5rem;
+  }
+
+  .director-profile-title {
+    font-size: 1.35rem;
+  }
+
+  .director-profile-actions {
+    flex-direction: column;
+  }
+
+  .director-profile-actions button {
+    width: 100%;
+  }
+
+  .director-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .director-docs-table {
+    font-size: 0.85rem;
+  }
+
+  .director-docs-table th {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .director-docs-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .director-doc-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+
+  .director-modal {
+    margin: 0 1rem;
+  }
+
+  .director-modal-body {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .director-profile-container {
+    padding: 1rem;
+  }
+
+  .director-profile-header {
+    padding: 1.5rem;
+  }
+
+  .director-profile-title {
+    font-size: 1.2rem;
+  }
+
+  .director-profile-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .director-alert-actions {
+    flex-direction: column;
+  }
+
+  .director-alert-actions button {
+    width: 100%;
+  }
+
+  .director-docs-table {
+    font-size: 0.8rem;
+    overflow-x: auto;
+  }
+
+  .director-history-item {
+    padding: 0.75rem;
+  }
+
+  .director-modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .director-modal-actions {
+    flex-direction: column;
+  }
+
+  .director-btn-cancel,
+  .director-btn-submit {
+    width: 100%;
+  }
+}

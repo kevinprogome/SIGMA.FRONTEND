@@ -14,8 +14,7 @@ import {
   getStatusLabel,
   getStatusBadgeClass,
 } from "../../services/directorService";
-import "../../styles/admin/Roles.css";
-import "../../styles/council/modals.css";
+import "../../styles/director/directorStudentProfile.css";
 
 export default function DirectorStudentProfile() {
   const { studentModalityId } = useParams();
@@ -216,16 +215,16 @@ export default function DirectorStudentProfile() {
   const today = new Date().toISOString().split("T")[0];
 
   if (loading) {
-    return <div className="admin-loading">Cargando perfil del estudiante...</div>;
+    return <div className="director-profile-loading">Cargando perfil del estudiante...</div>;
   }
 
   if (!student) {
     return (
-      <div className="admin-page">
-        <div className="admin-message error">
+      <div className="director-profile-container">
+        <div className="director-profile-message error">
           No se pudo cargar la información del estudiante
         </div>
-        <button onClick={() => navigate('/project-director')} className="admin-btn-secondary">
+        <button onClick={() => navigate('/project-director')} className="director-btn-cancel">
           ← Volver al Dashboard
         </button>
       </div>
@@ -237,26 +236,26 @@ export default function DirectorStudentProfile() {
   const notUploadedDocs = student.documents?.filter(d => !d.uploaded) || [];
 
   return (
-    <div className="admin-page">
+    <div className="director-profile-container">
       {/* Header */}
-      <div className="admin-page-header">
-        <div>
+      <div className="director-profile-header">
+        <div className="director-profile-header-content">
           <button
             onClick={() => navigate('/project-director')}
-            className="admin-btn-secondary"
+            className="director-btn-cancel"
             style={{ marginBottom: "1rem" }}
           >
             ← Volver al Dashboard
           </button>
-          <h1 className="admin-page-title">Perfil del Estudiante</h1>
-          <p className="admin-page-subtitle">{student.studentName}</p>
+          <h1 className="director-profile-title">Perfil del Estudiante</h1>
+          <p className="director-profile-subtitle">{student.studentName}</p>
         </div>
        
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        <div className="director-profile-actions">
           {canProposeDefense(student.currentStatus) && (
             <button
               onClick={() => setShowDefenseModal(true)}
-              className="admin-btn-primary"
+              className="director-btn-submit"
             >
               📅 Proponer Sustentación
             </button>
@@ -265,7 +264,7 @@ export default function DirectorStudentProfile() {
       </div>
 
       {message && (
-        <div className={`admin-message ${message.includes("Error") ? "error" : "success"}`}>
+        <div className={`director-profile-message ${message.includes("Error") ? "error" : "success"}`}>
           {message}
           <button onClick={() => setMessage("")} style={{ marginLeft: "1rem" }}>✕</button>
         </div>
@@ -273,39 +272,29 @@ export default function DirectorStudentProfile() {
 
       {/* Alerta de Cancelación */}
       {hasCancellationRequest(student.currentStatus) && (
-        <div style={{
-          background: "#fef3c7",
-          border: "2px solid #f59e0b",
-          padding: "1.5rem",
-          borderRadius: "8px",
-          marginBottom: "2rem"
-        }}>
-          <h3 style={{ margin: "0 0 1rem 0", color: "#92400e" }}>
-            ⚠️ Solicitud de Cancelación Pendiente
-          </h3>
-          <p style={{ margin: "0 0 1rem 0", color: "#78350f" }}>
+        <div className="director-alert-warning">
+          <h3>⚠️ Solicitud de Cancelación Pendiente</h3>
+          <p>
             El estudiante ha solicitado cancelar esta modalidad. Como director de proyecto,
             debes revisar y decidir si apruebas o rechazas esta solicitud.
           </p>
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+          <div className="director-alert-actions">
             <button
               onClick={handleViewCancellationDocument}
               disabled={loadingCancellationDoc}
-              className="admin-btn-primary"
-              style={{ background: "#3b82f6" }}
+              className="btn-view"
             >
               {loadingCancellationDoc ? "⏳ Cargando..." : "📄 Ver Documento de Cancelación"}
             </button>
             <button
               onClick={handleApproveCancellation}
-              className="admin-btn-primary"
-              style={{ background: "#059669" }}
+              className="btn-approve"
             >
               ✓ Aprobar Cancelación
             </button>
             <button
               onClick={() => setShowRejectModal(true)}
-              className="admin-btn-delete"
+              className="btn-reject"
             >
               ✕ Rechazar Cancelación
             </button>
@@ -314,216 +303,110 @@ export default function DirectorStudentProfile() {
       )}
 
       {/* Información del Estudiante */}
-      <div className="admin-card" style={{ marginBottom: "2rem" }}>
-        <div className="admin-card-header">
-          <h2>👤 Información del Estudiante</h2>
-        </div>
-        <div className="admin-card-body">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem" }}>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                Nombre Completo
-              </strong>
-              <span>{student.studentName}</span>
-            </div>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                Email
-              </strong>
-              <span>{student.studentEmail}</span>
-            </div>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                Estado Actual
-              </strong>
-              <span className={`admin-status-badge ${getStatusBadgeClass(student.currentStatus)}`}>
-                {getStatusLabel(student.currentStatus)}
-              </span>
-            </div>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                Última Actualización
-              </strong>
-              <span>{formatDate(student.lastUpdatedAt)}</span>
-            </div>
+      <div className="director-profile-card">
+        <h3 className="director-profile-card-title">👤 Información del Estudiante</h3>
+        <div className="director-profile-grid">
+          <div className="director-profile-item">
+            <span className="director-profile-label">Nombre Completo</span>
+            <span className="director-profile-value">{student.studentName}</span>
           </div>
-         
-          {student.currentStatusDescription && (
-            <div style={{
-              marginTop: "1.5rem",
-              paddingTop: "1.5rem",
-              borderTop: "1px solid #e5e7eb"
-            }}>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.5rem" }}>
-                Descripción del Estado
-              </strong>
-              <p style={{ margin: 0, lineHeight: 1.6, color: "#4b5563" }}>
-                {student.currentStatusDescription}
-              </p>
-            </div>
-          )}
+          <div className="director-profile-item">
+            <span className="director-profile-label">Email</span>
+            <span className="director-profile-value">{student.studentEmail}</span>
+          </div>
+          <div className="director-profile-item">
+            <span className="director-profile-label">Estado Actual</span>
+            <span className={`director-doc-status-badge ${getStatusBadgeClass(student.currentStatus)}`}>
+              {getStatusLabel(student.currentStatus)}
+            </span>
+          </div>
+          <div className="director-profile-item">
+            <span className="director-profile-label">Última Actualización</span>
+            <span className="director-profile-value">{formatDate(student.lastUpdatedAt)}</span>
+          </div>
         </div>
+       
+        {student.currentStatusDescription && (
+          <div className="director-profile-description">
+            <strong className="director-profile-description-title">
+              Descripción del Estado
+            </strong>
+            <p className="director-profile-description-text">
+              {student.currentStatusDescription}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Información de la Modalidad */}
-      <div className="admin-card" style={{ marginBottom: "2rem" }}>
-        <div className="admin-card-header">
-          <h2>📚 Información de la Modalidad</h2>
-        </div>
-        <div className="admin-card-body">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem" }}>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                Modalidad de Grado
-              </strong>
-              <span>{student.modalityName}</span>
-            </div>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                Programa Académico
-              </strong>
-              <span>{student.academicProgramName}</span>
-            </div>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                Facultad
-              </strong>
-              <span>{student.facultyName}</span>
-            </div>
-            <div>
-              <strong style={{ display: "block", color: "#6b7280", marginBottom: "0.25rem" }}>
-                ID de Modalidad
-              </strong>
-              <span>#{student.studentModalityId}</span>
-            </div>
+      <div className="director-profile-card">
+        <h3 className="director-profile-card-title">📚 Información de la Modalidad</h3>
+        <div className="director-profile-grid">
+          <div className="director-profile-item">
+            <span className="director-profile-label">Modalidad de Grado</span>
+            <span className="director-profile-value">{student.modalityName}</span>
+          </div>
+          <div className="director-profile-item">
+            <span className="director-profile-label">Programa Académico</span>
+            <span className="director-profile-value">{student.academicProgramName}</span>
+          </div>
+          <div className="director-profile-item">
+            <span className="director-profile-label">Facultad</span>
+            <span className="director-profile-value">{student.facultyName}</span>
+          </div>
+          <div className="director-profile-item">
+            <span className="director-profile-label">ID de Modalidad</span>
+            <span className="director-profile-value">#{student.studentModalityId}</span>
           </div>
         </div>
       </div>
 
       {/* ✅ SECCIÓN DE DOCUMENTOS - NUEVA Y MEJORADA */}
       {student.documents && student.documents.length > 0 && (
-        <div className="admin-card" style={{ marginBottom: "2rem" }}>
-          <div className="admin-card-header">
-            <h2>📄 Documentos del Estudiante</h2>
-          </div>
-          <div className="admin-card-body">
+        <div className="director-documents-section">
+          <h3 className="director-documents-title">📄 Documentos del Estudiante</h3>
+          <div>
             {/* Documentos Subidos */}
             {uploadedDocs.length > 0 && (
-              <>
-                <h3 style={{ 
-                  marginTop: 0, 
-                  marginBottom: "1rem", 
-                  color: "#059669",
-                  fontSize: "1.1rem",
-                  fontWeight: 600
-                }}>
-                  ✅ Documentos Subidos ({uploadedDocs.length})
-                </h3>
+              <div className="director-uploaded-docs">
+                <h4 className="director-uploaded-title">✅ Documentos Subidos ({uploadedDocs.length})</h4>
                 
-                <div style={{ overflowX: "auto", marginBottom: "2rem" }}>
-                  <table style={{ 
-                    width: "100%", 
-                    borderCollapse: "collapse",
-                    fontSize: "0.9rem"
-                  }}>
+                <div style={{ overflowX: "auto" }}>
+                  <table className="director-docs-table">
                     <thead>
-                      <tr style={{ 
-                        background: "#f9fafb", 
-                        borderBottom: "2px solid #e5e7eb" 
-                      }}>
-                        <th style={{ 
-                          padding: "0.75rem", 
-                          textAlign: "left",
-                          fontWeight: 600,
-                          color: "#374151"
-                        }}>Documento</th>
-                        <th style={{ 
-                          padding: "0.75rem", 
-                          textAlign: "center",
-                          fontWeight: 600,
-                          color: "#374151"
-                        }}>Obligatorio</th>
-                        <th style={{ 
-                          padding: "0.75rem", 
-                          textAlign: "left",
-                          fontWeight: 600,
-                          color: "#374151"
-                        }}>Estado</th>
-                        <th style={{ 
-                          padding: "0.75rem", 
-                          textAlign: "left",
-                          fontWeight: 600,
-                          color: "#374151"
-                        }}>Notas</th>
-                        <th style={{ 
-                          padding: "0.75rem", 
-                          textAlign: "left",
-                          fontWeight: 600,
-                          color: "#374151"
-                        }}>Fecha</th>
-                        <th style={{ 
-                          padding: "0.75rem", 
-                          textAlign: "center",
-                          fontWeight: 600,
-                          color: "#374151"
-                        }}>Acciones</th>
+                      <tr>
+                        <th>Documento</th>
+                        <th>Obligatorio</th>
+                        <th>Estado</th>
+                        <th>Notas</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {uploadedDocs.map((doc, index) => (
-                        <tr 
-                          key={doc.studentDocumentId || index}
-                          style={{ 
-                            borderBottom: "1px solid #e5e7eb",
-                            background: index % 2 === 0 ? "white" : "#f9fafb"
-                          }}
-                        >
-                          <td style={{ padding: "0.75rem" }}>
-                            <strong style={{ display: "block", marginBottom: "0.25rem" }}>
-                              {doc.documentName}
-                            </strong>
+                        <tr key={doc.studentDocumentId || index}>
+                          <td>
+                            <strong className="director-doc-name">{doc.documentName}</strong>
                             {doc.description && (
-                              <small style={{ color: "#6b7280", fontSize: "0.85rem" }}>
-                                {doc.description}
-                              </small>
+                              <div className="director-doc-description">{doc.description}</div>
                             )}
                           </td>
-                          <td style={{ padding: "0.75rem", textAlign: "center" }}>
+                          <td style={{ textAlign: "center" }}>
                             {doc.documentType === "MANDATORY" ? (
-                              <span style={{
-                                background: "#fef3c7",
-                                color: "#92400e",
-                                padding: "0.25rem 0.5rem",
-                                borderRadius: "4px",
-                                fontSize: "0.75rem",
-                                fontWeight: 600
-                              }}>
-                                Sí
-                              </span>
+                              <span className="director-doc-mandatory">Sí</span>
                             ) : (
-                              <span style={{
-                                background: "#e5e7eb",
-                                color: "#4b5563",
-                                padding: "0.25rem 0.5rem",
-                                borderRadius: "4px",
-                                fontSize: "0.75rem"
-                              }}>
-                                No
-                              </span>
+                              <span className="director-doc-optional">No</span>
                             )}
                           </td>
-                          <td style={{ padding: "0.75rem" }}>
-                            <span className={`admin-status-badge ${getDocStatusBadgeClass(doc.status)}`}>
+                          <td>
+                            <span className={`director-doc-status-badge ${getDocStatusBadgeClass(doc.status)}`}>
                               {getDocStatusLabel(doc.status)}
                             </span>
                           </td>
-                          <td style={{ padding: "0.75rem" }}>
+                          <td>
                             {doc.notes ? (
-                              <span style={{ 
-                                fontSize: "0.875rem", 
-                                color: "#4b5563",
-                                fontStyle: "italic"
-                              }}>
+                              <span style={{ fontSize: "0.875rem", color: "#4b5563" }}>
                                 {doc.notes}
                               </span>
                             ) : (
@@ -532,27 +415,22 @@ export default function DirectorStudentProfile() {
                               </span>
                             )}
                           </td>
-                          <td style={{ padding: "0.75rem" }}>
+                          <td>
                             <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>
                               {doc.lastUpdate 
                                 ? formatDate(doc.lastUpdate) 
                                 : formatDate(doc.uploadDate) || "N/A"}
                             </span>
                           </td>
-                          <td style={{ padding: "0.75rem", textAlign: "center" }}>
+                          <td style={{ textAlign: "center" }}>
                             <button
                               onClick={() => handleViewDocument(doc.studentDocumentId, doc.documentName)}
                               disabled={loadingDoc === doc.studentDocumentId}
-                              className="admin-btn-primary"
-                              style={{ 
-                                fontSize: "0.875rem",
-                                padding: "0.5rem 1rem",
-                                minWidth: "120px"
-                              }}
+                              className="director-doc-btn"
                             >
                               {loadingDoc === doc.studentDocumentId 
                                 ? "⏳ Cargando..." 
-                                : "👁️ Ver PDF"}
+                                : "Ver Documento"}
                             </button>
                           </td>
                         </tr>
@@ -560,7 +438,7 @@ export default function DirectorStudentProfile() {
                     </tbody>
                   </table>
                 </div>
-              </>
+              </div>
             )}
 
             {/* Documentos NO Subidos */}
@@ -633,97 +511,73 @@ export default function DirectorStudentProfile() {
 
       {/* Historial de Cambios */}
       {student.history && student.history.length > 0 && (
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <h2>📋 Historial de Estados</h2>
-          </div>
-          <div className="admin-card-body">
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              {student.history.map((history, index) => (
-                <div
-                  key={index}
-                  style={{
-                    padding: "1rem",
-                    background: "#f9fafb",
-                    borderLeft: "3px solid #3b82f6",
-                    borderRadius: "4px"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", flexWrap: "wrap", gap: "0.5rem" }}>
-                    <strong className={`admin-status-badge ${getStatusBadgeClass(history.status)}`}>
-                      {getStatusLabel(history.status)}
-                    </strong>
-                    <span style={{ color: "#6b7280", fontSize: "0.875rem" }}>
-                      {formatDate(history.changeDate)}
-                    </span>
-                  </div>
-                 
-                  {history.description && (
-                    <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#4b5563" }}>
-                      {history.description}
-                    </p>
-                  )}
-                 
-                  {history.observations && (
-                    <p style={{
-                      margin: "0.5rem 0 0 0",
-                      padding: "0.5rem",
-                      background: "white",
-                      borderRadius: "4px",
-                      fontSize: "0.875rem",
-                      fontStyle: "italic",
-                      color: "#6b7280"
-                    }}>
-                      <strong>Observaciones:</strong> {history.observations}
-                    </p>
-                  )}
-                 
-                  {history.responsible && (
-                    <p style={{
-                      margin: "0.5rem 0 0 0",
-                      fontSize: "0.75rem",
-                      color: "#9ca3af"
-                    }}>
-                      Responsable: {history.responsible}
-                    </p>
-                  )}
+        <div className="director-history-section">
+          <h3 className="director-history-title">📋 Historial de Estados</h3>
+          <div>
+            {student.history.map((history, index) => (
+              <div key={index} className="director-history-item">
+                <div className="director-history-item-header">
+                  <strong className={`director-doc-status-badge ${getStatusBadgeClass(history.status)}`}>
+                    {getStatusLabel(history.status)}
+                  </strong>
+                  <span className="director-history-item-date">
+                    {formatDate(history.changeDate)}
+                  </span>
                 </div>
-              ))}
-            </div>
+               
+                {history.description && (
+                  <p className="director-history-item-description">
+                    {history.description}
+                  </p>
+                )}
+               
+                {history.observations && (
+                  <p className="director-history-item-observations">
+                    <strong>Observaciones:</strong> {history.observations}
+                  </p>
+                )}
+               
+                {history.responsible && (
+                  <p className="director-history-item-responsible">
+                    Responsable: {history.responsible}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
 
       {/* Modal Proponer Sustentación */}
       {showDefenseModal && (
-        <div className="modal-overlay" onClick={() => !submitting && setShowDefenseModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+        <div className="director-modal-overlay" onClick={() => !submitting && setShowDefenseModal(false)}>
+          <div className="director-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="director-modal-header">
               <h3>📅 Proponer Fecha de Sustentación</h3>
               <button 
                 onClick={() => setShowDefenseModal(false)} 
-                className="modal-close"
+                className="director-modal-close"
                 disabled={submitting}
               >
                 ✕
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="director-modal-body">
               {successMessage ? (
-                <div className="modal-success-animation">
-                  <div className="success-icon">✅</div>
-                  <div className="success-message">{successMessage}</div>
-                  <div className="success-submessage">
+                <div className="director-success-animation">
+                  <div className="director-success-icon">✅</div>
+                  <div className="director-success-message">{successMessage}</div>
+                  <div className="director-success-submessage">
                     El comité revisará tu propuesta...
                   </div>
                 </div>
               ) : (
                 <form onSubmit={handleProposeDefense}>
-                  {error && <div className="error-message">{error}</div>}
+                  {error && <div className="director-profile-message error" style={{padding: "1rem"}}>{error}</div>}
 
-                  <div className="form-group">
-                    <label>Fecha y Hora de Sustentación *</label>
+                  <div className="director-form-group">
+                    <label className="director-form-label">Fecha y Hora de Sustentación *</label>
                     <input
                       type="datetime-local"
                       value={defenseData.defenseDate}
@@ -732,14 +586,14 @@ export default function DirectorStudentProfile() {
                         setError("");
                       }}
                       min={today}
-                      className="form-input"
+                      className="director-form-input"
                       disabled={submitting}
                       required
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label>Lugar de Sustentación *</label>
+                  <div className="director-form-group">
+                    <label className="director-form-label">Lugar de Sustentación *</label>
                     <input
                       type="text"
                       value={defenseData.defenseLocation}
@@ -748,31 +602,31 @@ export default function DirectorStudentProfile() {
                         setError("");
                       }}
                       placeholder="Ej: Auditorio Principal, Sala 302, etc."
-                      className="form-input"
+                      className="director-form-input"
                       disabled={submitting}
                       required
                     />
                   </div>
 
-                  <div className="info-box">
+                  <div className="director-info-box">
                     <p>
                       ℹ️ Esta propuesta será enviada al Comité de Currículo del Programa
                       para su revisión y aprobación.
                     </p>
                   </div>
 
-                  <div className="modal-actions">
+                  <div className="director-modal-actions">
                     <button
                       type="button"
                       onClick={() => setShowDefenseModal(false)}
-                      className="btn-cancel"
+                      className="director-btn-cancel"
                       disabled={submitting}
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="btn-submit"
+                      className="director-btn-submit"
                       disabled={submitting}
                     >
                       {submitting ? "Enviando..." : "Enviar Propuesta"}
@@ -787,36 +641,38 @@ export default function DirectorStudentProfile() {
 
       {/* Modal Rechazar Cancelación */}
       {showRejectModal && (
-        <div className="admin-modal-overlay" onClick={() => setShowRejectModal(false)}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h2>✕ Rechazar Solicitud de Cancelación</h2>
-              <button onClick={() => setShowRejectModal(false)} className="admin-modal-close">
+        <div className="director-modal-overlay" onClick={() => setShowRejectModal(false)}>
+          <div className="director-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="director-modal-header">
+              <h3>✕ Rechazar Solicitud de Cancelación</h3>
+              <button onClick={() => setShowRejectModal(false)} className="director-modal-close">
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleRejectCancellation} className="admin-form">
-              <div className="admin-form-group">
-                <label className="admin-label">Motivo del Rechazo *</label>
-                <textarea
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  className="admin-textarea"
-                  placeholder="Explica por qué se rechaza la solicitud de cancelación..."
-                  rows="5"
-                  required
-                />
-                <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
-                  El estudiante recibirá este mensaje y la modalidad continuará su proceso normal
-                </small>
+            <form onSubmit={handleRejectCancellation}>
+              <div className="director-modal-body">
+                <div className="director-form-group">
+                  <label className="director-form-label">Motivo del Rechazo *</label>
+                  <textarea
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="director-form-textarea"
+                    placeholder="Explica por qué se rechaza la solicitud de cancelación..."
+                    rows="5"
+                    required
+                  />
+                  <small className="director-form-small">
+                    El estudiante recibirá este mensaje y la modalidad continuará su proceso normal
+                  </small>
+                </div>
               </div>
 
-              <div className="admin-modal-actions">
-                <button type="button" onClick={() => setShowRejectModal(false)} className="admin-btn-secondary">
+              <div style={{ padding: "0 2rem 2rem 2rem", display: "flex", gap: "1rem" }}>
+                <button type="button" onClick={() => setShowRejectModal(false)} className="director-btn-cancel" style={{flex: 1}}>
                   Cancelar
                 </button>
-                <button type="submit" className="admin-btn-delete">
+                <button type="submit" className="director-btn-reject" style={{flex: 1}}>
                   Rechazar Solicitud
                 </button>
               </div>

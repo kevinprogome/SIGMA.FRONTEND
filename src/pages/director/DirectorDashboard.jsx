@@ -7,7 +7,7 @@ import {
   getStatusLabel,
   getErrorMessage,
 } from "../../services/directorService";
-import "../../styles/admin/Roles.css";
+import "../../styles/director/directorDashboard.css";
 
 export default function DirectorDashboard() {
   const navigate = useNavigate();
@@ -93,76 +93,60 @@ export default function DirectorDashboard() {
   };
 
   if (loading) {
-    return <div className="admin-loading">Cargando estudiantes...</div>;
+    return <div className="director-loading">Cargando estudiantes...</div>;
   }
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <div>
-          <h1 className="admin-page-title">Mis Estudiantes Asignados</h1>
-          <p className="admin-page-subtitle">
+    <div className="director-container">
+      <div className="director-header">
+        <div className="director-header-content">
+          <h1 className="director-title">Mis Estudiantes Asignados</h1>
+          <p className="director-subtitle">
             Vista general de estudiantes bajo tu dirección
           </p>
         </div>
       </div>
 
       {message && (
-        <div className={`admin-message ${message.includes("Error") ? "error" : "success"}`}>
-          {message}
-          <button onClick={() => setMessage("")} style={{ marginLeft: "1rem" }}>✕</button>
+        <div className={`director-message ${message.includes("Error") ? "error" : "success"}`}>
+          <span>{message}</span>
+          <button onClick={() => setMessage("")}>✕</button>
         </div>
       )}
 
       {/* Filtros */}
-      <div style={{ marginBottom: "2rem" }}>
+      <div className="director-filter-panel">
         {/* Búsqueda por nombre */}
-        <div className="admin-form-group" style={{ marginBottom: "1rem" }}>
-          <label className="admin-label">Buscar por nombre o email</label>
-          <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: "0.5rem" }}>
+        <div className="director-filter-group">
+          <label className="director-filter-label">Buscar por nombre o email</label>
+          <form className="director-search-box" onSubmit={handleSearchSubmit}>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Buscar estudiante..."
-              className="admin-input"
-              style={{ flex: 1 }}
+              className="director-input"
             />
-            <button type="submit" className="admin-btn-primary">
+            <button type="submit" className="director-btn director-btn-primary">
               Buscar
             </button>
           </form>
         </div>
 
         {/* Filtros por estado */}
-        <div className="admin-form-group">
-          <label className="admin-label">Filtrar por estado</label>
-          <div style={{ 
-            display: "flex", 
-            flexWrap: "wrap", 
-            gap: "0.5rem",
-            marginTop: "0.5rem"
-          }}>
+        <div className="director-filter-group">
+          <label className="director-filter-label">Filtrar por estado</label>
+          <div className="director-checkbox-group">
             {DIRECTOR_STATUS_OPTIONS.map((status) => (
               <label 
                 key={status.value}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "0.5rem 1rem",
-                  background: selectedStatuses.includes(status.value) ? "#3b82f6" : "#f3f4f6",
-                  color: selectedStatuses.includes(status.value) ? "white" : "#374151",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "0.875rem",
-                  transition: "all 0.2s"
-                }}
+                className={`director-checkbox-label ${selectedStatuses.includes(status.value) ? 'active' : ''}`}
               >
                 <input
                   type="checkbox"
                   checked={selectedStatuses.includes(status.value)}
                   onChange={() => handleStatusToggle(status.value)}
-                  style={{ marginRight: "0.5rem" }}
+                  className="director-checkbox"
                 />
                 {status.label}
               </label>
@@ -174,8 +158,8 @@ export default function DirectorDashboard() {
         {(selectedStatuses.length > 0 || searchName) && (
           <button 
             onClick={handleClearFilters}
-            className="admin-btn-secondary"
-            style={{ marginTop: "1rem" }}
+            className="director-btn director-btn-secondary"
+            style={{ marginTop: "1rem", width: "100%" }}
           >
             ✕ Limpiar Filtros
           </button>
@@ -183,12 +167,7 @@ export default function DirectorDashboard() {
       </div>
 
       {/* Indicador de resultados */}
-      <div style={{ 
-        padding: "1rem", 
-        background: "#f9fafb", 
-        borderRadius: "6px",
-        marginBottom: "1rem"
-      }}>
+      <div className="director-stats-bar">
         <strong>
           {filteredStudents.length === students.length
             ? `Total: ${students.length} estudiante${students.length !== 1 ? 's' : ''}`
@@ -198,8 +177,8 @@ export default function DirectorDashboard() {
       </div>
 
       {/* Tabla de estudiantes */}
-      <div className="admin-table-container">
-        <table className="admin-table">
+      <div className="director-table-container">
+        <table className="director-table">
           <thead>
             <tr>
               <th>Estudiante</th>
@@ -213,10 +192,15 @@ export default function DirectorDashboard() {
           <tbody>
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "3rem", color: "#999" }}>
-                  {students.length === 0 
-                    ? "No tienes estudiantes asignados"
-                    : "No hay estudiantes que coincidan con los filtros"}
+                <td colSpan="6" style={{ textAlign: "center", padding: "3rem" }}>
+                  <div className="director-empty-state">
+                    <div className="director-empty-icon">📭</div>
+                    <div className="director-empty-text">
+                      {students.length === 0 
+                        ? "No tienes estudiantes asignados"
+                        : "No hay estudiantes que coincidan con los filtros"}
+                    </div>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -228,19 +212,11 @@ export default function DirectorDashboard() {
                   <td>{student.studentEmail}</td>
                   <td>{student.modalityName}</td>
                   <td>
-                    <span className={`admin-status-badge ${getStatusBadgeClass(student.currentStatus)}`}>
+                    <span className={`director-status-badge ${getStatusBadgeClass(student.currentStatus)}`}>
                       {getStatusLabel(student.currentStatus)}
                     </span>
                     {student.hasPendingActions && (
-                      <div style={{ marginTop: "0.25rem" }}>
-                        <span style={{ 
-                          fontSize: "0.75rem", 
-                          color: "#f59e0b",
-                          fontWeight: "600"
-                        }}>
-                          ⚠️ Requiere atención
-                        </span>
-                      </div>
+                      <div className="director-attention-badge">⚠️ Requiere atención</div>
                     )}
                   </td>
                   <td style={{ fontSize: "0.875rem", color: "#6b7280" }}>
@@ -256,7 +232,7 @@ export default function DirectorDashboard() {
                   <td>
                     <button
                       onClick={() => handleViewProfile(student.studentModalityId)}
-                      className="admin-btn-action"
+                      className="director-btn-action"
                     >
                       Ver Perfil
                     </button>

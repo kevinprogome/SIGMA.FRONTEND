@@ -5,6 +5,8 @@ import {
   reviewDocument,
   approveProgramhead,
   getDocumentBlobUrl,
+  getStatusLabel,
+  getStatusBadgeClass,
 } from "../../services/programsheadService";
 import "../../styles/programhead/programheadprofile.css";
 
@@ -304,7 +306,7 @@ export default function StudentProfileProgramHead() {
           <div className="student-info-item">
             <span className="student-info-label">Estado Actual</span>
             <span className="student-info-value status">
-              {profile.currentStatusDescription}
+              {getStatusLabel(profile.currentStatus) || profile.currentStatusDescription}
             </span>
           </div>
 

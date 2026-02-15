@@ -222,6 +222,19 @@ export const getStatusLabel = (status) => {
 };
 
 /**
+ * Obtener etiqueta legible del estado de documento para examinador
+ */
+export const getDocumentStatusLabel = (status) => {
+  const docStatusMap = {
+    ACCEPTED_FOR_EXAMINER_REVIEW: "✅ Aceptado",
+    REJECTED_FOR_EXAMINER_REVIEW: "❌ Rechazado",
+    CORRECTIONS_REQUESTED_BY_EXAMINER: "⚠️ Correcciones Solicitadas",
+    PENDING: "⏳ Pendiente",
+  };
+  return docStatusMap[status] || status;
+};
+
+/**
  * Formatear fecha a formato legible en español
  */
 export const formatDate = (dateString) => {

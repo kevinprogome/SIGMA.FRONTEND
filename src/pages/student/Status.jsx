@@ -3,7 +3,9 @@ import {
   getCurrentModalityStatus,
   getMyDocuments,
   uploadStudentDocument,
-  getStudentDocumentBlob
+  getStudentDocumentBlob,
+  getStatusLabel,
+  getStatusBadgeClass,
 } from "../../services/studentService";
 import "../../styles/student/status.css";
 
@@ -102,36 +104,7 @@ export default function ModalityStatus() {
     }
   };
 
-  const getStatusBadgeClass = (status) => {
-    const statusLower = status?.toLowerCase() || "";
-   
-    if (statusLower.includes("accepted") || statusLower.includes("aceptado")) {
-      return "accepted";
-    }
-    if (statusLower.includes("rejected") || statusLower.includes("rechazado")) {
-      return "rejected";
-    }
-    if (statusLower.includes("corrections") || statusLower.includes("correcciones")) {
-      return "corrections";
-    }
-    if (statusLower.includes("pending") || statusLower.includes("pendiente")) {
-      return "pending";
-    }
-    return "pending";
-  };
-
-  const getStatusLabel = (status) => {
-    const statusMap = {
-      "PENDING": "Pendiente de revisión",
-      "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW": "Aceptado por Jefe de Programa",
-      "REJECTED_FOR_PROGRAM_HEAD_REVIEW": "Rechazado por Jefe de Programa",
-      "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD": "Correcciones solicitadas - Jefe de Programa",
-      "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Aceptado por comité de currículo de programa",
-      "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por comité de currículo de programa",
-      "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por comité de currículo de programa",
-    };
-    return statusMap[status] || status;
-  };
+  // ✅ BORRADAS LAS DOS FUNCIONES LOCALES - Ahora usa las del service importadas arriba
 
   if (loading) {
     return <div className="status-loading">Cargando estado de la modalidad...</div>;
@@ -175,7 +148,7 @@ export default function ModalityStatus() {
 
           <div className="status-info-item">
             <span className="status-label">Estado actual</span>
-            <span className="status-current-badge">{data.currentStatus}</span>
+            <span className="status-current-badge">{getStatusLabel(data.currentStatus)}</span>
           </div>
 
           {data.currentStatusDescription && (
@@ -282,7 +255,7 @@ export default function ModalityStatus() {
             {data.history.map((h, index) => (
               <li key={index} className="status-history-item">
                 <div className="status-history-card">
-                  <div className="status-history-status">{h.status}</div>
+                  <div className="status-history-status">{getStatusLabel(h.status)}</div>
                   <div className="status-history-description">{h.description}</div>
 
                   <div className="status-history-meta">

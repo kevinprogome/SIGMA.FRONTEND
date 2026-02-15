@@ -89,8 +89,8 @@ export default function ExaminerDashboard() {
         status === "DISAGREEMENT_REQUIRES_TIEBREAKER") {
       return "📊 Evaluar Sustentación";
     }
-    if (status === "EXAMINERS_ASSIGNED") return "📄 Revisar Documentos";
-    return "👁️ Ver Detalles";
+    if (status === "EXAMINERS_ASSIGNED") return "Revisar Documentos";
+    return "Ver Detalles";
   };
 
   if (loading) {

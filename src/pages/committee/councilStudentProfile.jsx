@@ -475,7 +475,7 @@ export default function CommitteeStudentProfile() {
                   {uploadedDocs.map((doc) => (
                     <tr key={doc.studentDocumentId || doc.documentName}>
                       <td>
-                        <strong>{doc.documentName}</strong>
+                        <strong className="document-name">{doc.documentName}</strong>
                       </td>
                       <td>
                         <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>

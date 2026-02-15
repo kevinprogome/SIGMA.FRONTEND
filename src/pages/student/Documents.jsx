@@ -60,16 +60,22 @@ export default function Documents() {
 
   if (error || !statusData) {
     return (
-      <div className="documents-page-error">
-        <div className="error-icon">📄</div>
-        <h2>No hay modalidad seleccionada</h2>
-        <p>{error || "Debes seleccionar una modalidad de grado antes de poder subir documentos."}</p>
-        <button 
-          className="documents-page-button"
-          onClick={() => navigate("/student/modalities")}
-        >
-          Ir a Modalidades
-        </button>
+      <div className="documents-container">
+        <div className="documents-error-container">
+          <div className="documents-error-card">
+            <div className="documents-error-icon">📋</div>
+            <h2 className="documents-error-title">Documentos de la Modalidad</h2>
+            <div className="documents-error-message">
+              {error || "Debes seleccionar una modalidad de grado antes de poder subir documentos."}
+            </div>
+            <button 
+              className="documents-error-button"
+              onClick={() => navigate("/student/modalities")}
+            >
+              Ir a Modalidades
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
