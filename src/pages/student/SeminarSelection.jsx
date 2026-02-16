@@ -5,6 +5,7 @@ import {
   enrollInSeminar,
   getCurrentModalityStatus,
 } from "../../services/studentService";
+import '../../styles/student/seminars-modal.css';
 
 export default function SeminarSelection() {
   const navigate = useNavigate();
@@ -22,6 +23,14 @@ export default function SeminarSelection() {
   useEffect(() => {
     checkModalityAndFetchSeminars();
   }, []);
+
+  // ✅ NUEVO: Bloquear cambio de seminario si ya está inscrito
+  useEffect(() => {
+    if (alreadyEnrolled) {
+      setShowConfirmModal(false);
+      setSelectedSeminar(null);
+    }
+  }, [alreadyEnrolled]);
 
   const checkModalityAndFetchSeminars = async () => {
     try {
@@ -81,6 +90,7 @@ export default function SeminarSelection() {
   };
 
   const handleOpenConfirmModal = (seminar) => {
+    if (alreadyEnrolled) return;
     setSelectedSeminar(seminar);
     setShowConfirmModal(true);
   };
@@ -101,10 +111,9 @@ export default function SeminarSelection() {
         setMessageType("success");
         setShowConfirmModal(false);
 
-        // Redirigir a documentos después de 3 segundos
         setTimeout(() => {
           navigate("/student/documents");
-        }, 3000);
+        }, 100000);
       } else {
         setMessage(response.error || "Error al inscribirse en el seminario");
         setMessageType("error");
@@ -152,10 +161,12 @@ export default function SeminarSelection() {
 
   if (loading) {
     return (
-      <div className="seminar-selection-container">
-        <div className="seminar-loading">
-          <div className="spinner"></div>
-          <p>Cargando seminarios disponibles...</p>
+      <div className="modal-overlay">
+        <div className="modal-seminar">
+          <div className="seminar-modal-loading">
+            <div className="spinner"></div>
+            <p>Cargando seminarios disponibles...</p>
+          </div>
         </div>
       </div>
     );
@@ -163,17 +174,12 @@ export default function SeminarSelection() {
 
   if (!hasSeminarioModality && !alreadyEnrolled) {
     return (
-      <div className="seminar-selection-container">
-        <div className="seminar-error">
-          <div className="error-icon">⚠️</div>
-          <h2>Acceso Restringido</h2>
-          <p>{message}</p>
-          <button
-            className="seminar-button"
-            onClick={() => navigate("/student/modalities")}
-          >
-            Ir a Modalidades
-          </button>
+      <div className="modal-overlay">
+        <div className="modal-seminar">
+          <div className="seminar-modal-empty">
+            <p>⚠️ {message}</p>
+            <button className="enroll-button" onClick={() => navigate("/student/modalities")}>Ir a Modalidades</button>
+          </div>
         </div>
       </div>
     );
@@ -181,211 +187,137 @@ export default function SeminarSelection() {
 
   if (alreadyEnrolled) {
     return (
-      <div className="seminar-selection-container">
-        <div className="seminar-success">
-          <div className="success-icon">✅</div>
-          <h2>Ya estás inscrito en un seminario</h2>
-          <p>Puedes continuar con la carga de tus documentos.</p>
-          <button
-            className="seminar-button"
-            onClick={() => navigate("/student/documents")}
-          >
-            Ir a Documentos
-          </button>
+      <div className="modal-overlay">
+        <div className="modal-seminar">
+          <div className="seminar-modal-empty">
+            <p>✅ Ya estás inscrito en un seminario.<br/>Puedes continuar con la carga de tus documentos.</p>
+            <button className="enroll-button" onClick={() => navigate("/student/documents")}>Ir a Documentos</button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="seminar-selection-container">
-      {/* Header */}
-      <div className="seminar-header">
-        <div>
-          <h1 className="seminar-title">📚 Seminarios Disponibles</h1>
-          <p className="seminar-subtitle">
-            Selecciona el seminario en el que deseas inscribirte
-          </p>
+    <div className="modal-overlay">
+      <div className="modal-seminar">
+        <div className="modal-detail-header">
+          <h3>Seminarios Disponibles</h3>
+          <button className="modal-close-btn" onClick={() => navigate("/student")}>✕</button>
         </div>
-        <button
-          className="seminar-back-button"
-          onClick={() => navigate("/student")}
-        >
-          ← Volver al Dashboard
-        </button>
-      </div>
-
-      {/* Mensajes */}
-      {message && (
-        <div className={`seminar-message ${messageType}`}>
-          {message}
-          <button onClick={() => setMessage("")}>✕</button>
-        </div>
-      )}
-
-      {/* Tabla de Seminarios */}
-      {seminars.length === 0 ? (
-        <div className="seminar-empty">
-          <div className="empty-icon">📭</div>
-          <h3>No hay seminarios disponibles</h3>
-          <p>
-            No hay seminarios abiertos para tu programa académico en este
-            momento.
-          </p>
-        </div>
-      ) : (
-        <div className="seminar-table-container">
-          <table className="seminar-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Participantes</th>
-                <th>Espacios</th>
-                <th>Precio</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {seminars.map((seminar) => (
-                <tr key={seminar.id}>
-                  <td>
-                    <div className="seminar-name">{seminar.name}</div>
-                    <small className="seminar-program">
-                      {seminar.academicProgramName}
-                    </small>
-                  </td>
-                  <td className="seminar-description">
-                    {seminar.description}
-                  </td>
-                  <td className="text-center">
-                    <div className="participants-range">
-                      {seminar.minParticipants} - {seminar.maxParticipants}
-                    </div>
-                  </td>
-                  <td className="text-center">
-                    <div
-                      className={`available-spots ${
-                        seminar.availableSpots === 0 ? "full" : ""
-                      }`}
-                    >
-                      {seminar.availableSpots}
-                    </div>
-                  </td>
-                  <td className="seminar-cost">
-                    {formatCurrency(seminar.totalCost)}
-                  </td>
-                  <td>{getStatusBadge(seminar.status)}</td>
-                  <td>
-                    <button
-                      className="enroll-button"
-                      onClick={() => handleOpenConfirmModal(seminar)}
-                      disabled={
-                        seminar.status !== "OPEN" ||
-                        seminar.availableSpots === 0 ||
-                        enrolling === seminar.id
-                      }
-                    >
-                      {enrolling === seminar.id
-                        ? "Inscribiendo..."
-                        : seminar.availableSpots === 0
-                        ? "Sin cupos"
-                        : "Unirse"}
-                    </button>
-                  </td>
+        <p className="seminar-modal-subtitle">Selecciona el seminario en el que deseas inscribirte</p>
+        {message && (
+          <div className={`seminar-message ${messageType}`}>{message}</div>
+        )}
+        {seminars.length === 0 ? (
+          <div className="seminar-modal-empty">
+            <p>📭 No hay seminarios disponibles para tu programa en este momento.</p>
+          </div>
+        ) : (
+          <div className="seminar-table-wrapper">
+            <table className="seminar-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th>Participantes</th>
+                  <th>Espacios</th>
+                  <th>Precio</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Modal de Confirmación */}
-      {showConfirmModal && selectedSeminar && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowConfirmModal(false)}
-        >
-          <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Confirmar Inscripción</h3>
-              <button
-                className="modal-close"
-                onClick={() => setShowConfirmModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <p className="modal-warning">
-                ⚠️ <strong>IMPORTANTE:</strong> Al confirmar, quedarás
-                inscrito en este seminario y deberás completar el pago.
-              </p>
-
-              <div className="seminar-details">
+              </thead>
+              <tbody>
+                {seminars.map((seminar) => (
+                  <tr key={seminar.id}>
+                    <td>
+                      <div className="seminar-name">{seminar.name}</div>
+                      <small className="seminar-program">{seminar.academicProgramName}</small>
+                    </td>
+                    <td className="seminar-description">{seminar.description}</td>
+                    <td className="text-center">{seminar.minParticipants} - {seminar.maxParticipants}</td>
+                    <td className="text-center">
+                      <span className={`available-spots ${seminar.availableSpots === 0 ? 'full' : ''}`}>{seminar.availableSpots}</span>
+                    </td>
+                    <td className="seminar-cost">{formatCurrency(seminar.totalCost)}</td>
+                    <td>{getStatusBadge(seminar.status)}</td>
+                    <td>
+                      <button
+                        className="enroll-button"
+                        onClick={() => handleOpenConfirmModal(seminar)}
+                        disabled={
+                          seminar.status !== "OPEN" ||
+                          seminar.availableSpots === 0 ||
+                          enrolling === seminar.id ||
+                          alreadyEnrolled
+                        }
+                      >
+                        {enrolling === seminar.id
+                          ? "Inscribiendo..."
+                          : seminar.availableSpots === 0
+                          ? "Sin cupos"
+                          : alreadyEnrolled
+                          ? "Ya inscrito"
+                          : "Unirse"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {showConfirmModal && selectedSeminar && (
+          <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 1000 }}>
+            <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
+              <h3>Confirmar Inscripción en Seminario</h3>
+              <div className="seminar-confirm-warning">
+                ⚠️ <strong>IMPORTANTE: Al confirmar, quedarás inscrito en este seminario y deberás completar con el pago del seminario.</strong>
+              </div>
+              <div className="seminar-confirm-details">
                 <h4>{selectedSeminar.name}</h4>
                 <p>{selectedSeminar.description}</p>
-
                 <div className="detail-row">
-                  <span className="detail-label">Programa:</span>
-                  <span className="detail-value">
-                    {selectedSeminar.academicProgramName}
-                  </span>
+                  <span>Horas totales:</span>
+                  <strong>{selectedSeminar.totalHours} horas</strong>
                 </div>
-
                 <div className="detail-row">
-                  <span className="detail-label">Horas totales:</span>
-                  <span className="detail-value">
-                    {selectedSeminar.totalHours} horas
-                  </span>
+                  <span>Costo:</span>
+                  <strong className="cost-highlight">{formatCurrency(selectedSeminar.totalCost)}</strong>
                 </div>
-
                 <div className="detail-row">
-                  <span className="detail-label">Costo:</span>
-                  <span className="detail-value cost">
-                    {formatCurrency(selectedSeminar.totalCost)}
-                  </span>
-                </div>
-
-                <div className="detail-row">
-                  <span className="detail-label">Cupos disponibles:</span>
-                  <span
-                    className={`detail-value ${
-                      selectedSeminar.availableSpots < 5 ? "low-spots" : ""
-                    }`}
-                  >
-                    {selectedSeminar.availableSpots} /{" "}
-                    {selectedSeminar.maxParticipants}
-                  </span>
+                  <span>Cupos disponibles:</span>
+                  <strong className={selectedSeminar.availableSpots < 5 ? "low-spots" : ""}>
+                    {selectedSeminar.availableSpots} / {selectedSeminar.maxParticipants}
+                  </strong>
                 </div>
               </div>
-
-              <p className="modal-question">
-                ¿Estás seguro de que deseas inscribirte en este seminario?
-              </p>
-            </div>
-
-            <div className="modal-actions">
-              <button
-                className="seminar-button secondary"
-                onClick={() => setShowConfirmModal(false)}
-                disabled={enrolling}
-              >
-                Cancelar
-              </button>
-              <button
-                className="seminar-button primary"
-                onClick={handleEnroll}
-                disabled={enrolling}
-              >
-                {enrolling ? "Inscribiendo..." : "Confirmar Inscripción"}
-              </button>
+              <p className="seminar-confirm-question">¿Estás seguro de que deseas inscribirte en este seminario?</p>
+              <div className="modal-confirm-actions" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+                <button className="enroll-button secondary" onClick={() => setShowConfirmModal(false)} disabled={enrolling}>Cancelar</button>
+                <button className="enroll-button primary" onClick={handleEnroll} disabled={enrolling}>{enrolling ? "Inscribiendo..." : "Confirmar"}</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* ✅ NUEVO: Ventana de confirmación final */}
+        {messageType === 'success' && message.includes('inscrito') && !showConfirmModal && (
+          <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="modal-confirm" style={{ maxWidth: 420, margin: 'auto', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+              <h3 style={{ color: '#7A1117', marginBottom: '1rem' }}>¡Seminario seleccionado exitosamente!</h3>
+              <div className="seminar-confirm-warning" style={{ justifyContent: 'center', textAlign: 'center' }}>
+                ✅ Has seleccionado el seminario <strong>{selectedSeminar?.name}</strong>.<br/>
+          
+              </div>
+              <div className="modal-confirm-actions" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+                <button className="enroll-button primary" onClick={() => navigate('/student/documents')}>Ir a Documentos</button>
+                <button className="enroll-button secondary" onClick={() => setMessage('')}>Cerrar</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

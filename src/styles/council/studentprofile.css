@@ -217,6 +217,16 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Forzar blanco en estadísticas de documentos sobre fondo vinotinto */
+.documents-stats-card .stat-number,
+.documents-stats-card .stat-item .stat-number,
+.documents-stats-card .stat-label,
+.documents-stats-card .stat-item .stat-label {
+  color: #fff !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.25);
 }
 
 .stat-label {

@@ -1,6 +1,25 @@
 import axios from "../api/axios";
 
 // ========================================
+// 🔄 CAMBIAR DIRECTOR DE PROYECTO (COMITÉ)
+// ========================================
+/**
+ * Cambia el director de proyecto de una modalidad
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @param {number} newDirectorId - ID del nuevo director
+ * @param {string} reason - Razón del cambio
+ * @returns {Promise<Object>} Respuesta del backend
+ */
+export const changeProjectDirector = async (studentModalityId, newDirectorId, reason) => {
+  if (!newDirectorId) throw new Error("El ID del nuevo director es obligatorio");
+  if (!reason || reason.trim() === "") throw new Error("La razón del cambio es obligatoria");
+  const response = await axios.put(
+    `/modalities/${studentModalityId}/change-director`,
+    { newDirectorId, reason }
+  );
+  return response.data;
+};
+// ========================================
 // 📋 OBTENER ESTUDIANTES PENDIENTES
 // ========================================
 export const getStudentsPendingModalities = async (statuses = [], searchName = "") => {

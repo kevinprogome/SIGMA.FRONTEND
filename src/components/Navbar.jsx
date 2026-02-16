@@ -9,6 +9,7 @@ import {
   getRelativeTime,
   getNotificationTypeClass
 } from "../services/notificationService";
+import { getCurrentModalityStatus } from '../services/studentService';
 import "../styles/navbar.css";
 
 export default function Navbar() {
@@ -20,15 +21,29 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [hasSeminarioModality, setHasSeminarioModality] = useState(false);
 
   useEffect(() => {
     fetchUnreadCount();
-    
+    checkSeminarioModality();
     // Actualizar contador cada 30 segundos
     const interval = setInterval(fetchUnreadCount, 30000);
     
     return () => clearInterval(interval);
   }, []);
+
+  const checkSeminarioModality = async () => {
+    try {
+      const currentModality = await getCurrentModalityStatus();
+      if (currentModality && currentModality.modalityName && currentModality.modalityName.toUpperCase().includes('SEMINARIO')) {
+        setHasSeminarioModality(true);
+      } else {
+        setHasSeminarioModality(false);
+      }
+    } catch {
+      setHasSeminarioModality(false);
+    }
+  };
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -117,6 +132,9 @@ export default function Navbar() {
           <li><Link to="/student/documents">Documentos</Link></li>
           <li><Link to="/student/status">Estado</Link></li>
           <li><Link to="/student/cancellation">Cancelar Modalidad</Link></li>
+          {hasSeminarioModality && (
+            <li><Link to="/student/seminars">Seminario</Link></li>
+          )}
         </ul>
 
         <div className="navbar-actions">

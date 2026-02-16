@@ -53,6 +53,7 @@ export default function Modalities() {
   const [selectedSeminar, setSelectedSeminar] = useState(null);
   const [showSeminarConfirmModal, setShowSeminarConfirmModal] = useState(false);
   const [enrollingSeminar, setEnrollingSeminar] = useState(null);
+  const [isSeminarioSelection, setIsSeminarioSelection] = useState(false);
 
   const modalityRefs = useRef({});
 
@@ -348,11 +349,11 @@ export default function Modalities() {
     setPendingModalityId(modalityId);
     setShowDetailModal(false);
 
-    // ✅ NUEVO: Verificar si es Seminario
+    // ✅ NUEVO: Verificar si es Seminario - ahora también pasa por confirmación
     if (isSeminarioModality(modalityDetail)) {
-      // Mostrar modal de seminarios
-      setShowSeminarModal(true);
-      loadAvailableSeminars();
+      setIsSeminarioSelection(true);
+      setModalityType("INDIVIDUAL");
+      setShowConfirmModal(true);
       return;
     }
     
@@ -431,6 +432,34 @@ export default function Modalities() {
   };
 
   const handleFinalConfirm = async () => {
+    // ✅ NUEVO: Si es Seminario, primero confirma la modalidad y luego abre los seminarios
+    if (isSeminarioSelection) {
+      try {
+        setSendingId(pendingModalityId);
+        const res = await startModality(pendingModalityId);
+
+        setStudentModalityId(res.studentModalityId);
+        setSelectedModalityId(pendingModalityId);
+        
+        // Cerrar modal de confirmación y abrir modal de seminarios
+        setShowConfirmModal(false);
+        setIsSeminarioSelection(false);
+        setModalityType(null);
+        
+        // Abrir modal de seminarios después de confirmar
+        setShowSeminarModal(true);
+        await loadAvailableSeminars();
+        
+      } catch (err) {
+        console.error("❌ Error al iniciar modalidad seminario:", err);
+        handleModalityError(pendingModalityId, err);
+        setShowConfirmModal(false);
+      } finally {
+        setSendingId(null);
+      }
+      return;
+    }
+    
     if (modalityType === "INDIVIDUAL") {
       await handleSelectIndividualModality(pendingModalityId);
     } else {
@@ -488,6 +517,26 @@ export default function Modalities() {
       handleModalityError(modalityId, err);
     } finally {
       setSendingId(null);
+    }
+  };
+
+  // ✅ NUEVO: Abrir modal de seminarios si la modalidad está activa (acceso desde página principal)
+  const openSeminarModalIfActive = async () => {
+    const hasSeminarioModality = modalityHistory.some(m => 
+      m.name && m.name.toUpperCase().includes('SEMINARIO DE GRADO') && 
+      isModalityActive(m.currentStatus)
+    );
+    
+    if (hasSeminarioModality) {
+      setShowSeminarModal(true);
+      await loadAvailableSeminars();
+    } else {
+      setModalityMessages({
+        general: {
+          type: 'error',
+          text: 'Para acceder a seminarios, debes tener iniciada la modalidad "SEMINARIO DE GRADO".'
+        }
+      });
     }
   };
 
@@ -695,6 +744,32 @@ export default function Modalities() {
           </li>
         ))}
       </ul>
+
+      {/* ✅ NUEVO: ACCESO A SEMINARIOS DESDE PÁGINA PRINCIPAL */}
+      {modalityHistory.some(m => m.name && m.name.toUpperCase().includes('SEMINARIO DE GRADO') && isModalityActive(m.currentStatus)) && (
+        <div style={{ 
+          marginTop: '2rem', 
+          padding: '1.5rem', 
+          backgroundColor: '#f0f4ff', 
+          borderLeft: '4px solid #7A1117',
+          borderRadius: '6px',
+          textAlign: 'center'
+        }}>
+          <h3 style={{ marginBottom: '0.5rem', color: '#7A1117' }}>
+            📚 Selecciona tu Seminario
+          </h3>
+          <p style={{ marginBottom: '1rem', color: '#666' }}>
+            Ya tienes la modalidad "SEMINARIO DE GRADO" activa. Entra y selecciona el seminario que deseas.
+          </p>
+          <button
+            className="modality-button"
+            onClick={openSeminarModalIfActive}
+            style={{ backgroundColor: '#7A1117' }}
+          >
+            Acceder a Seminarios →
+          </button>
+        </div>
+      )}
 
       {/* MODAL DETALLES */}
       {showDetailModal && modalityDetail && (
@@ -1078,7 +1153,15 @@ export default function Modalities() {
           <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
             <h3>Confirmar selección</h3>
 
-            {modalityType === "INDIVIDUAL" ? (
+            {isSeminarioSelection ? (
+              <p>
+                ¿Estás seguro que deseas activar la modalidad <strong>SEMINARIO DE GRADO</strong>?
+                <br />
+                Después de confirmar, podrás seleccionar el seminario en el que deseas inscribirte.
+                <br />
+                <strong>Esta acción no se puede deshacer.</strong>
+              </p>
+            ) : modalityType === "INDIVIDUAL" ? (
               <p>
                 ¿Estás seguro que deseas seleccionar esta modalidad de forma <strong>individual</strong>?
                 <br />

@@ -11,6 +11,7 @@ import {
 import AssignDirectorModal from "../../components/committee/AssignDirectorModal";
 import AssignExaminersModal from "../../components/committee/AssignExaminerModal";
 import ModalityDetailsModal from "../../components/committee/ModalityDetailsModal";
+import ChangeDirectorModal from "../../components/committee/ChangeDirectorModal";
 import "../../styles/council/studentprofile.css";
 
 export default function CommitteeStudentProfile() {
@@ -28,6 +29,7 @@ export default function CommitteeStudentProfile() {
   const [loadingDoc, setLoadingDoc] = useState(null);
 
   // Estados para modales
+  const [showChangeDirectorModal, setShowChangeDirectorModal] = useState(false);
   const [showAssignDirectorModal, setShowAssignDirectorModal] = useState(false);
   const [showAssignExaminersModal, setShowAssignExaminersModal] = useState(false);
   const [showModalityDetailsModal, setShowModalityDetailsModal] = useState(false);
@@ -428,19 +430,19 @@ export default function CommitteeStudentProfile() {
       <div className="documents-stats-card">
         <h3 className="card-section-title">📊 Estadísticas de Documentos</h3>
         <div className="stats-grid">
-          <div className="stat-item total">
+          <div className="stat-item total" style={{ background: '#a01a1f', borderRadius: '12px' }}>
             <div className="stat-number">{profile.totalDocuments || 0}</div>
             <div className="stat-label">Total</div>
           </div>
-          <div className="stat-item approved">
+          <div className="stat-item approved" style={{ background: '#a01a1f', borderRadius: '12px' }}>
             <div className="stat-number">{profile.approvedDocuments || 0}</div>
             <div className="stat-label">Aprobados</div>
           </div>
-          <div className="stat-item pending">
+          <div className="stat-item pending" style={{ background: '#a01a1f', borderRadius: '12px' }}>
             <div className="stat-number">{profile.pendingDocuments || 0}</div>
             <div className="stat-label">Pendientes</div>
           </div>
-          <div className="stat-item rejected">
+          <div className="stat-item rejected" style={{ background: '#a01a1f', borderRadius: '12px' }}>
             <div className="stat-number">{profile.rejectedDocuments || 0}</div>
             <div className="stat-label">Rechazados</div>
           </div>
@@ -626,7 +628,7 @@ export default function CommitteeStudentProfile() {
 
       {/* Committee Actions Section */}
       <div className="council-actions-section">
-        <h3 className="section-title">🎯 Acciones del Comité de Currículo</h3>
+        <h3 className="section-title">Acciones del Comité de Currículo</h3>
         <div className="council-actions-grid">
           {/* Asignar Director - Solo si NO tiene director */}
           {!profile.projectDirectorName && (
@@ -638,6 +640,20 @@ export default function CommitteeStudentProfile() {
               <span className="action-text">Asignar Director</span>
             </button>
           )}
+           {/* 🔄 Cambiar Director (si YA tiene) */}
+          {profile.projectDirectorName && !isModalityClosed && (
+            <button
+              onClick={() => setShowChangeDirectorModal(true)}
+              className="council-action-btn change-director"
+              style={{
+                background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+              }}
+            >
+              <span className="action-icon">🔄</span>
+              <span className="action-text">Cambiar Director</span>
+            </button>
+          )}
+
           {/* Asignar Jueces - Solo si estado = DEFENSE_SCHEDULED */}
           {profile.currentStatus === "DEFENSE_SCHEDULED" && (
             <button
@@ -696,6 +712,18 @@ export default function CommitteeStudentProfile() {
           onSuccess={() => {
             setShowAssignDirectorModal(false);
             handleModalSuccess("✅ Director asignado correctamente");
+          }}
+        />
+      )}
+
+        {showChangeDirectorModal && (
+        <ChangeDirectorModal
+          studentModalityId={studentModalityId}
+          currentDirectorName={profile.projectDirectorName}
+          onClose={() => setShowChangeDirectorModal(false)}
+          onSuccess={(message) => {
+            setShowChangeDirectorModal(false);
+            handleModalSuccess(message);
           }}
         />
       )}
