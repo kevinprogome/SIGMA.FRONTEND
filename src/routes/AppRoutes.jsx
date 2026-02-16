@@ -12,6 +12,7 @@ import ProtectedRoute from "./ProtectedRoute";
 // Layouts
 import StudentLayout from "../layouts/StudentLayout";
 import SecretaryLayout from "../layouts/SecretaryLayout";
+import ProgramHeadLayout from "../layouts/ProgramHeadLayout";
 import CouncilLayout from "../layouts/CouncilLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import DirectorLayout from "../layouts/DirectorLayout";
@@ -25,10 +26,14 @@ import StudentStatus from "../pages/student/Status";
 import StudentCancellation from "../pages/student/Cancellation";
 import StudentProfile from "../pages/student/StudentProfile";
 import Notifications from "../pages/student/Notifications";
+import SeminarSelection from "../pages/student/SeminarSelection";
 
 // SECRETARY
 import StudentsPending from "../pages/programhead/StudentPending";
 import StudentProfileSecretary from "../pages/programhead/StudentProfile";
+import SeminarList from "../pages/programhead/SeminarList";
+import SeminarDetail from "../pages/programhead/SeminarDetail";
+import SeminarForm from "../pages/programhead/SeminarForm";
 
 // COUNCIL
 import CouncilDashboard from "../pages/committee/councilDashboard";
@@ -76,17 +81,24 @@ function AppRoutes() {
           <Route path="status" element={<StudentStatus />} />
           <Route path="cancellation" element={<StudentCancellation />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="seminars" element={<SeminarSelection />} /> 
+
         </Route>
       </Route>
 
-      {/* SECRETARY / PROGRAM HEAD */}
+    {/* SECRETARY / PROGRAM HEAD */}
       <Route element={<ProtectedRoute allowedRoles={["PROGRAM_HEAD"]} />}>
-        <Route path="/jefeprograma" element={<SecretaryLayout />}>
+        <Route path="/jefeprograma" element={<ProgramHeadLayout />}>
           <Route index element={<StudentsPending />} />
           <Route
             path="students/:studentModalityId"
             element={<StudentProfileSecretary />}
           />
+          {/* ✅ RUTAS DE SEMINARIOS */}
+          <Route path="seminars" element={<SeminarList />} />
+          <Route path="seminars/create" element={<SeminarForm />} />
+          <Route path="seminars/:seminarId" element={<SeminarDetail />} />
+          <Route path="seminars/:seminarId/edit" element={<SeminarForm />} />
         </Route>
       </Route>
 

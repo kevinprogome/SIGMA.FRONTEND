@@ -6,6 +6,8 @@ import {
   getCurrentModalityStatus,
   getModalityById,
   getCompletedModalitiesHistory,
+  getAvailableSeminars,
+  enrollInSeminar,
 } from "../../services/studentService";
 import {
   startGroupModality,
@@ -13,6 +15,7 @@ import {
   inviteStudent,
 } from "../../services/ModalitiesGroupService";
 import "../../styles/student/modalities.css";
+import "../../styles/student/seminars-modal.css";
 
 export default function Modalities() {
   const [modalities, setModalities] = useState([]);
@@ -43,26 +46,29 @@ export default function Modalities() {
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [groupStudentModalityId, setGroupStudentModalityId] = useState(null);
 
+  // ✅ NUEVO: Estados para el modal de seminarios
+  const [showSeminarModal, setShowSeminarModal] = useState(false);
+  const [seminars, setSeminars] = useState([]);
+  const [loadingSeminars, setLoadingSeminars] = useState(false);
+  const [selectedSeminar, setSelectedSeminar] = useState(null);
+  const [showSeminarConfirmModal, setShowSeminarConfirmModal] = useState(false);
+  const [enrollingSeminar, setEnrollingSeminar] = useState(null);
+
   const modalityRefs = useRef({});
 
-  // ✅ FUNCIÓN PARA VERIFICAR SI LA MODALIDAD PERMITE GRUPOS
   const modalityAllowsGroup = (modality) => {
     if (!modality) return false;
     
-    // Opción 1: Si el backend envía un campo explícito
     if (modality.hasOwnProperty('allowsGroup')) {
       return modality.allowsGroup === true;
     }
     
-    // Opción 2: Si el backend envía allowedTypes o modalityTypes
     if (modality.allowedTypes && Array.isArray(modality.allowedTypes)) {
       return modality.allowedTypes.includes('GROUP') || modality.allowedTypes.includes('BOTH');
     }
     
-    // Opción 3: Basado en el nombre de la modalidad (FALLBACK)
     const modalityName = modality.name?.toUpperCase() || '';
     
-    // Modalidades que SIEMPRE permiten grupos
     const allowsGroupKeywords = [
       'PROYECTO DE GRADO',
       'EMPRENDIMIENTO',
@@ -71,7 +77,6 @@ export default function Modalities() {
       'PRODUCCIÓN ACADÉMICA'
     ];
     
-    // Modalidades que son EXCLUSIVAMENTE individuales
     const individualOnlyKeywords = [
       'PASANTIA',
       'PASANTÍA',
@@ -84,21 +89,18 @@ export default function Modalities() {
       'PRÁCTICA PROFESIONAL'
     ];
     
-    // Primero verificar si es individual only
     for (const keyword of individualOnlyKeywords) {
       if (modalityName.includes(keyword)) {
-        return false; // No permite grupos
+        return false;
       }
     }
     
-    // Luego verificar si permite grupos
     for (const keyword of allowsGroupKeywords) {
       if (modalityName.includes(keyword)) {
-        return true; // Permite grupos
+        return true;
       }
     }
     
-    // Por defecto, solo individual si no se puede determinar
     return false;
   };
 
@@ -238,6 +240,78 @@ export default function Modalities() {
     };
   };
 
+  // ✅ NUEVA FUNCIÓN: Detectar si es Seminario
+  const isSeminarioModality = (modality) => {
+    if (!modality) return false;
+    return modality.name?.toUpperCase().includes("SEMINARIO");
+  };
+
+  // ✅ NUEVA FUNCIÓN: Cargar seminarios disponibles
+  const loadAvailableSeminars = async () => {
+    try {
+      setLoadingSeminars(true);
+      const response = await getAvailableSeminars();
+      
+      if (response.success) {
+        setSeminars(response.seminars || []);
+      } else {
+        setGlobalMessage("No se pudieron cargar los seminarios disponibles");
+      }
+    } catch (err) {
+      console.error("❌ Error al cargar seminarios:", err);
+      
+      if (err.response?.status === 400) {
+        setGlobalMessage(
+          err.response?.data?.error || 
+          "Para ver seminarios, debes tener iniciada la modalidad 'SEMINARIO DE GRADO'."
+        );
+      } else {
+        setGlobalMessage("Error al cargar los seminarios disponibles");
+      }
+    } finally {
+      setLoadingSeminars(false);
+    }
+  };
+
+  // ✅ NUEVA FUNCIÓN: Inscribirse en seminario
+  const handleEnrollInSeminar = async () => {
+    if (!selectedSeminar) return;
+
+    try {
+      setEnrollingSeminar(selectedSeminar.id);
+
+      const response = await enrollInSeminar(selectedSeminar.id);
+
+      if (response.success) {
+        setModalityMessages({
+          [pendingModalityId]: {
+            type: 'success',
+            text: `🎉 ${response.message || "Te has inscrito exitosamente en el seminario"}`
+          }
+        });
+
+        setShowSeminarConfirmModal(false);
+        setShowSeminarModal(false);
+        setShowDetailModal(false);
+
+        // Recargar seminarios
+        await loadAvailableSeminars();
+      } else {
+        setGlobalMessage(response.error || "Error al inscribirse en el seminario");
+      }
+    } catch (err) {
+      console.error("❌ Error al inscribirse:", err);
+      
+      const errorMsg = err.response?.data?.error || 
+                       err.response?.data?.message ||
+                       "Error al inscribirse en el seminario";
+      
+      setGlobalMessage(errorMsg);
+    } finally {
+      setEnrollingSeminar(null);
+    }
+  };
+
   const handleStartModalitySelection = (modalityId) => {
     if (!isProfileComplete()) {
       setModalityMessages({
@@ -273,13 +347,19 @@ export default function Modalities() {
 
     setPendingModalityId(modalityId);
     setShowDetailModal(false);
+
+    // ✅ NUEVO: Verificar si es Seminario
+    if (isSeminarioModality(modalityDetail)) {
+      // Mostrar modal de seminarios
+      setShowSeminarModal(true);
+      loadAvailableSeminars();
+      return;
+    }
     
-    // ✅ VERIFICAR SI LA MODALIDAD PERMITE GRUPOS
+    // Verificar si permite grupos
     if (modalityAllowsGroup(modalityDetail)) {
-      // Si permite grupos, mostrar modal de selección
       setShowModalityTypeModal(true);
     } else {
-      // Si solo permite individual, ir directo a confirmación
       setModalityType("INDIVIDUAL");
       setShowConfirmModal(true);
     }
@@ -497,6 +577,31 @@ export default function Modalities() {
     }
   };
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      OPEN: { text: "Abierto", class: "open" },
+      CLOSED: { text: "Cerrado", class: "closed" },
+      IN_PROGRESS: { text: "En Curso", class: "in-progress" },
+      COMPLETED: { text: "Completado", class: "completed" },
+    };
+
+    const badge = badges[status] || { text: status, class: "default" };
+
+    return (
+      <span className={`seminar-status-badge ${badge.class}`}>
+        {badge.text}
+      </span>
+    );
+  };
+
   if (loading) {
     return (
       <div className="modalities-loading">Cargando modalidades...</div>
@@ -567,7 +672,6 @@ export default function Modalities() {
               </span>
             </div>
 
-            {/* ✅ NUEVO: Mostrar si permite grupos o solo individual */}
             <div className="modality-type-badge">
               {modalityAllowsGroup(m) ? (
                 <span className="badge-allows-group"></span>
@@ -613,7 +717,6 @@ export default function Modalities() {
                   <strong>Créditos requeridos:</strong> {modalityDetail.requiredCredits || 'N/A'}
                 </div>
 
-                {/* ✅ NUEVO: Mostrar tipo de modalidad en detalles */}
                 <div className="modal-detail-info">
                   <strong>Tipo:</strong>{' '}
                   {modalityAllowsGroup(modalityDetail) ? (
@@ -687,7 +790,150 @@ export default function Modalities() {
         </div>
       )}
 
-      {/* MODAL SELECCIÓN TIPO - Solo se muestra si permite grupos */}
+      {/* ✅ NUEVO: MODAL DE SEMINARIOS */}
+      {showSeminarModal && (
+        <div className="modal-overlay" onClick={() => setShowSeminarModal(false)}>
+          <div className="modal-seminar" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-detail-header">
+              <h3>Seminarios Disponibles</h3>
+              <button className="modal-close-btn" onClick={() => setShowSeminarModal(false)}>
+                ✕
+              </button>
+            </div>
+
+            <p className="seminar-modal-subtitle">
+              Selecciona el seminario en el que deseas inscribirte
+            </p>
+
+            {loadingSeminars ? (
+              <div className="seminar-modal-loading">
+                <div className="spinner"></div>
+                <p>Cargando seminarios disponibles...</p>
+              </div>
+            ) : seminars.length === 0 ? (
+              <div className="seminar-modal-empty">
+                <p>📭 No hay seminarios disponibles para tu programa en este momento.</p>
+              </div>
+            ) : (
+              <div className="seminar-table-wrapper">
+                <table className="seminar-table">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Descripción</th>
+                      <th>Participantes</th>
+                      <th>Espacios</th>
+                      <th>Precio</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {seminars.map((seminar) => (
+                      <tr key={seminar.id}>
+                        <td>
+                          <div className="seminar-name">{seminar.name}</div>
+                          <small className="seminar-program">{seminar.academicProgramName}</small>
+                        </td>
+                        <td className="seminar-description">{seminar.description}</td>
+                        <td className="text-center">
+                          {seminar.minParticipants} - {seminar.maxParticipants}
+                        </td>
+                        <td className="text-center">
+                          <span className={`available-spots ${seminar.availableSpots === 0 ? 'full' : ''}`}>
+                            {seminar.availableSpots}
+                          </span>
+                        </td>
+                        <td className="seminar-cost">{formatCurrency(seminar.totalCost)}</td>
+                        <td>{getStatusBadge(seminar.status)}</td>
+                        <td>
+                          <button
+                            className="enroll-button"
+                            onClick={() => {
+                              setSelectedSeminar(seminar);
+                              setShowSeminarConfirmModal(true);
+                            }}
+                            disabled={
+                              seminar.status !== "OPEN" ||
+                              seminar.availableSpots === 0 ||
+                              enrollingSeminar === seminar.id
+                            }
+                          >
+                            {enrollingSeminar === seminar.id
+                              ? "Inscribiendo..."
+                              : seminar.availableSpots === 0
+                              ? "Sin cupos"
+                              : "Unirse"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ✅ NUEVO: MODAL CONFIRMACIÓN SEMINARIO */}
+      {showSeminarConfirmModal && selectedSeminar && (
+        <div className="modal-overlay" onClick={() => setShowSeminarConfirmModal(false)}>
+          <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
+            <h3>Confirmar Inscripción en Seminario</h3>
+
+            <div className="seminar-confirm-warning">
+              ⚠️ <strong>IMPORTANTE: Al confirmar, quedarás inscrito en este seminario 
+              y deberás completar con el pago del seminario. </strong>
+            </div>
+
+            <div className="seminar-confirm-details">
+              <h4>{selectedSeminar.name}</h4>
+              <p>{selectedSeminar.description}</p>
+
+              <div className="detail-row">
+                <span>Horas totales:</span>
+                <strong>{selectedSeminar.totalHours} horas</strong>
+              </div>
+
+              <div className="detail-row">
+                <span>Costo:</span>
+                <strong className="cost-highlight">{formatCurrency(selectedSeminar.totalCost)}</strong>
+              </div>
+
+              <div className="detail-row">
+                <span>Cupos disponibles:</span>
+                <strong className={selectedSeminar.availableSpots < 5 ? "low-spots" : ""}>
+                  {selectedSeminar.availableSpots} / {selectedSeminar.maxParticipants}
+                </strong>
+              </div>
+            </div>
+
+            <p className="seminar-confirm-question">
+              ¿Estás seguro de que deseas inscribirte en este seminario?
+            </p>
+
+            <div className="modal-confirm-actions">
+              <button
+                className="modality-button secondary"
+                onClick={() => setShowSeminarConfirmModal(false)}
+                disabled={enrollingSeminar}
+              >
+                Cancelar
+              </button>
+              <button
+                className="modality-button"
+                onClick={handleEnrollInSeminar}
+                disabled={enrollingSeminar}
+              >
+                {enrollingSeminar ? "Inscribiendo..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SELECCIÓN TIPO */}
       {showModalityTypeModal && (
         <div className="modal-overlay" onClick={() => setShowModalityTypeModal(false)}>
           <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>

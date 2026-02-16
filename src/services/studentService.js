@@ -499,3 +499,19 @@ export const getStatusBadgeClass = (status) => {
   };
   return statusMap[status] || "inactive";
 };
+
+// ========================================
+// 📚 SEMINARIOS
+// ========================================
+
+// Obtener seminarios disponibles para el estudiante
+export const getAvailableSeminars = async () => {
+  const res = await api.get("/modalities/seminar/available");
+  return res.data;
+};
+
+// Inscribirse en un seminario específico
+export const enrollInSeminar = async (seminarId) => {
+  const res = await api.post(`/modalities/seminar/${seminarId}/enroll`);
+  return res.data;
+};

@@ -159,3 +159,163 @@ export const getStatusBadgeClass = (status) => {
   };
   return statusMap[status] || "inactive";
 };
+
+// ==========================================
+// 📚 GESTIÓN DE SEMINARIOS (PROGRAM HEAD)
+// ==========================================
+
+/**
+ * Crear un nuevo seminario
+ * POST /modalities/seminar/create
+ */
+export const createSeminar = async (seminarData) => {
+  console.log("📤 Creando seminario:", seminarData);
+  
+  const response = await axios.post("/modalities/seminar/create", seminarData);
+  return response.data;
+};
+
+/**
+ * Listar todos los seminarios del programa
+ * GET /modalities/seminars?status={status}&active={active}
+ */
+export const listSeminars = async (filters = {}) => {
+  console.log("📋 Listando seminarios con filtros:", filters);
+  
+  const params = new URLSearchParams();
+  
+  if (filters.status) {
+    params.append("status", filters.status);
+  }
+  
+  if (filters.active !== undefined && filters.active !== null) {
+    params.append("active", filters.active);
+  }
+  
+  const queryString = params.toString();
+  const url = queryString ? `/modalities/seminars?${queryString}` : "/modalities/seminars";
+  
+  const response = await axios.get(url);
+  return response.data;
+};
+
+/**
+ * Obtener detalle de un seminario específico
+ * GET /modalities/seminar/{seminarId}/detail
+ */
+export const getSeminarDetail = async (seminarId) => {
+  console.log("🔍 Obteniendo detalle del seminario:", seminarId);
+  
+  const response = await axios.get(`/modalities/seminar/${seminarId}/detail`);
+  return response.data;
+};
+
+/**
+ * Iniciar un seminario
+ * POST /modalities/seminar/{seminarId}/start
+ */
+export const startSeminar = async (seminarId) => {
+  console.log("▶️ Iniciando seminario:", seminarId);
+  
+  const response = await axios.post(`/modalities/seminar/${seminarId}/start`);
+  return response.data;
+};
+
+/**
+ * Cancelar un seminario
+ * POST /modalities/seminar/{seminarId}/cancel
+ */
+export const cancelSeminar = async (seminarId, reason = "") => {
+  console.log("❌ Cancelando seminario:", seminarId, "Razón:", reason);
+  
+  const response = await axios.post(`/modalities/seminar/${seminarId}/cancel`, {
+    reason
+  });
+  return response.data;
+};
+
+/**
+ * Completar un seminario
+ * POST /modalities/seminar/{seminarId}/complete
+ */
+export const completeSeminar = async (seminarId) => {
+  console.log("✅ Completando seminario:", seminarId);
+  
+  const response = await axios.post(`/modalities/seminar/${seminarId}/complete`);
+  return response.data;
+};
+
+/**
+ * Actualizar un seminario
+ * PUT /modalities/seminar/{seminarId}
+ */
+export const updateSeminar = async (seminarId, seminarData) => {
+  console.log("📝 Actualizando seminario:", seminarId, seminarData);
+  
+  const response = await axios.put(`/modalities/seminar/${seminarId}`, seminarData);
+  return response.data;
+};
+
+// ==========================================
+// 🎨 HELPERS Y UTILIDADES
+// ==========================================
+
+/**
+ * Estados de seminarios traducidos
+ */
+export const SEMINAR_STATUS_OPTIONS = [
+  { value: "OPEN", label: "Abierto", color: "success" },
+  { value: "IN_PROGRESS", label: "En Progreso", color: "warning" },
+  { value: "COMPLETED", label: "Completado", color: "info" },
+  { value: "CLOSED", label: "Cancelado", color: "error" },
+];
+
+/**
+ * Obtener etiqueta del estado del seminario
+ */
+export const getSeminarStatusLabel = (status) => {
+  const option = SEMINAR_STATUS_OPTIONS.find(opt => opt.value === status);
+  return option ? option.label : status;
+};
+
+/**
+ * Obtener clase CSS del estado del seminario
+ */
+export const getSeminarStatusClass = (status) => {
+  const option = SEMINAR_STATUS_OPTIONS.find(opt => opt.value === status);
+  return option ? option.color : "inactive";
+};
+
+/**
+ * Formatear moneda colombiana
+ */
+export const formatCurrency = (amount) => {
+  if (!amount) return "$0";
+  
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount);
+};
+
+/**
+ * Formatear fecha
+ */
+export const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  
+  try {
+    return new Date(dateString).toLocaleString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return dateString;
+  }
+};

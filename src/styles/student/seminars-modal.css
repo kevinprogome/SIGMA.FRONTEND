@@ -1,0 +1,628 @@
+/* ========================================
+   SEMINARIOS MODAL - ESTILOS PRINCIPALES
+   ======================================== */
+
+/* Modal principal de seminarios */
+.modal-seminar {
+  background: white;
+  width: 100%;
+  max-width: 1000px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.35s ease-out;
+  position: relative;
+}
+
+.seminar-modal-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ========================================
+   ESTADO DE CARGA
+   ======================================== */
+
+.seminar-modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.seminar-modal-loading .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(122, 17, 23, 0.15);
+  border-top: 4px solid #7A1117;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.seminar-modal-loading p {
+  color: #666;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ========================================
+   ESTADO VACÍO
+   ======================================== */
+
+.seminar-modal-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+  border-radius: 12px;
+  border: 2px dashed #e0e0e0;
+}
+
+.seminar-modal-empty p {
+  color: #999;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ========================================
+   TABLA DE SEMINARIOS
+   ======================================== */
+
+.seminar-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  animation: slideDown 0.4s ease-out;
+}
+
+.seminar-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.seminar-table thead {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.seminar-table thead th {
+  padding: 0.9rem 0.7rem;
+  text-align: left;
+  font-size: 0.85rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border-bottom: 3px solid #4a0a0f;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  white-space: nowrap;
+}
+
+.seminar-table tbody tr {
+  border-bottom: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.seminar-table tbody tr:hover {
+  background: linear-gradient(90deg, #fafafa 0%, #f5f5f5 100%);
+  box-shadow: inset 0 2px 8px rgba(122, 17, 23, 0.08);
+}
+
+.seminar-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.seminar-table td {
+  padding: 0.9rem 0.7rem;
+  color: #333;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Columnas específicas */
+.seminar-name {
+  font-weight: 600;
+  color: #7A1117;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.seminar-program {
+  color: #999;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.seminar-description {
+  color: #666;
+  max-width: 150px;
+  white-space: normal;
+  word-wrap: break-word;
+  font-size: 0.8rem;
+}
+
+.seminar-cost {
+  font-weight: 700;
+  color: #7A1117;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Cupos disponibles */
+.available-spots {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid #a5d6a7;
+  transition: all 0.3s ease;
+}
+
+.available-spots.full {
+  background: #ffebee;
+  color: #c62828;
+  border-color: #ef9a9a;
+}
+
+/* Estado del seminario (badge) */
+.seminar-status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.seminar-status-badge.open {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+  border: 1px solid #b1dfbb;
+}
+
+.seminar-status-badge.closed {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+  border: 1px solid #f1b0b7;
+}
+
+.seminar-status-badge.in-progress {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+  border: 1px solid #abdde5;
+}
+
+.seminar-status-badge.completed {
+  background: linear-gradient(135deg, #e7d4f5 0%, #d9c9ec 100%);
+  color: #5a269e;
+  border: 1px solid #cdbbde;
+}
+
+/* ========================================
+   BOTÓN DE INSCRIPCIÓN
+   ======================================== */
+
+.enroll-button {
+  padding: 0.5rem 0.9rem;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.enroll-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(122, 17, 23, 0.35);
+  background: linear-gradient(135deg, #5d0d12 0%, #4a0a0f 100%);
+}
+
+.enroll-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.2);
+}
+
+.enroll-button:disabled {
+  background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+/* ========================================
+   MODAL DE CONFIRMACIÓN DE SEMINARIO
+   ======================================== */
+
+.modal-confirm {
+  background: white;
+  border-radius: 14px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  animation: slideDown 0.35s ease-out;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+.seminar-confirm-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  color: #856404;
+  font-weight: 500;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+.seminar-confirm-warning strong {
+  color: #7a5e00;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.seminar-confirm-details {
+  background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 5px solid #7A1117;
+}
+
+.seminar-confirm-details h4 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.3rem;
+  color: #7A1117;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.seminar-confirm-details p {
+  color: #666;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row span {
+  color: #666;
+  font-weight: 500;
+}
+
+.detail-row strong {
+  color: #7A1117;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.cost-highlight {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  color: #7a5e00;
+  font-size: 1.15rem;
+  display: inline-block;
+}
+
+.low-spots {
+  color: #c62828;
+  font-weight: 700;
+}
+
+.seminar-confirm-question {
+  text-align: center;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.5rem 0;
+  padding-top: 1rem;
+  border-top: 2px solid #e8e8e8;
+  line-height: 1.6;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .modal-seminar {
+    max-width: 90%;
+    padding: 1.5rem;
+  }
+
+  .seminar-table thead th {
+    padding: 0.8rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .seminar-table td {
+    padding: 0.8rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .seminar-description {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-seminar {
+    max-width: 95%;
+    padding: 1rem;
+    max-height: 90vh;
+  }
+
+  .seminar-modal-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .seminar-table-wrapper {
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  .seminar-table thead th {
+    padding: 0.65rem 0.4rem;
+    font-size: 0.65rem;
+    text-transform: capitalize;
+    letter-spacing: 0.2px;
+  }
+
+  .seminar-table td {
+    padding: 0.65rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .seminar-name {
+    font-size: 0.8rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .seminar-program {
+    font-size: 0.75rem;
+  }
+
+  .seminar-description {
+    max-width: 80px;
+    font-size: 0.7rem;
+  }
+
+  .enroll-button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .seminar-cost {
+    font-size: 0.75rem;
+  }
+
+  .available-spots {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+  }
+
+  .detail-row strong {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.95rem;
+  }
+
+  .seminar-confirm-details {
+    padding: 1rem;
+    border-left-width: 4px;
+  }
+
+  .seminar-confirm-details h4 {
+    font-size: 1rem;
+  }
+
+  .cost-highlight {
+    font-size: 0.95rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .seminar-confirm-question {
+    font-size: 0.9rem;
+    margin: 0.75rem 0;
+    padding-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-seminar {
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .seminar-modal-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .seminar-table-wrapper {
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+  }
+
+  .seminar-table thead th {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .seminar-table td {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.65rem;
+  }
+
+  .seminar-name {
+    font-size: 0.75rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .seminar-program {
+    font-size: 0.65rem;
+    margin-top: 0.1rem;
+  }
+
+  .seminar-description {
+    display: none;
+  }
+
+  .enroll-button {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .seminar-cost {
+    font-size: 0.7rem;
+  }
+
+  .available-spots {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.65rem;
+  }
+
+  .seminar-status-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.6rem;
+  }
+
+  .seminar-confirm-warning {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .seminar-confirm-details {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .seminar-confirm-details h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .seminar-confirm-details p {
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .detail-row {
+    padding: 0.4rem 0;
+    font-size: 0.8rem;
+  }
+
+  .detail-row strong {
+    font-size: 0.9rem;
+    margin-top: 0.15rem;
+  }
+
+  .cost-highlight {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .seminar-confirm-question {
+    font-size: 0.85rem;
+    margin: 0.5rem 0;
+    padding-top: 0.4rem;
+  }
+
+  .modal-confirm-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .modal-confirm-actions button {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
+  }
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
