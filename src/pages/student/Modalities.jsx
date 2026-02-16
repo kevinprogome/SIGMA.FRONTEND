@@ -29,17 +29,14 @@ export default function Modalities() {
   const [modalityDetail, setModalityDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  // ✅ NUEVOS ESTADOS PARA HISTORIAL DE MODALIDADES
   const [modalityHistory, setModalityHistory] = useState([]);
 
-  // ✅ NUEVOS ESTADOS PARA FLUJO GRUPAL
   const [showModalityTypeModal, setShowModalityTypeModal] = useState(false);
   const [showGroupFormModal, setShowGroupFormModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingModalityId, setPendingModalityId] = useState(null);
-  const [modalityType, setModalityType] = useState(null); // "INDIVIDUAL" | "GROUP"
+  const [modalityType, setModalityType] = useState(null);
   
-  // Estados para formulario grupal
   const [eligibleStudents, setEligibleStudents] = useState([]);
   const [searchFilter, setSearchFilter] = useState("");
   const [selectedStudents, setSelectedStudents] = useState([]);
@@ -47,6 +44,63 @@ export default function Modalities() {
   const [groupStudentModalityId, setGroupStudentModalityId] = useState(null);
 
   const modalityRefs = useRef({});
+
+  // ✅ FUNCIÓN PARA VERIFICAR SI LA MODALIDAD PERMITE GRUPOS
+  const modalityAllowsGroup = (modality) => {
+    if (!modality) return false;
+    
+    // Opción 1: Si el backend envía un campo explícito
+    if (modality.hasOwnProperty('allowsGroup')) {
+      return modality.allowsGroup === true;
+    }
+    
+    // Opción 2: Si el backend envía allowedTypes o modalityTypes
+    if (modality.allowedTypes && Array.isArray(modality.allowedTypes)) {
+      return modality.allowedTypes.includes('GROUP') || modality.allowedTypes.includes('BOTH');
+    }
+    
+    // Opción 3: Basado en el nombre de la modalidad (FALLBACK)
+    const modalityName = modality.name?.toUpperCase() || '';
+    
+    // Modalidades que SIEMPRE permiten grupos
+    const allowsGroupKeywords = [
+      'PROYECTO DE GRADO',
+      'EMPRENDIMIENTO',
+      'FORTALECIMIENTO DE EMPRESA',
+      'PRODUCCION ACADEMICA',
+      'PRODUCCIÓN ACADÉMICA'
+    ];
+    
+    // Modalidades que son EXCLUSIVAMENTE individuales
+    const individualOnlyKeywords = [
+      'PASANTIA',
+      'PASANTÍA',
+      'PLAN COMPLEMENTARIO',
+      'POSGRADO',
+      'SEMILLERO',
+      'SEMINARIO',
+      'PORTAFOLIO',
+      'PRACTICA PROFESIONAL',
+      'PRÁCTICA PROFESIONAL'
+    ];
+    
+    // Primero verificar si es individual only
+    for (const keyword of individualOnlyKeywords) {
+      if (modalityName.includes(keyword)) {
+        return false; // No permite grupos
+      }
+    }
+    
+    // Luego verificar si permite grupos
+    for (const keyword of allowsGroupKeywords) {
+      if (modalityName.includes(keyword)) {
+        return true; // Permite grupos
+      }
+    }
+    
+    // Por defecto, solo individual si no se puede determinar
+    return false;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,7 +118,6 @@ export default function Modalities() {
 
         try {
           const currentModality = await getCurrentModalityStatus();
-          // ✅ Solo establecer como activa si el estado es uno de procesamiento
           if (currentModality && isModalityActive(currentModality.currentStatus)) {
             const smId = currentModality.studentModalityId || currentModality.id;
             setStudentModalityId(smId);
@@ -74,7 +127,6 @@ export default function Modalities() {
           // No modalidad activa
         }
 
-        // ✅ CARGAR HISTORIAL DE MODALIDADES
         try {
           const history = await getCompletedModalitiesHistory();
           setModalityHistory(history || []);
@@ -114,43 +166,29 @@ export default function Modalities() {
     return hasBasicInfo && hasFaculty && hasProgram;
   };
 
-  /**
-   * ✅ VERIFICAR SI UNA MODALIDAD ESTÁ VERDADERAMENTE ACTIVA
-   * (no es uno de los estados finales)
-   */
   const isModalityActive = (modalityStatus) => {
     if (!modalityStatus) return false;
 
-    // Estados finales: no se considera como modalidad activa
     const finalStates = [
-      "MODALITY_CANCELLED",      // Cancelada
-      "MODALITY_CLOSED",         // Cerrada
-      "GRADED_APPROVED",         // Aprobada
-      "GRADED_FAILED",           // Reprobada
-      "CANCELLATION_REQUESTED",  // Cancelación solicitada
-      "CANCELLATION_REJECTED",   // Cancelación rechazada
-      "CANCELLED_WITHOUT_REPROVAL" // Cancelada sin reprobación
+      "MODALITY_CANCELLED",
+      "MODALITY_CLOSED",
+      "GRADED_APPROVED",
+      "GRADED_FAILED",
+      "CANCELLATION_REQUESTED",
+      "CANCELLATION_REJECTED",
+      "CANCELLED_WITHOUT_REPROVAL"
     ];
 
     return !finalStates.includes(modalityStatus);
   };
 
-  // ✅ NUEVAS FUNCIONES DE VALIDACIÓN PARA REGLAS DE NEGOCIO
-  /**
-   * Obtiene la información de una modalidad anterior del historial
-   */
   const getPreviousModalityInfo = (modalityId) => {
     return modalityHistory.find(m => m.modalityId === modalityId);
   };
 
-  /**
-   * Valida si puede iniciar o reiniciar una modalidad según su estado anterior
-   * Retorna: { canStart: boolean, canRestart: boolean, message: string }
-   */
   const validateModalityStatus = (modalityId) => {
     const previousModality = getPreviousModalityInfo(modalityId);
 
-    // Si no hay historial de esta modalidad, puede iniciarla
     if (!previousModality) {
       return {
         canStart: true,
@@ -161,7 +199,6 @@ export default function Modalities() {
 
     const status = previousModality.currentStatus;
 
-    // Regla 1: MODALITY_CLOSED - No puede reiniciar la misma, pero sí puede iniciar otra diferente
     if (status === "MODALITY_CLOSED") {
       return {
         canStart: false,
@@ -170,7 +207,6 @@ export default function Modalities() {
       };
     }
 
-    // Regla 2: MODALITY_CANCELLED - Puede reiniciar la misma y también iniciar otra diferente
     if (status === "MODALITY_CANCELLED") {
       return {
         canStart: true,
@@ -179,7 +215,6 @@ export default function Modalities() {
       };
     }
 
-    // Regla 3: GRADED_APPROVED - Ya aprobó, no puede reiniciar ni iniciar otra modalidad
     if (status === "GRADED_APPROVED") {
       return {
         canStart: false,
@@ -188,7 +223,6 @@ export default function Modalities() {
       };
     }
 
-    // Regla 4: GRADED_FAILED - Puede reiniciar la misma y también iniciar otra diferente
     if (status === "GRADED_FAILED") {
       return {
         canStart: true,
@@ -197,7 +231,6 @@ export default function Modalities() {
       };
     }
 
-    // Regla 5: Cualquier otro estado (en proceso) - No puede reiniciar ni iniciar nueva
     return {
       canStart: false,
       canRestart: false,
@@ -205,7 +238,6 @@ export default function Modalities() {
     };
   };
 
-  // ✅ PASO 1: Mostrar modal de tipo de modalidad
   const handleStartModalitySelection = (modalityId) => {
     if (!isProfileComplete()) {
       setModalityMessages({
@@ -217,9 +249,7 @@ export default function Modalities() {
       return;
     }
 
-    // ✅ VALIDAR REGLAS DE NEGOCIO
     if (studentModalityId) {
-      // Si ya tiene una modalidad VERDADERAMENTE activa, no puede iniciar otra
       setModalityMessages({
         [modalityId]: {
           type: 'error',
@@ -243,31 +273,35 @@ export default function Modalities() {
 
     setPendingModalityId(modalityId);
     setShowDetailModal(false);
-    setShowModalityTypeModal(true);
+    
+    // ✅ VERIFICAR SI LA MODALIDAD PERMITE GRUPOS
+    if (modalityAllowsGroup(modalityDetail)) {
+      // Si permite grupos, mostrar modal de selección
+      setShowModalityTypeModal(true);
+    } else {
+      // Si solo permite individual, ir directo a confirmación
+      setModalityType("INDIVIDUAL");
+      setShowConfirmModal(true);
+    }
   };
 
-  // ✅ PASO 2A: Si selecciona INDIVIDUAL
   const handleSelectIndividual = () => {
     setModalityType("INDIVIDUAL");
     setShowModalityTypeModal(false);
     setShowConfirmModal(true);
   };
 
-  // ✅ PASO 2B: Si selecciona GRUPAL
   const handleSelectGroup = async () => {
     setModalityType("GROUP");
     setShowModalityTypeModal(false);
     
-    // ✅ NO cargar estudiantes automáticamente, esperar a que el usuario escriba en el filtro
-    setEligibleStudents([]); // Limpiar lista
-    setSearchFilter(""); // Limpiar filtro
-    setSelectedStudents([]); // Limpiar seleccionados
+    setEligibleStudents([]);
+    setSearchFilter("");
+    setSelectedStudents([]);
     
-    // Mostrar formulario de invitación
     setShowGroupFormModal(true);
   };
 
-  // ✅ Cargar estudiantes elegibles
   const loadEligibleStudents = async (filter = "") => {
     try {
       setLoadingStudents(true);
@@ -281,19 +315,16 @@ export default function Modalities() {
     }
   };
 
-  // ✅ Buscar estudiantes
   const handleSearchStudents = (e) => {
     const value = e.target.value;
     setSearchFilter(value);
     
-    // Debounce search
     clearTimeout(window.searchTimeout);
     window.searchTimeout = setTimeout(() => {
       loadEligibleStudents(value);
     }, 300);
   };
 
-  // ✅ Seleccionar/deseleccionar estudiante
   const handleToggleStudent = (student) => {
     setSelectedStudents(prev => {
       const isSelected = prev.find(s => s.userId === student.userId);
@@ -309,37 +340,30 @@ export default function Modalities() {
     });
   };
 
-  // ✅ PASO 3: Enviar invitaciones
   const handleSendInvitations = async () => {
     if (selectedStudents.length === 0) {
       alert("Debes seleccionar al menos 1 estudiante");
       return;
     }
 
-    // Pasar a confirmación sin enviar nada aún
     setShowGroupFormModal(false);
     setShowConfirmModal(true);
   };
 
-  // ✅ PASO 4: Confirmación final
   const handleFinalConfirm = async () => {
     if (modalityType === "INDIVIDUAL") {
       await handleSelectIndividualModality(pendingModalityId);
     } else {
-      // ✅ AHORA SÍ iniciar modalidad grupal y enviar invitaciones
       try {
         setSendingId(pendingModalityId);
         
-        // 1. Iniciar modalidad grupal
         const res = await startGroupModality(pendingModalityId);
         const studentModalityId = res.studentModalityId;
         
-        // 2. Enviar invitaciones
         for (const student of selectedStudents) {
           await inviteStudent(studentModalityId, student.userId);
         }
         
-        // 3. Actualizar estado
         setStudentModalityId(studentModalityId);
         setSelectedModalityId(pendingModalityId);
         
@@ -363,7 +387,6 @@ export default function Modalities() {
     }
   };
 
-  // Función auxiliar para iniciar modalidad individual
   const handleSelectIndividualModality = async (modalityId) => {
     try {
       setSendingId(modalityId);
@@ -388,7 +411,6 @@ export default function Modalities() {
     }
   };
 
-  // Manejar errores de modalidad
   const handleModalityError = (modalityId, err) => {
     let errorContent = null;
      
@@ -448,7 +470,6 @@ export default function Modalities() {
     setShowGroupFormModal(false);
   };
 
-  // Resetear flujo grupal
   const resetGroupFlow = () => {
     setModalityType(null);
     setSelectedStudents([]);
@@ -527,7 +548,6 @@ export default function Modalities() {
         </div>
       )}
 
-      {/* Lista de modalidades */}
       <ul className="modalities-list">
         {modalities.map((m) => (
           <li
@@ -545,6 +565,15 @@ export default function Modalities() {
               <span className="modality-requirements-value">
                 {m.requiredCredits || 'N/A'}
               </span>
+            </div>
+
+            {/* ✅ NUEVO: Mostrar si permite grupos o solo individual */}
+            <div className="modality-type-badge">
+              {modalityAllowsGroup(m) ? (
+                <span className="badge-allows-group"></span>
+              ) : (
+                <span className="badge-individual-only"></span>
+              )}
             </div>
 
             {modalityMessages[m.id] && (
@@ -584,6 +613,16 @@ export default function Modalities() {
                   <strong>Créditos requeridos:</strong> {modalityDetail.requiredCredits || 'N/A'}
                 </div>
 
+                {/* ✅ NUEVO: Mostrar tipo de modalidad en detalles */}
+                <div className="modal-detail-info">
+                  <strong>Tipo:</strong>{' '}
+                  {modalityAllowsGroup(modalityDetail) ? (
+                    <span style={{ color: '#2563eb' }}>Individual o Grupal (hasta 3 integrantes)</span>
+                  ) : (
+                    <span style={{ color: '#7A1117' }}>Solo Individual</span>
+                  )}
+                </div>
+
                 <p className="section-title-modal">Requisitos</p>
                 {modalityDetail.requirements && modalityDetail.requirements.length > 0 ? (
                   <ul className="modal-detail-list">
@@ -619,7 +658,6 @@ export default function Modalities() {
                   </p>
                 )}
 
-                {/* ✅ MOSTRAR ADVERTENCIA SI NO PUEDE INICIAR MODALIDAD */}
                 {profileComplete && !studentModalityId && 
                   modalityDetail && 
                   !validateModalityStatus(modalityDetail.id).canStart && (
@@ -649,7 +687,7 @@ export default function Modalities() {
         </div>
       )}
 
-      {/* ✅ NUEVO: MODAL SELECCIÓN TIPO */}
+      {/* MODAL SELECCIÓN TIPO - Solo se muestra si permite grupos */}
       {showModalityTypeModal && (
         <div className="modal-overlay" onClick={() => setShowModalityTypeModal(false)}>
           <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
@@ -692,7 +730,7 @@ export default function Modalities() {
         </div>
       )}
 
-      {/* ✅ NUEVO: MODAL FORMULARIO GRUPAL */}
+      {/* MODAL FORMULARIO GRUPAL */}
       {showGroupFormModal && (
         <div className="modal-overlay" onClick={() => setShowGroupFormModal(false)}>
           <div className="modal-group-form" onClick={(e) => e.stopPropagation()}>
@@ -713,7 +751,6 @@ export default function Modalities() {
               Selecciona hasta 2 compañeros para formar tu grupo (máximo 3 integrantes en total)
             </p>
 
-            {/* Buscador */}
             <input
               type="text"
               className="student-search-input"
@@ -722,7 +759,6 @@ export default function Modalities() {
               onChange={handleSearchStudents}
             />
 
-            {/* Estudiantes seleccionados */}
             {selectedStudents.length > 0 && (
               <div className="selected-students-summary">
                 <h4>Seleccionados ({selectedStudents.length}/2):</h4>
@@ -737,7 +773,6 @@ export default function Modalities() {
               </div>
             )}
 
-            {/* Lista de estudiantes */}
             <div className="eligible-students-list">
               {loadingStudents ? (
                 <p>Cargando estudiantes...</p>
@@ -791,7 +826,7 @@ export default function Modalities() {
         </div>
       )}
 
-      {/* ✅ MODAL CONFIRMACIÓN FINAL */}
+      {/* MODAL CONFIRMACIÓN FINAL */}
       {showConfirmModal && (
         <div className="modal-overlay" onClick={() => setShowConfirmModal(false)}>
           <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
