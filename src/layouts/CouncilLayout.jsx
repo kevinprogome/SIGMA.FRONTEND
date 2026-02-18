@@ -53,7 +53,7 @@ export default function CouncilLayout() {
           >
             <span className="nav-icon">📅</span>
             Solicitudes de Sustentación
-          </NavLink>
+          </NavLink>      
 
           <NavLink
             to="/comite/cancellations"
@@ -63,6 +63,16 @@ export default function CouncilLayout() {
           >
             <span className="nav-icon">🚫</span>
             Solicitudes de Cancelación
+          </NavLink>
+
+          <NavLink
+            to="/comite/reports"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            <span className="nav-icon">📊</span>
+            Reportes
           </NavLink>
         </nav>
 

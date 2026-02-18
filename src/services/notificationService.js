@@ -62,8 +62,20 @@ export const getNotificationDetail = async (notificationId) => {
  */
 export const markNotificationAsRead = async (notificationId) => {
   console.log("✅ Marcando notificación como leída:", notificationId);
-  const response = await api.patch(`/notifications/${notificationId}/read`);
-  return response.data;
+  
+  try {
+    const response = await api.put(`/notifications/${notificationId}/read`);
+    console.log("✅ Respuesta del servidor:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error detallado al marcar como leída:", {
+      notificationId,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    throw error;
+  }
 };
 
 /**
@@ -145,4 +157,18 @@ export const getRelativeTime = (dateString) => {
     month: "short",
     day: "numeric",
   });
+};
+
+/**
+ * Extraer invitationId de una notificación de invitación grupal
+ * @param {Object} notification - Notificación
+ * @returns {number|null} ID de la invitación
+ */
+export const getInvitationIdFromNotification = (notification) => {
+  // El backend puede enviar el invitationId en el tipo o en metadata
+  if (notification.type?.includes("INVITATION")) {
+    // Buscar en el mensaje o usar un campo específico del backend
+    return notification.invitationId || null;
+  }
+  return null;
 };

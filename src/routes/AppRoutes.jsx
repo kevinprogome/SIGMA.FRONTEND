@@ -28,18 +28,20 @@ import StudentProfile from "../pages/student/StudentProfile";
 import Notifications from "../pages/student/Notifications";
 import SeminarSelection from "../pages/student/SeminarSelection";
 
-// SECRETARY
+// PROGRAM HEAD 
 import StudentsPending from "../pages/programhead/StudentPending";
 import StudentProfileSecretary from "../pages/programhead/StudentProfile";
 import SeminarList from "../pages/programhead/SeminarList";
 import SeminarDetail from "../pages/programhead/SeminarDetail";
 import SeminarForm from "../pages/programhead/SeminarForm";
 
-// COUNCIL
+// COMMITTEE
 import CouncilDashboard from "../pages/committee/councilDashboard";
 import CouncilStudentProfile from "../pages/committee/councilStudentProfile";
 import CancellationRequests from "../pages/committee/CancellationRequests";
 import CommitteeDefenseProposals from "../pages/committee/defenseProposals";
+import CommitteeReports from "../pages/committee/committeeReports";
+
 
 // DIRECTOR
 import DirectorDashboard from "../pages/director/DirectorDashboard";
@@ -112,6 +114,7 @@ function AppRoutes() {
           />
           <Route path="cancellations" element={<CancellationRequests />} />
           <Route path="proposals" element={<CommitteeDefenseProposals />} />
+          <Route path="reports" element={<CommitteeReports />} />
         </Route>
       </Route>
 

@@ -42,13 +42,17 @@ export default function Notifications() {
 
   const handleMarkAsRead = async (notificationId) => {
     try {
+      console.log("🔄 Intentando marcar notificación como leída:", notificationId);
       await markNotificationAsRead(notificationId);
       await fetchNotifications();
       
       setMessage("✅ Marcada como leída");
       setTimeout(() => setMessage(""), 2000);
     } catch (err) {
-      console.error("Error al marcar como leída:", err);
+      console.error("❌ Error al marcar como leída:", err);
+      const errorMsg = err.response?.data?.message || err.message || "Error al marcar como leída";
+      setMessage(`❌ ${errorMsg}`);
+      setTimeout(() => setMessage(""), 5000);
     }
   };
 
