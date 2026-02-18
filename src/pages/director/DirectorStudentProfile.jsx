@@ -256,6 +256,7 @@ export default function DirectorStudentProfile() {
             <button
               onClick={() => setShowDefenseModal(true)}
               className="director-btn-submit"
+              style={{ border: "3px solid #000" }}
             >
               📅 Proponer Sustentación
             </button>

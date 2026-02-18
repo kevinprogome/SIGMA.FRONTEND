@@ -241,19 +241,10 @@
 }
 
 .notification-text {
-  margin: 0 0 1.5rem 0; /* ✅ MÁS MARGEN */
+  margin: 0 0 1.5rem 0;
   font-size: 0.95rem;
   color: #4b5563;
-  line-height: 2; /* ✅ MUCHO MÁS ESPACIO ENTRE LÍNEAS */
-  
-  /* ✅ LIMITAR A 4 LÍNEAS */
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  
-  /* ✅ FORZAR SALTOS DE LÍNEA */
+  line-height: 1.6;
   word-wrap: break-word;
   word-break: break-word;
   white-space: pre-wrap;
@@ -421,8 +412,7 @@
 
   .notification-text {
     font-size: 0.9rem;
-    line-height: 1.8;
-    -webkit-line-clamp: 3;
+    line-height: 1.6;
   }
 
   .btn-mark-read {

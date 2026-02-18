@@ -343,3 +343,97 @@ export const closeModalityByCommittee = async (studentModalityId, reason) => {
   console.log("✅ Modalidad cerrada:", response.data);
   return response.data;
 };
+
+// ==========================================
+// ✅ APROBAR MODALIDAD FINAL (COMITÉ)
+// Para modalidades simplificadas sin director/jueces
+// ==========================================
+
+/**
+ * Aprobar modalidad de forma final (sin proceso de director/jueces)
+ * Aplica para: Pasantía, Posgrado, Seminario, Producción Académica, etc.
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @param {string} observations - Observaciones opcionales del comité
+ * @returns {Promise<Object>} Respuesta de confirmación
+ */
+export const approveFinalModalityByCommittee = async (studentModalityId, observations = "") => {
+  console.log("✅ Aprobando modalidad de forma final:", { 
+    studentModalityId, 
+    observations 
+  });
+  
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/approve-final-by-committee`,
+    { observations: observations.trim() || undefined }
+  );
+  
+  console.log("✅ Modalidad aprobada definitivamente:", response.data);
+  return response.data;
+};
+
+// ==========================================
+// ❌ RECHAZAR MODALIDAD FINAL (COMITÉ)
+// Para modalidades simplificadas sin director/jueces
+// ==========================================
+
+/**
+ * Rechazar modalidad de forma final (sin proceso de director/jueces)
+ * Aplica para: Pasantía, Posgrado, Seminario, Producción Académica, etc.
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @param {string} reason - Razón del rechazo (obligatorio)
+ * @returns {Promise<Object>} Respuesta de confirmación
+ */
+export const rejectFinalModalityByCommittee = async (studentModalityId, reason) => {
+  if (!reason || reason.trim() === "") {
+    throw new Error("La razón del rechazo es obligatoria");
+  }
+  
+  console.log("❌ Rechazando modalidad de forma final:", { 
+    studentModalityId, 
+    reason: reason.substring(0, 50) + "..." 
+  });
+  
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/reject-final-by-committee`,
+    { reason: reason.trim() }
+  );
+  
+  console.log("❌ Modalidad rechazada definitivamente:", response.data);
+  return response.data;
+};
+
+// ==========================================
+// 🎯 HELPER: Detectar si modalidad es simplificada
+// ==========================================
+
+/**
+ * Determina si una modalidad usa el proceso simplificado
+ * (sin director/jueces/sustentación)
+ * @param {string} modalityName - Nombre de la modalidad
+ * @returns {boolean} true si es modalidad simplificada
+ */
+export const isSimplifiedModality = (modalityName) => {
+  if (!modalityName) return false;
+  
+  const simplifiedModalities = [
+    "PASANTIA",
+    "PASANTÍA",
+    "PLAN COMPLEMENTARIO POSGRADO",
+    "POSGRADO",
+    "SEMINARIO DE GRADO",
+    "SEMINARIO",
+    "PRODUCCION ACADEMICA DE ALTO NIVEL",
+    "PRODUCCIÓN ACADÉMICA DE ALTO NIVEL",
+    "PORTAFOLIO PROFESIONAL",
+    "PRACTICA PROFESIONAL",
+    "PRÁCTICA PROFESIONAL",
+    "SEMILLERO DE INVESTIGACION",
+    "SEMILLERO DE INVESTIGACIÓN",
+  ];
+  
+  const normalizedName = modalityName.toUpperCase().trim();
+  
+  return simplifiedModalities.some(simplified => 
+    normalizedName.includes(simplified) || simplified.includes(normalizedName)
+  );
+};
