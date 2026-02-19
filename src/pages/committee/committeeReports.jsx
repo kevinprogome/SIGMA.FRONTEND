@@ -1,35 +1,59 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  getAvailableReports,
   getAvailableModalityTypes,
-  getGlobalModalitiesReport,
   downloadGlobalModalitiesPDF,
-  getModalityTypeComparison,
   downloadModalityComparisonPDF,
-  getCompletedModalitiesReport,
   downloadCompletedModalitiesPDF,
-  getDefenseCalendarReport,
   downloadDefenseCalendarPDF,
-  getStudentListingReport,
   downloadStudentListingPDF,
-  getDirectorAssignedModalities,
   downloadDirectorAssignedModalitiesPDF,
-  getCurrentPeriod
+  getCurrentPeriod,
+  RESULT_TYPES,
+  SORT_OPTIONS
 } from "../../services/reportsService";
-import ReportViewer from "../../components/committee/ReportViewer";
 import "../../styles/council/reports.css";
 
 export default function CommitteeReports() {
   const navigate = useNavigate();
 
-  const [availableReports, setAvailableReports] = useState([]);
   const [modalityTypes, setModalityTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [generatingReport, setGeneratingReport] = useState(null);
-  const [currentReport, setCurrentReport] = useState(null);
-  const [showViewer, setShowViewer] = useState(false);
   const [message, setMessage] = useState("");
+  
+  // Estados de filtros por reporte
+  const [showFilters, setShowFilters] = useState(null);
+  const [filters, setFilters] = useState({
+    comparison: {
+      year: getCurrentPeriod().year,
+      semester: getCurrentPeriod().semester,
+      onlyActiveModalities: false,
+      includeHistoricalComparison: true,
+      historicalPeriodsCount: 4,
+      includeTrendsAnalysis: true
+    },
+    completed: {
+      year: getCurrentPeriod().year,
+      semester: null,
+      results: ["SUCCESS", "FAILED"],
+      sortBy: "DATE",
+      sortDirection: "DESC"
+    },
+    defense: {
+      includeCompleted: false
+    },
+    students: {
+      year: getCurrentPeriod().year,
+      semester: getCurrentPeriod().semester,
+      sortBy: "NAME",
+      sortDirection: "ASC"
+    },
+    directors: {
+      onlyActiveModalities: false,
+      includeWorkloadAnalysis: true
+    }
+  });
 
   useEffect(() => {
     loadInitialData();
@@ -38,15 +62,7 @@ export default function CommitteeReports() {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      
-      const [reportsData, typesData] = await Promise.all([
-        getAvailableReports(),
-        getAvailableModalityTypes()
-      ]);
-      
-      if (reportsData.success) {
-        setAvailableReports(reportsData.availableReports || {});
-      }
+      const typesData = await getAvailableModalityTypes();
       
       if (typesData.success) {
         setModalityTypes(typesData.data?.availableTypes || []);
@@ -64,65 +80,37 @@ export default function CommitteeReports() {
     setTimeout(() => setMessage(""), 5000);
   };
 
-  // ==========================================
-  // GENERADORES DE REPORTES
-  // ==========================================
-
-  const handleGenerateGlobalReport = async () => {
-    try {
-      setGeneratingReport("global");
-      const data = await getGlobalModalitiesReport();
-      
-      if (data.success) {
-        setCurrentReport(data);
-        setShowViewer(true);
-        showMessage("✅ Reporte global generado exitosamente", "success");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al generar reporte global", "error");
-    } finally {
-      setGeneratingReport(null);
-    }
+  const toggleFilters = (reportType) => {
+    setShowFilters(showFilters === reportType ? null : reportType);
   };
+
+  const updateFilter = (reportType, field, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [reportType]: {
+        ...prev[reportType],
+        [field]: value
+      }
+    }));
+  };
+
+  // ==========================================
+  // DESCARGA DE REPORTES CON FILTROS
+  // ==========================================
 
   const handleDownloadGlobalPDF = async () => {
     try {
       setGeneratingReport("global-pdf");
+      console.log("📊 Descargando reporte global");
       await downloadGlobalModalitiesPDF();
       showMessage("✅ PDF descargado exitosamente", "success");
     } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al descargar PDF", "error");
-    } finally {
-      setGeneratingReport(null);
-    }
-  };
-
-  const handleGenerateComparison = async () => {
-    try {
-      setGeneratingReport("comparison");
-      const { year, semester } = getCurrentPeriod();
-      
-      const filters = {
-        year,
-        semester,
-        onlyActiveModalities: false,
-        includeHistoricalComparison: true,
-        historicalPeriodsCount: 4,
-        includeTrendsAnalysis: true
-      };
-      
-      const data = await getModalityTypeComparison(filters);
-      
-      if (data.success) {
-        setCurrentReport(data);
-        setShowViewer(true);
-        showMessage("✅ Reporte comparativo generado", "success");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al generar reporte comparativo", "error");
+      console.error("❌ Error detallado:", err);
+      console.error("Response:", err.response?.data);
+      showMessage(
+        `❌ Error al descargar PDF: ${err.response?.data?.error || err.message || 'Error desconocido'}`,
+        "error"
+      );
     } finally {
       setGeneratingReport(null);
     }
@@ -131,47 +119,17 @@ export default function CommitteeReports() {
   const handleDownloadComparisonPDF = async () => {
     try {
       setGeneratingReport("comparison-pdf");
-      const { year, semester } = getCurrentPeriod();
-      
-      const filters = {
-        year,
-        semester,
-        includeHistoricalComparison: true,
-        historicalPeriodsCount: 4
-      };
-      
-      await downloadModalityComparisonPDF(filters);
+      console.log("📊 Descargando reporte comparativo con filtros:", filters.comparison);
+      await downloadModalityComparisonPDF(filters.comparison);
       showMessage("✅ PDF comparativo descargado", "success");
     } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al descargar PDF", "error");
-    } finally {
-      setGeneratingReport(null);
-    }
-  };
-
-  const handleGenerateCompleted = async () => {
-    try {
-      setGeneratingReport("completed");
-      const { year } = getCurrentPeriod();
-      
-      const filters = {
-        year,
-        results: ["SUCCESS", "FAILED"],
-        sortBy: "DATE",
-        sortDirection: "DESC"
-      };
-      
-      const data = await getCompletedModalitiesReport(filters);
-      
-      if (data.success) {
-        setCurrentReport(data);
-        setShowViewer(true);
-        showMessage("✅ Reporte de modalidades completadas generado", "success");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al generar reporte", "error");
+      console.error("❌ Error detallado al descargar PDF comparativo:", err);
+      console.error("Filtros enviados:", filters.comparison);
+      console.error("Response:", err.response?.data);
+      showMessage(
+        `❌ Error al descargar PDF: ${err.response?.data?.error || err.message || 'Error desconocido'}`,
+        "error"
+      );
     } finally {
       setGeneratingReport(null);
     }
@@ -180,36 +138,17 @@ export default function CommitteeReports() {
   const handleDownloadCompletedPDF = async () => {
     try {
       setGeneratingReport("completed-pdf");
-      const { year } = getCurrentPeriod();
-      
-      const filters = {
-        year,
-        results: ["SUCCESS", "FAILED"]
-      };
-      
-      await downloadCompletedModalitiesPDF(filters);
+      console.log("📊 Descargando reporte de completadas con filtros:", filters.completed);
+      await downloadCompletedModalitiesPDF(filters.completed);
       showMessage("✅ PDF de modalidades completadas descargado", "success");
     } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al descargar PDF", "error");
-    } finally {
-      setGeneratingReport(null);
-    }
-  };
-
-  const handleGenerateDefenseCalendar = async () => {
-    try {
-      setGeneratingReport("defense");
-      const data = await getDefenseCalendarReport(null, null, false);
-      
-      if (data.success) {
-        setCurrentReport(data);
-        setShowViewer(true);
-        showMessage("✅ Calendario de sustentaciones generado", "success");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al generar calendario", "error");
+      console.error("❌ Error detallado:", err);
+      console.error("Filtros enviados:", filters.completed);
+      console.error("Response:", err.response?.data);
+      showMessage(
+        `❌ Error al descargar PDF: ${err.response?.data?.error || err.message || 'Error desconocido'}`,
+        "error"
+      );
     } finally {
       setGeneratingReport(null);
     }
@@ -218,38 +157,21 @@ export default function CommitteeReports() {
   const handleDownloadDefenseCalendarPDF = async () => {
     try {
       setGeneratingReport("defense-pdf");
-      await downloadDefenseCalendarPDF(null, null, false);
+      console.log("📊 Descargando calendario con filtros:", filters.defense);
+      await downloadDefenseCalendarPDF(
+        null, 
+        null, 
+        filters.defense.includeCompleted
+      );
       showMessage("✅ PDF de calendario descargado", "success");
     } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al descargar PDF", "error");
-    } finally {
-      setGeneratingReport(null);
-    }
-  };
-
-  const handleGenerateStudentListing = async () => {
-    try {
-      setGeneratingReport("students");
-      const { year, semester } = getCurrentPeriod();
-      
-      const filters = {
-        year,
-        semester,
-        sortBy: "NAME",
-        sortDirection: "ASC"
-      };
-      
-      const data = await getStudentListingReport(filters);
-      
-      if (data.success) {
-        setCurrentReport(data);
-        setShowViewer(true);
-        showMessage("✅ Listado de estudiantes generado", "success");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al generar listado", "error");
+      console.error("❌ Error detallado:", err);
+      console.error("Filtros enviados:", filters.defense);
+      console.error("Response:", err.response?.data);
+      showMessage(
+        `❌ Error al descargar PDF: ${err.response?.data?.error || err.message || 'Error desconocido'}`,
+        "error"
+      );
     } finally {
       setGeneratingReport(null);
     }
@@ -258,41 +180,17 @@ export default function CommitteeReports() {
   const handleDownloadStudentListingPDF = async () => {
     try {
       setGeneratingReport("students-pdf");
-      const { year, semester } = getCurrentPeriod();
-      
-      const filters = {
-        year,
-        semester
-      };
-      
-      await downloadStudentListingPDF(filters);
+      console.log("📊 Descargando listado de estudiantes con filtros:", filters.students);
+      await downloadStudentListingPDF(filters.students);
       showMessage("✅ PDF de listado descargado", "success");
     } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al descargar PDF", "error");
-    } finally {
-      setGeneratingReport(null);
-    }
-  };
-
-  const handleGenerateDirectorReport = async () => {
-    try {
-      setGeneratingReport("directors");
-      const filters = {
-        onlyActiveModalities: false,
-        includeWorkloadAnalysis: true
-      };
-      
-      const data = await getDirectorAssignedModalities(filters);
-      
-      if (data.success) {
-        setCurrentReport(data);
-        setShowViewer(true);
-        showMessage("✅ Reporte de directores generado", "success");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al generar reporte de directores", "error");
+      console.error("❌ Error detallado:", err);
+      console.error("Filtros enviados:", filters.students);
+      console.error("Response:", err.response?.data);
+      showMessage(
+        `❌ Error al descargar PDF: ${err.response?.data?.error || err.message || 'Error desconocido'}`,
+        "error"
+      );
     } finally {
       setGeneratingReport(null);
     }
@@ -301,24 +199,243 @@ export default function CommitteeReports() {
   const handleDownloadDirectorPDF = async () => {
     try {
       setGeneratingReport("directors-pdf");
-      const filters = {
-        includeWorkloadAnalysis: true
-      };
-      
-      await downloadDirectorAssignedModalitiesPDF(filters);
+      console.log("📊 Descargando reporte de directores con filtros:", filters.directors);
+      await downloadDirectorAssignedModalitiesPDF(filters.directors);
       showMessage("✅ PDF de directores descargado", "success");
     } catch (err) {
-      console.error("Error:", err);
-      showMessage("❌ Error al descargar PDF", "error");
+      console.error("❌ Error detallado:", err);
+      console.error("Filtros enviados:", filters.directors);
+      console.error("Response:", err.response?.data);
+      showMessage(
+        `❌ Error al descargar PDF: ${err.response?.data?.error || err.message || 'Error desconocido'}`,
+        "error"
+      );
     } finally {
       setGeneratingReport(null);
     }
   };
 
-  const closeViewer = () => {
-    setShowViewer(false);
-    setCurrentReport(null);
-  };
+  // ==========================================
+  // COMPONENTES DE FILTROS
+  // ==========================================
+
+  const renderComparisonFilters = () => (
+    <div className="filters-panel">
+      <div className="filter-group">
+        <label>Año:</label>
+        <input
+          type="number"
+          value={filters.comparison.year}
+          onChange={(e) => updateFilter('comparison', 'year', parseInt(e.target.value))}
+          min="2020"
+          max="2030"
+        />
+      </div>
+      <div className="filter-group">
+        <label>Semestre:</label>
+        <select
+          value={filters.comparison.semester}
+          onChange={(e) => updateFilter('comparison', 'semester', parseInt(e.target.value))}
+        >
+          <option value={1}>Semestre 1</option>
+          <option value={2}>Semestre 2</option>
+        </select>
+      </div>
+      <div className="filter-group">
+        <label>Períodos históricos:</label>
+        <input
+          type="number"
+          value={filters.comparison.historicalPeriodsCount}
+          onChange={(e) => updateFilter('comparison', 'historicalPeriodsCount', parseInt(e.target.value))}
+          min="2"
+          max="12"
+        />
+      </div>
+      <div className="filter-group checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={filters.comparison.onlyActiveModalities}
+            onChange={(e) => updateFilter('comparison', 'onlyActiveModalities', e.target.checked)}
+          />
+          Solo modalidades activas
+        </label>
+      </div>
+      <div className="filter-group checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={filters.comparison.includeHistoricalComparison}
+            onChange={(e) => updateFilter('comparison', 'includeHistoricalComparison', e.target.checked)}
+          />
+          Incluir comparación histórica
+        </label>
+      </div>
+      <div className="filter-group checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={filters.comparison.includeTrendsAnalysis}
+            onChange={(e) => updateFilter('comparison', 'includeTrendsAnalysis', e.target.checked)}
+          />
+          Incluir análisis de tendencias
+        </label>
+      </div>
+    </div>
+  );
+
+  const renderCompletedFilters = () => (
+    <div className="filters-panel">
+      <div className="filter-group">
+        <label>Año:</label>
+        <input
+          type="number"
+          value={filters.completed.year}
+          onChange={(e) => updateFilter('completed', 'year', parseInt(e.target.value))}
+          min="2020"
+          max="2030"
+        />
+      </div>
+      <div className="filter-group">
+        <label>Semestre (opcional):</label>
+        <select
+          value={filters.completed.semester || ""}
+          onChange={(e) => updateFilter('completed', 'semester', e.target.value ? parseInt(e.target.value) : null)}
+        >
+          <option value="">Todos los semestres</option>
+          <option value={1}>Semestre 1</option>
+          <option value={2}>Semestre 2</option>
+        </select>
+      </div>
+      <div className="filter-group">
+        <label>Resultados:</label>
+        <div className="checkbox-list">
+          {RESULT_TYPES.map(result => (
+            <label key={result.value}>
+              <input
+                type="checkbox"
+                checked={filters.completed.results.includes(result.value)}
+                onChange={(e) => {
+                  const newResults = e.target.checked
+                    ? [...filters.completed.results, result.value]
+                    : filters.completed.results.filter(r => r !== result.value);
+                  updateFilter('completed', 'results', newResults);
+                }}
+              />
+              {result.label}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className="filter-group">
+        <label>Ordenar por:</label>
+        <select
+          value={filters.completed.sortBy}
+          onChange={(e) => updateFilter('completed', 'sortBy', e.target.value)}
+        >
+          {SORT_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="filter-group">
+        <label>Dirección:</label>
+        <select
+          value={filters.completed.sortDirection}
+          onChange={(e) => updateFilter('completed', 'sortDirection', e.target.value)}
+        >
+          <option value="ASC">Ascendente</option>
+          <option value="DESC">Descendente</option>
+        </select>
+      </div>
+    </div>
+  );
+
+  const renderDefenseFilters = () => (
+    <div className="filters-panel">
+      <div className="filter-group checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={filters.defense.includeCompleted}
+            onChange={(e) => updateFilter('defense', 'includeCompleted', e.target.checked)}
+          />
+          Incluir sustentaciones completadas
+        </label>
+      </div>
+    </div>
+  );
+
+  const renderStudentFilters = () => (
+    <div className="filters-panel">
+      <div className="filter-group">
+        <label>Año:</label>
+        <input
+          type="number"
+          value={filters.students.year}
+          onChange={(e) => updateFilter('students', 'year', parseInt(e.target.value))}
+          min="2020"
+          max="2030"
+        />
+      </div>
+      <div className="filter-group">
+        <label>Semestre:</label>
+        <select
+          value={filters.students.semester}
+          onChange={(e) => updateFilter('students', 'semester', parseInt(e.target.value))}
+        >
+          <option value={1}>Semestre 1</option>
+          <option value={2}>Semestre 2</option>
+        </select>
+      </div>
+      <div className="filter-group">
+        <label>Ordenar por:</label>
+        <select
+          value={filters.students.sortBy}
+          onChange={(e) => updateFilter('students', 'sortBy', e.target.value)}
+        >
+          {SORT_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="filter-group">
+        <label>Dirección:</label>
+        <select
+          value={filters.students.sortDirection}
+          onChange={(e) => updateFilter('students', 'sortDirection', e.target.value)}
+        >
+          <option value="ASC">Ascendente</option>
+          <option value="DESC">Descendente</option>
+        </select>
+      </div>
+    </div>
+  );
+
+  const renderDirectorFilters = () => (
+    <div className="filters-panel">
+      <div className="filter-group checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={filters.directors.onlyActiveModalities}
+            onChange={(e) => updateFilter('directors', 'onlyActiveModalities', e.target.checked)}
+          />
+          Solo modalidades activas
+        </label>
+      </div>
+      <div className="filter-group checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={filters.directors.includeWorkloadAnalysis}
+            onChange={(e) => updateFilter('directors', 'includeWorkloadAnalysis', e.target.checked)}
+          />
+          Incluir análisis de carga de trabajo
+        </label>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -337,7 +454,7 @@ export default function CommitteeReports() {
         <div>
           <h1>📊 Sistema de Reportes</h1>
           <p className="reports-subtitle">
-            Generación y descarga de reportes estadísticos del programa
+            Configuración y descarga de reportes estadísticos del programa
           </p>
         </div>
         <button 
@@ -355,7 +472,7 @@ export default function CommitteeReports() {
       )}
 
       <div className="reports-grid">
-        {/* Reporte Global */}
+        {/* Reporte Global - SIN FILTROS */}
         <div className="report-card">
           <div className="report-card-header">
             <span className="report-icon">🌍</span>
@@ -371,35 +488,22 @@ export default function CommitteeReports() {
           </div>
           <div className="report-actions">
             <button
-              className="btn-primary"
-              onClick={handleGenerateGlobalReport}
-              disabled={generatingReport !== null}
-            >
-              {generatingReport === "global" ? (
-                <>
-                  <span className="spinner-small"></span> Generando...
-                </>
-              ) : (
-                <>Ver Reporte</>
-              )}
-            </button>
-            <button
-              className="btn-secondary"
+              className="btn-primary full-width"
               onClick={handleDownloadGlobalPDF}
               disabled={generatingReport !== null}
             >
               {generatingReport === "global-pdf" ? (
                 <>
-                  <span className="spinner-small"></span> Descargando...
+                  <span className="spinner-small"></span> Generando PDF...
                 </>
               ) : (
-                <>📥 Descargar PDF</>
+                <>📥 Descargar Reporte PDF</>
               )}
             </button>
           </div>
         </div>
 
-        {/* Reporte Comparativo */}
+        {/* Reporte Comparativo - CON FILTROS */}
         <div className="report-card">
           <div className="report-card-header">
             <span className="report-icon">📈</span>
@@ -413,37 +517,34 @@ export default function CommitteeReports() {
             <span>📈 Tendencias</span>
             <span>🔮 Proyecciones</span>
           </div>
+          
+          <button 
+            className="btn-filters"
+            onClick={() => toggleFilters('comparison')}
+          >
+            {showFilters === 'comparison' ? '▼' : '▶'} Configurar Filtros
+          </button>
+          
+          {showFilters === 'comparison' && renderComparisonFilters()}
+          
           <div className="report-actions">
             <button
-              className="btn-primary"
-              onClick={handleGenerateComparison}
-              disabled={generatingReport !== null}
-            >
-              {generatingReport === "comparison" ? (
-                <>
-                  <span className="spinner-small"></span> Generando...
-                </>
-              ) : (
-                <>Ver Reporte</>
-              )}
-            </button>
-            <button
-              className="btn-secondary"
+              className="btn-primary full-width"
               onClick={handleDownloadComparisonPDF}
               disabled={generatingReport !== null}
             >
               {generatingReport === "comparison-pdf" ? (
                 <>
-                  <span className="spinner-small"></span> Descargando...
+                  <span className="spinner-small"></span> Generando PDF...
                 </>
               ) : (
-                <>📥 Descargar PDF</>
+                <>📥 Descargar Reporte PDF</>
               )}
             </button>
           </div>
         </div>
 
-        {/* Modalidades Completadas */}
+        {/* Modalidades Completadas - CON FILTROS */}
         <div className="report-card">
           <div className="report-card-header">
             <span className="report-icon">✅</span>
@@ -457,37 +558,34 @@ export default function CommitteeReports() {
             <span>📊 Calificaciones</span>
             <span>🏆 Distinciones</span>
           </div>
+          
+          <button 
+            className="btn-filters"
+            onClick={() => toggleFilters('completed')}
+          >
+            {showFilters === 'completed' ? '▼' : '▶'} Configurar Filtros
+          </button>
+          
+          {showFilters === 'completed' && renderCompletedFilters()}
+          
           <div className="report-actions">
             <button
-              className="btn-primary"
-              onClick={handleGenerateCompleted}
-              disabled={generatingReport !== null}
-            >
-              {generatingReport === "completed" ? (
-                <>
-                  <span className="spinner-small"></span> Generando...
-                </>
-              ) : (
-                <>Ver Reporte</>
-              )}
-            </button>
-            <button
-              className="btn-secondary"
+              className="btn-primary full-width"
               onClick={handleDownloadCompletedPDF}
               disabled={generatingReport !== null}
             >
               {generatingReport === "completed-pdf" ? (
                 <>
-                  <span className="spinner-small"></span> Descargando...
+                  <span className="spinner-small"></span> Generando PDF...
                 </>
               ) : (
-                <>📥 Descargar PDF</>
+                <>📥 Descargar Reporte PDF</>
               )}
             </button>
           </div>
         </div>
 
-        {/* Calendario de Sustentaciones */}
+        {/* Calendario de Sustentaciones - CON FILTROS */}
         <div className="report-card">
           <div className="report-card-header">
             <span className="report-icon">📅</span>
@@ -501,37 +599,34 @@ export default function CommitteeReports() {
             <span>⏰ En progreso</span>
             <span>✅ Completadas</span>
           </div>
+          
+          <button 
+            className="btn-filters"
+            onClick={() => toggleFilters('defense')}
+          >
+            {showFilters === 'defense' ? '▼' : '▶'} Configurar Filtros
+          </button>
+          
+          {showFilters === 'defense' && renderDefenseFilters()}
+          
           <div className="report-actions">
             <button
-              className="btn-primary"
-              onClick={handleGenerateDefenseCalendar}
-              disabled={generatingReport !== null}
-            >
-              {generatingReport === "defense" ? (
-                <>
-                  <span className="spinner-small"></span> Generando...
-                </>
-              ) : (
-                <>Ver Calendario</>
-              )}
-            </button>
-            <button
-              className="btn-secondary"
+              className="btn-primary full-width"
               onClick={handleDownloadDefenseCalendarPDF}
               disabled={generatingReport !== null}
             >
               {generatingReport === "defense-pdf" ? (
                 <>
-                  <span className="spinner-small"></span> Descargando...
+                  <span className="spinner-small"></span> Generando PDF...
                 </>
               ) : (
-                <>📥 Descargar PDF</>
+                <>📥 Descargar Reporte PDF</>
               )}
             </button>
           </div>
         </div>
 
-        {/* Listado de Estudiantes */}
+        {/* Listado de Estudiantes - CON FILTROS */}
         <div className="report-card">
           <div className="report-card-header">
             <span className="report-icon">👥</span>
@@ -545,37 +640,34 @@ export default function CommitteeReports() {
             <span>📊 Progreso</span>
             <span>⏱️ Tiempos</span>
           </div>
+          
+          <button 
+            className="btn-filters"
+            onClick={() => toggleFilters('students')}
+          >
+            {showFilters === 'students' ? '▼' : '▶'} Configurar Filtros
+          </button>
+          
+          {showFilters === 'students' && renderStudentFilters()}
+          
           <div className="report-actions">
             <button
-              className="btn-primary"
-              onClick={handleGenerateStudentListing}
-              disabled={generatingReport !== null}
-            >
-              {generatingReport === "students" ? (
-                <>
-                  <span className="spinner-small"></span> Generando...
-                </>
-              ) : (
-                <>Ver Listado</>
-              )}
-            </button>
-            <button
-              className="btn-secondary"
+              className="btn-primary full-width"
               onClick={handleDownloadStudentListingPDF}
               disabled={generatingReport !== null}
             >
               {generatingReport === "students-pdf" ? (
                 <>
-                  <span className="spinner-small"></span> Descargando...
+                  <span className="spinner-small"></span> Generando PDF...
                 </>
               ) : (
-                <>📥 Descargar PDF</>
+                <>📥 Descargar Reporte PDF</>
               )}
             </button>
           </div>
         </div>
 
-        {/* Reporte de Directores */}
+        {/* Reporte de Directores - CON FILTROS */}
         <div className="report-card">
           <div className="report-card-header">
             <span className="report-icon">👨‍🏫</span>
@@ -589,31 +681,28 @@ export default function CommitteeReports() {
             <span>📊 Carga</span>
             <span>✅ Éxito</span>
           </div>
+          
+          <button 
+            className="btn-filters"
+            onClick={() => toggleFilters('directors')}
+          >
+            {showFilters === 'directors' ? '▼' : '▶'} Configurar Filtros
+          </button>
+          
+          {showFilters === 'directors' && renderDirectorFilters()}
+          
           <div className="report-actions">
             <button
-              className="btn-primary"
-              onClick={handleGenerateDirectorReport}
-              disabled={generatingReport !== null}
-            >
-              {generatingReport === "directors" ? (
-                <>
-                  <span className="spinner-small"></span> Generando...
-                </>
-              ) : (
-                <>Ver Reporte</>
-              )}
-            </button>
-            <button
-              className="btn-secondary"
+              className="btn-primary full-width"
               onClick={handleDownloadDirectorPDF}
               disabled={generatingReport !== null}
             >
               {generatingReport === "directors-pdf" ? (
                 <>
-                  <span className="spinner-small"></span> Descargando...
+                  <span className="spinner-small"></span> Generando PDF...
                 </>
               ) : (
-                <>📥 Descargar PDF</>
+                <>📥 Descargar Reporte PDF</>
               )}
             </button>
           </div>
@@ -626,9 +715,9 @@ export default function CommitteeReports() {
           <h4>ℹ️ Información</h4>
           <ul>
             <li>Los reportes se generan en tiempo real con datos actuales</li>
+            <li>Configura los filtros antes de descargar cada reporte</li>
             <li>Los archivos PDF se descargan automáticamente al navegador</li>
             <li>Todos los reportes incluyen metadatos de generación y período</li>
-            <li>Los reportes en pantalla permiten navegación interactiva</li>
           </ul>
         </div>
 
@@ -641,14 +730,6 @@ export default function CommitteeReports() {
           </ul>
         </div>
       </div>
-
-      {/* Visor de Reporte */}
-      {showViewer && (
-        <ReportViewer
-          report={currentReport}
-          onClose={closeViewer}
-        />
-      )}
     </div>
   );
 }
