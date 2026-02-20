@@ -1,476 +1,571 @@
-import api from "../api/axios";
+// src/services/reportsService.js
+import axios from 'axios';
 
-// ==========================================
-// 📊 SERVICIO DE REPORTES
-// ==========================================
+const API_URL = 'http://localhost:8080';
+
+// ========================================
+// CONSTANTES DEL BACKEND (EXACTAS)
+// ========================================
+
+// Estados de proceso reales del enum ModalityProcessStatus
+export const PROCESS_STATUSES = [
+  { value: 'MODALITY_SELECTED', label: 'Modalidad Seleccionada' },
+  { value: 'UNDER_REVIEW_PROGRAM_HEAD', label: 'Revisión Director de Programa' },
+  { value: 'READY_FOR_PROGRAM_CURRICULUM_COMMITTEE', label: 'Listo para Comité Curricular' },
+  { value: 'UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE', label: 'Revisión Comité Curricular' },
+  { value: 'PROPOSAL_APPROVED', label: 'Propuesta Aprobada' },
+  { value: 'CORRECTIONS_SUBMITTED', label: 'Correcciones Enviadas' },
+  { value: 'CORRECTIONS_APPROVED', label: 'Correcciones Aprobadas' },
+  { value: 'CORRECTIONS_REJECTED_FINAL', label: 'Correcciones Rechazadas (Final)' },
+  { value: 'DEFENSE_SCHEDULED', label: 'Sustentación Programada' },
+  { value: 'EXAMINERS_ASSIGNED', label: 'Jurados Asignados' },
+  { value: 'DEFENSE_COMPLETED', label: 'Sustentación Completada' },
+  { value: 'UNDER_EVALUATION_PRIMARY_EXAMINERS', label: 'Evaluación Jurados Principales' },
+  { value: 'EVALUATION_COMPLETED', label: 'Evaluación Completada' },
+  { value: 'GRADED_APPROVED', label: 'Calificado - Aprobado' },
+  { value: 'GRADED_FAILED', label: 'Calificado - Reprobado' }
+];
+
+// Resultados de modalidades completadas
+export const RESULT_TYPES = [
+  { value: 'SUCCESS', label: 'Exitosa' },
+  { value: 'FAILED', label: 'Fallida' }
+];
+
+// Tipos de distinción académica reales del enum
+export const DISTINCTION_TYPES = [
+  { value: 'AGREED_MERITORIOUS', label: 'Meritorio (Por Acuerdo)' },
+  { value: 'TIEBREAKER_MERITORIOUS', label: 'Meritorio (Por Desempate)' },
+  { value: 'AGREED_LAUREATE', label: 'Laureado (Por Acuerdo)' },
+  { value: 'TIEBREAKER_LAUREATE', label: 'Laureado (Por Desempate)' }
+];
+
+// Estados de línea temporal
+export const TIMELINE_STATUSES = [
+  { value: 'ON_TIME', label: 'A Tiempo' },
+  { value: 'DELAYED', label: 'Retrasado' },
+  { value: 'AT_RISK', label: 'En Riesgo' }
+];
+
+// Tipos de modalidad (Individual/Grupal)
+export const MODALITY_TYPE_FILTERS = [
+  { value: 'INDIVIDUAL', label: 'Individual' },
+  { value: 'GROUP', label: 'Grupal' }
+];
+
+// Opciones de ordenamiento
+export const SORT_OPTIONS = {
+  student: [
+    { value: 'NAME', label: 'Nombre' },
+    { value: 'DATE', label: 'Fecha' },
+    { value: 'STATUS', label: 'Estado' },
+    { value: 'MODALITY', label: 'Modalidad' },
+    { value: 'PROGRESS', label: 'Progreso' }
+  ],
+  completed: [
+    { value: 'DATE', label: 'Fecha' },
+    { value: 'GRADE', label: 'Calificación' },
+    { value: 'TYPE', label: 'Tipo' },
+    { value: 'DURATION', label: 'Duración' }
+  ]
+};
+
+// ========================================
+// HELPERS
+// ========================================
+
+// Obtener periodo actual
+export const getCurrentPeriod = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const semester = month <= 6 ? 1 : 2;
+  return { year, semester };
+};
+
+// Formatear fecha para el backend (LocalDateTime sin timezone)
+const formatDateForBackend = (dateString) => {
+  if (!dateString) return null;
+  
+  // Si ya viene en formato correcto, retornar
+  if (dateString.includes('T') && !dateString.includes('Z')) {
+    return dateString;
+  }
+  
+  // Crear fecha y formatear como YYYY-MM-DDTHH:mm:ss
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return null;
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
+
+// Limpiar filtros (convertir arrays vacíos y strings vacíos en null)
+const cleanFilters = (filters) => {
+  const cleaned = {};
+  
+  Object.keys(filters).forEach(key => {
+    const value = filters[key];
+    
+    // Arrays vacíos -> null
+    if (Array.isArray(value)) {
+      cleaned[key] = value.length > 0 ? value : null;
+    }
+    // Strings vacíos -> null
+    else if (typeof value === 'string' && value.trim() === '') {
+      cleaned[key] = null;
+    }
+    // Números 0 o negativos en campos opcionales -> null
+    else if (typeof value === 'number' && key.includes('Grade') && value <= 0) {
+      cleaned[key] = null;
+    }
+    // Mantener valor
+    else {
+      cleaned[key] = value;
+    }
+  });
+  
+  return cleaned;
+};
+
+// ========================================
+// FUNCIÓN GENÉRICA PARA DESCARGAR PDFs
+// ========================================
+
+const downloadPDF = async (url, method = 'GET', data = null, filename = 'reporte.pdf') => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('No hay sesión activa. Por favor inicia sesión.');
+    }
+
+    console.log(`🚀 Descargando: ${method} ${url}`);
+    if (data) {
+      console.log('📦 Data enviada:', JSON.stringify(data, null, 2));
+    }
+
+    const config = {
+      url: `${API_URL}${url}`,
+      method: method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      responseType: 'blob',
+      timeout: 120000, // 2 minutos de timeout
+    };
+
+    if (data && method === 'POST') {
+      config.data = data;
+    }
+
+    const response = await axios(config);
+
+    // Verificar que la respuesta sea un PDF válido
+    if (response.data.type !== 'application/pdf') {
+      console.error('❌ Respuesta no es un PDF:', response.data.type);
+      throw new Error('La respuesta del servidor no es un PDF válido');
+    }
+
+    // Crear blob y descargar
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    
+    // Obtener nombre del archivo del header si existe
+    const contentDisposition = response.headers['content-disposition'];
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1].replace(/['"]/g, '');
+      }
+    }
+    
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+
+    console.log('✅ Reporte descargado exitosamente:', filename);
+    console.log('📊 Total records:', response.headers['x-total-records'] || 'N/A');
+    
+    return {
+      success: true,
+      filename,
+      totalRecords: response.headers['x-total-records']
+    };
+  } catch (error) {
+    console.error('❌ Error al descargar reporte:', error);
+    
+    // Manejar errores específicos
+    if (error.response) {
+      const status = error.response.status;
+      const data = error.response.data;
+      
+      console.error('📛 Status:', status);
+      console.error('📛 Response:', data);
+      
+      // Si el servidor devolvió JSON de error, intentar parsearlo
+      if (data instanceof Blob && data.type === 'application/json') {
+        const text = await data.text();
+        try {
+          const errorJson = JSON.parse(text);
+          throw new Error(errorJson.error || errorJson.message || `Error del servidor (${status})`);
+        } catch (e) {
+          throw new Error(`Error del servidor: ${status}`);
+        }
+      }
+      
+      if (status === 401) {
+        throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
+      } else if (status === 403) {
+        throw new Error('No tienes permisos para generar este reporte.');
+      } else if (status === 404) {
+        throw new Error('Reporte no encontrado o recurso no existe.');
+      } else if (status === 400) {
+        throw new Error('Datos inválidos. Revisa los filtros aplicados.');
+      } else {
+        throw new Error(`Error del servidor (${status}). Intenta nuevamente.`);
+      }
+    } else if (error.request) {
+      throw new Error('No se pudo conectar con el servidor. Verifica tu conexión.');
+    } else {
+      throw new Error(error.message || 'Error desconocido al descargar el reporte');
+    }
+  }
+};
+
+// ========================================
+// OBTENER DATOS AUXILIARES
+// ========================================
 
 /**
- * Servicio completo para generación y descarga de reportes del sistema SIGMA
- * Endpoints disponibles para el comité de programa
+ * Obtiene los tipos de modalidad disponibles desde el backend
  */
+export const getAvailableModalityTypes = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    const response = await fetch(`${API_URL}/reports/modalities/types`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-// ==========================================
-// 🌍 REPORTES GLOBALES
-// ==========================================
+    if (!response.ok) {
+      throw new Error(`Error al obtener tipos de modalidad: ${response.status}`);
+    }
 
-/**
- * Obtiene reporte global de modalidades activas
- * GET /reports/global/modalities
- */
-export const getGlobalModalitiesReport = async () => {
-  console.log("📊 Obteniendo reporte global de modalidades");
-  const response = await api.get("/reports/global/modalities");
-  return response.data;
+    const result = await response.json();
+    console.log('✅ Tipos de modalidad obtenidos:', result.data);
+    
+    return result.data?.availableTypes || [];
+  } catch (error) {
+    console.error('❌ Error al obtener tipos de modalidad:', error);
+    return [];
+  }
 };
 
 /**
- * Descarga reporte global en PDF
+ * Obtiene la lista de directores del programa
+ */
+export const getDirectors = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    // Ajustar endpoint según tu backend
+    const response = await fetch(`${API_URL}/api/users/directors`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      console.warn('⚠️ No se pudo obtener lista de directores');
+      return [];
+    }
+
+    const directors = await response.json();
+    console.log('✅ Directores obtenidos:', directors.length);
+    
+    return directors;
+  } catch (error) {
+    console.error('❌ Error al obtener directores:', error);
+    return [];
+  }
+};
+
+// ========================================
+// ENDPOINTS DE REPORTES
+// ========================================
+
+/**
+ * 1. REPORTE GLOBAL DE MODALIDADES ACTIVAS
  * GET /reports/global/modalities/pdf
  */
 export const downloadGlobalModalitiesPDF = async () => {
-  console.log("📥 Descargando reporte global en PDF");
-  const response = await api.get("/reports/global/modalities/pdf", {
-    responseType: "blob"
-  });
-  
-  downloadFile(response.data, "Reporte_Global_Modalidades.pdf");
-  return response.data;
-};
-
-// ==========================================
-// 🎓 REPORTES DE ESTUDIANTES
-// ==========================================
-
-/**
- * Obtiene estudiantes por modalidad
- * GET /reports/students/by-modality?modalityType={type}
- */
-export const getStudentsByModality = async (modalityType) => {
-  console.log("📊 Obteniendo estudiantes por modalidad:", modalityType);
-  const response = await api.get("/reports/students/by-modality", {
-    params: { modalityType }
-  });
-  return response.data;
+  return downloadPDF(
+    '/reports/global/modalities/pdf',
+    'GET',
+    null,
+    'Reporte_Global_Modalidades.pdf'
+  );
 };
 
 /**
- * Obtiene estudiantes por semestre
- * GET /reports/students/by-semester?year={year}&semester={semester}
- */
-export const getStudentsBySemester = async (year, semester) => {
-  console.log("📊 Obteniendo estudiantes por semestre:", year, semester);
-  const response = await api.get("/reports/students/by-semester", {
-    params: { year, semester }
-  });
-  return response.data;
-};
-
-/**
- * Obtiene listado completo de estudiantes con filtros
- * POST /reports/students/listing
- */
-export const getStudentListingReport = async (filters) => {
-  console.log("📊 Obteniendo listado de estudiantes con filtros:", filters);
-  const response = await api.post("/reports/students/listing", filters);
-  return response.data;
-};
-
-/**
- * Descarga listado de estudiantes en PDF
- * POST /reports/students/listing/pdf
- */
-export const downloadStudentListingPDF = async (filters) => {
-  console.log("📥 Descargando listado de estudiantes en PDF");
-  const response = await api.post("/reports/students/listing/pdf", filters, {
-    responseType: "blob"
-  });
-  
-  downloadFile(response.data, "Reporte_Listado_Estudiantes.pdf");
-  return response.data;
-};
-
-// ==========================================
-// 👨‍🏫 REPORTES DE DIRECTORES
-// ==========================================
-
-/**
- * Obtiene directores por modalidad
- * GET /reports/directors/by-modality?modalityType={type}
- */
-export const getDirectorsByModality = async (modalityType) => {
-  console.log("📊 Obteniendo directores por modalidad:", modalityType);
-  const response = await api.get("/reports/directors/by-modality", {
-    params: { modalityType }
-  });
-  return response.data;
-};
-
-/**
- * Obtiene modalidades asignadas a directores
- * POST /reports/directors/assigned-modalities
- */
-export const getDirectorAssignedModalities = async (filters) => {
-  console.log("📊 Obteniendo modalidades asignadas a directores:", filters);
-  const response = await api.post("/reports/directors/assigned-modalities", filters);
-  return response.data;
-};
-
-/**
- * Descarga reporte de directores en PDF
- * POST /reports/directors/assigned-modalities/pdf
- */
-export const downloadDirectorAssignedModalitiesPDF = async (filters) => {
-  console.log("📥 Descargando reporte de directores en PDF");
-  const response = await api.post("/reports/directors/assigned-modalities/pdf", filters, {
-    responseType: "blob"
-  });
-  
-  downloadFile(response.data, "Reporte_Directores_Modalidades.pdf");
-  return response.data;
-};
-
-/**
- * Obtiene reporte de director específico
- * GET /reports/directors/{directorId}/modalities
- */
-export const getSpecificDirectorReport = async (directorId) => {
-  console.log("📊 Obteniendo reporte de director:", directorId);
-  const response = await api.get(`/reports/directors/${directorId}/modalities`);
-  return response.data;
-};
-
-/**
- * Descarga reporte de director específico en PDF
- * GET /reports/directors/{directorId}/modalities/pdf
- */
-export const downloadSpecificDirectorPDF = async (directorId) => {
-  console.log("📥 Descargando reporte de director en PDF");
-  const response = await api.get(`/reports/directors/${directorId}/modalities/pdf`, {
-    responseType: "blob"
-  });
-  
-  downloadFile(response.data, `Reporte_Director_${directorId}.pdf`);
-  return response.data;
-};
-
-// ==========================================
-// 🔍 REPORTES FILTRADOS Y COMPARATIVOS
-// ==========================================
-
-/**
- * Obtiene reporte de modalidades con filtros
- * POST /reports/modalities/filtered
- */
-export const getFilteredModalitiesReport = async (filters) => {
-  console.log("📊 Obteniendo reporte filtrado de modalidades:", filters);
-  const response = await api.post("/reports/modalities/filtered", filters);
-  return response.data;
-};
-
-/**
- * Descarga reporte filtrado en PDF
+ * 2. REPORTE FILTRADO (RF-46)
  * POST /reports/modalities/filtered/pdf
  */
-export const downloadFilteredModalitiesPDF = async (filters) => {
-  console.log("📥 Descargando reporte filtrado en PDF");
-  const response = await api.post("/reports/modalities/filtered/pdf", filters, {
-    responseType: "blob"
-  });
+export const downloadFilteredModalitiesPDF = async (filters = {}) => {
+  console.log('📤 Filtros originales:', filters);
   
-  downloadFile(response.data, "Reporte_Modalidades_Filtrado.pdf");
-  return response.data;
+  const cleanedFilters = cleanFilters({
+    degreeModalityIds: filters.degreeModalityIds || null,
+    degreeModalityNames: filters.degreeModalityNames || null,
+    processStatuses: filters.processStatuses || null,
+    startDate: formatDateForBackend(filters.startDate),
+    endDate: formatDateForBackend(filters.endDate),
+    includeWithoutDirector: filters.includeWithoutDirector || false,
+    onlyWithDirector: filters.onlyWithDirector || false
+  });
+
+  console.log('📦 Filtros limpiados:', cleanedFilters);
+
+  return downloadPDF(
+    '/reports/modalities/filtered/pdf',
+    'POST',
+    cleanedFilters,
+    'Reporte_Modalidades_Filtradas.pdf'
+  );
 };
 
 /**
- * Obtiene reporte comparativo de modalidades por tipo
- * POST /reports/modalities/comparison
- */
-export const getModalityTypeComparison = async (filters) => {
-  console.log("📊 Obteniendo comparativa de modalidades:", filters);
-  const response = await api.post("/reports/modalities/comparison", filters);
-  return response.data;
-};
-
-/**
- * Descarga reporte comparativo en PDF
+ * 3. REPORTE COMPARATIVO (RF-48)
  * POST /reports/modalities/comparison/pdf
  */
-export const downloadModalityComparisonPDF = async (filters) => {
-  console.log("📥 Descargando reporte comparativo en PDF");
-  const response = await api.post("/reports/modalities/comparison/pdf", filters, {
-    responseType: "blob"
-  });
+export const downloadModalityComparisonPDF = async (filters = {}) => {
+  const currentPeriod = getCurrentPeriod();
   
-  downloadFile(response.data, "Reporte_Comparativa_Modalidades.pdf");
-  return response.data;
-};
-
-// ==========================================
-// 📈 REPORTES HISTÓRICOS
-// ==========================================
-
-/**
- * Obtiene reporte histórico de una modalidad específica
- * GET /reports/modalities/{modalityTypeId}/historical?periods={periods}
- */
-export const getModalityHistoricalReport = async (modalityTypeId, periods = 8) => {
-  console.log("📊 Obteniendo reporte histórico de modalidad:", modalityTypeId);
-  const response = await api.get(`/reports/modalities/${modalityTypeId}/historical`, {
-    params: { periods }
+  const cleanedFilters = cleanFilters({
+    year: filters.year || currentPeriod.year,
+    semester: filters.semester || currentPeriod.semester,
+    includeHistoricalComparison: filters.includeHistoricalComparison !== false,
+    historicalPeriodsCount: filters.historicalPeriodsCount || 4,
+    includeTrendsAnalysis: filters.includeTrendsAnalysis !== false,
+    onlyActiveModalities: filters.onlyActiveModalities || false
   });
-  return response.data;
+
+  console.log('📦 Filtros de comparación:', cleanedFilters);
+
+  return downloadPDF(
+    '/reports/modalities/comparison/pdf',
+    'POST',
+    cleanedFilters,
+    'Reporte_Comparativo_Modalidades.pdf'
+  );
 };
 
 /**
- * Descarga reporte histórico en PDF
+ * 4. REPORTE HISTÓRICO DE MODALIDAD ESPECÍFICA
  * GET /reports/modalities/{modalityTypeId}/historical/pdf?periods={periods}
  */
 export const downloadModalityHistoricalPDF = async (modalityTypeId, periods = 8) => {
-  console.log("📥 Descargando reporte histórico en PDF");
-  const response = await api.get(`/reports/modalities/${modalityTypeId}/historical/pdf`, {
-    params: { periods },
-    responseType: "blob"
-  });
-  
-  downloadFile(response.data, `Reporte_Historico_Modalidad_${modalityTypeId}.pdf`);
-  return response.data;
+  if (!modalityTypeId) {
+    throw new Error('Debe seleccionar un tipo de modalidad');
+  }
+
+  console.log(`📤 Reporte histórico: modalidad=${modalityTypeId}, periodos=${periods}`);
+
+  return downloadPDF(
+    `/reports/modalities/${modalityTypeId}/historical/pdf?periods=${periods}`,
+    'GET',
+    null,
+    `Reporte_Historico_Modalidad_${modalityTypeId}.pdf`
+  );
 };
 
-// ==========================================
-// ✅ REPORTES DE MODALIDADES COMPLETADAS
-// ==========================================
-
 /**
- * Obtiene reporte de modalidades completadas (exitosas y fallidas)
- * POST /reports/modalities/completed
+ * 5. REPORTE DE DIRECTORES Y MODALIDADES ASIGNADAS (RF-49)
+ * POST /reports/directors/assigned-modalities/pdf
  */
-export const getCompletedModalitiesReport = async (filters) => {
-  console.log("📊 Obteniendo reporte de modalidades completadas:", filters);
-  const response = await api.post("/reports/modalities/completed", filters);
-  return response.data;
+export const downloadDirectorPerformancePDF = async (filters = {}) => {
+  console.log('📤 Filtros de directores:', filters);
+  
+  const cleanedFilters = cleanFilters({
+    directorId: filters.directorId || null,
+    processStatuses: filters.processStatuses || null,
+    modalityTypes: filters.modalityTypes || null,
+    onlyOverloaded: filters.onlyOverloaded || false,
+    onlyAvailable: filters.onlyAvailable || false,
+    onlyActiveModalities: filters.onlyActiveModalities !== false,
+    includeWorkloadAnalysis: filters.includeWorkloadAnalysis !== false
+  });
+
+  console.log('📦 Filtros limpiados:', cleanedFilters);
+
+  return downloadPDF(
+    '/reports/directors/assigned-modalities/pdf',
+    'POST',
+    cleanedFilters,
+    'Reporte_Directores_Modalidades.pdf'
+  );
 };
 
 /**
- * Descarga reporte de modalidades completadas en PDF
+ * 6. REPORTE INDIVIDUAL DE UN DIRECTOR ESPECÍFICO
+ * GET /reports/directors/{directorId}/modalities/pdf
+ */
+export const downloadIndividualDirectorPDF = async (directorId) => {
+  if (!directorId) {
+    throw new Error('Debe seleccionar un director');
+  }
+
+  console.log(`📤 Reporte individual del director: ${directorId}`);
+
+  return downloadPDF(
+    `/reports/directors/${directorId}/modalities/pdf`,
+    'GET',
+    null,
+    `Reporte_Director_${directorId}.pdf`
+  );
+};
+
+/**
+ * 7. LISTADO DE ESTUDIANTES CON FILTROS AVANZADOS
+ * POST /reports/students/listing/pdf
+ */
+export const downloadStudentListingPDF = async (filters = {}) => {
+  console.log('📤 Filtros de estudiantes:', filters);
+  
+  const cleanedFilters = cleanFilters({
+    statuses: filters.statuses || null,
+    modalityTypes: filters.modalityTypes || null,
+    semesters: filters.semesters || null,
+    year: filters.year || null,
+    timelineStatus: filters.timelineStatus || null,
+    modalityTypeFilter: filters.modalityTypeFilter || null,
+    hasDirector: filters.hasDirector,
+    sortBy: filters.sortBy || 'NAME',
+    sortDirection: filters.sortDirection || 'ASC',
+    includeInactive: filters.includeInactive || false
+  });
+
+  console.log('📦 Filtros limpiados:', cleanedFilters);
+
+  return downloadPDF(
+    '/reports/students/listing/pdf',
+    'POST',
+    cleanedFilters,
+    'Reporte_Listado_Estudiantes.pdf'
+  );
+};
+
+/**
+ * 8. REPORTE DE MODALIDADES COMPLETADAS
  * POST /reports/modalities/completed/pdf
  */
-export const downloadCompletedModalitiesPDF = async (filters) => {
-  console.log("📥 Descargando reporte de modalidades completadas en PDF");
-  const response = await api.post("/reports/modalities/completed/pdf", filters, {
-    responseType: "blob"
+export const downloadCompletedModalitiesPDF = async (filters = {}) => {
+  console.log('📤 Filtros de completadas:', filters);
+  
+  const cleanedFilters = cleanFilters({
+    modalityTypes: filters.modalityTypes || null,
+    results: filters.results || null,
+    year: filters.year || null,
+    semester: filters.semester || null,
+    startDate: filters.startDate || null, // Backend usa updatedAt, no necesita hora
+    endDate: filters.endDate || null,
+    onlyWithDistinction: filters.onlyWithDistinction || false,
+    distinctionType: filters.distinctionType || null,
+    directorId: filters.directorId || null,
+    minGrade: filters.minGrade || null,
+    maxGrade: filters.maxGrade || null,
+    modalityTypeFilter: filters.modalityTypeFilter || null,
+    sortBy: filters.sortBy || 'DATE',
+    sortDirection: filters.sortDirection || 'DESC'
   });
+
+  console.log('📦 Filtros limpiados:', cleanedFilters);
+
+  return downloadPDF(
+    '/reports/modalities/completed/pdf',
+    'POST',
+    cleanedFilters,
+    'Reporte_Modalidades_Completadas.pdf'
+  );
+};
+
+/**
+ * 9. CALENDARIO DE SUSTENTACIONES
+ * GET /reports/defense-calendar/pdf?startDate={}&endDate={}&includeCompleted={}
+ */
+export const downloadDefenseCalendarPDF = async (params = {}) => {
+  console.log('📤 Parámetros de calendario:', params);
   
-  downloadFile(response.data, "Reporte_Modalidades_Completadas.pdf");
-  return response.data;
-};
-
-// ==========================================
-// 📅 REPORTE DE CALENDARIO DE SUSTENTACIONES
-// ==========================================
-
-/**
- * Obtiene calendario de sustentaciones
- * GET /reports/defense-calendar?startDate={date}&endDate={date}&includeCompleted={bool}
- */
-export const getDefenseCalendarReport = async (startDate, endDate, includeCompleted = false) => {
-  console.log("📊 Obteniendo calendario de sustentaciones");
-  const params = {};
-  if (startDate) params.startDate = startDate;
-  if (endDate) params.endDate = endDate;
-  params.includeCompleted = includeCompleted;
+  // Construir query params
+  const queryParams = new URLSearchParams();
   
-  const response = await api.get("/reports/defense-calendar", { params });
-  return response.data;
-};
-
-/**
- * Descarga calendario de sustentaciones en PDF
- * GET /reports/defense-calendar/pdf
- */
-export const downloadDefenseCalendarPDF = async (startDate, endDate, includeCompleted = false) => {
-  console.log("📥 Descargando calendario de sustentaciones en PDF");
-  const params = {};
-  if (startDate) params.startDate = startDate;
-  if (endDate) params.endDate = endDate;
-  params.includeCompleted = includeCompleted;
-  
-  const response = await api.get("/reports/defense-calendar/pdf", {
-    params,
-    responseType: "blob"
-  });
-  
-  downloadFile(response.data, "Calendario_Sustentaciones.pdf");
-  return response.data;
-};
-
-// ==========================================
-// ℹ️ INFORMACIÓN Y METADATOS
-// ==========================================
-
-/**
- * Obtiene lista de reportes disponibles
- * GET /reports/available
- */
-export const getAvailableReports = async () => {
-  console.log("📊 Obteniendo reportes disponibles");
-  const response = await api.get("/reports/available");
-  return response.data;
-};
-
-/**
- * Obtiene tipos de modalidad disponibles
- * GET /reports/modalities/types
- */
-export const getAvailableModalityTypes = async () => {
-  console.log("📊 Obteniendo tipos de modalidad disponibles");
-  const response = await api.get("/reports/modalities/types");
-  return response.data;
-};
-
-/**
- * Health check del servicio de reportes
- * GET /reports/health
- */
-export const checkReportsHealth = async () => {
-  console.log("🔍 Verificando estado del servicio de reportes");
-  const response = await api.get("/reports/health");
-  return response.data;
-};
-
-// ==========================================
-// 🛠️ UTILIDADES
-// ==========================================
-
-/**
- * Descarga un archivo blob
- * @param {Blob} blob - Datos del archivo
- * @param {string} filename - Nombre del archivo
- */
-const downloadFile = (blob, filename) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-  
-  console.log(`✅ Archivo descargado: ${filename}`);
-};
-
-/**
- * Formatea fecha para enviar al backend
- * @param {Date} date - Fecha a formatear
- * @returns {string} Fecha en formato ISO
- */
-export const formatDateForAPI = (date) => {
-  if (!date) return null;
-  return date.toISOString();
-};
-
-/**
- * Obtiene año y semestre actual
- * @returns {Object} {year, semester}
- */
-export const getCurrentPeriod = () => {
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  return {
-    year: now.getFullYear(),
-    semester: month <= 6 ? 1 : 2
-  };
-};
-
-/**
- * Genera periodos académicos (últimos N semestres)
- * @param {number} count - Cantidad de periodos
- * @returns {Array} Lista de periodos
- */
-export const generateAcademicPeriods = (count = 6) => {
-  const periods = [];
-  const { year, semester } = getCurrentPeriod();
-  
-  let currentYear = year;
-  let currentSemester = semester;
-  
-  for (let i = 0; i < count; i++) {
-    periods.push({
-      year: currentYear,
-      semester: currentSemester,
-      label: `${currentYear}-${currentSemester}`
-    });
-    
-    currentSemester--;
-    if (currentSemester === 0) {
-      currentSemester = 2;
-      currentYear--;
-    }
+  if (params.startDate) {
+    queryParams.append('startDate', formatDateForBackend(params.startDate));
   }
   
-  return periods;
+  if (params.endDate) {
+    queryParams.append('endDate', formatDateForBackend(params.endDate));
+  }
+  
+  if (params.includeCompleted) {
+    queryParams.append('includeCompleted', 'true');
+  }
+
+  const queryString = queryParams.toString();
+  const url = queryString 
+    ? `/reports/defense-calendar/pdf?${queryString}`
+    : '/reports/defense-calendar/pdf';
+
+  console.log('📦 URL final:', url);
+
+  return downloadPDF(
+    url,
+    'GET',
+    null,
+    'Calendario_Sustentaciones.pdf'
+  );
 };
 
-// ==========================================
-// 📋 CONSTANTES
-// ==========================================
+// ========================================
+// FUNCIÓN DE PRUEBA
+// ========================================
 
-export const REPORT_TYPES = {
-  GLOBAL: "GLOBAL_ACTIVE_MODALITIES",
-  FILTERED: "FILTERED_MODALITIES",
-  STUDENTS_BY_MODALITY: "STUDENTS_BY_MODALITY",
-  STUDENTS_BY_SEMESTER: "STUDENTS_BY_SEMESTER",
-  STUDENT_LISTING: "STUDENT_LISTING_FILTERED",
-  DIRECTORS_BY_MODALITY: "DIRECTORS_BY_MODALITY",
-  DIRECTOR_ASSIGNED: "DIRECTOR_ASSIGNED_MODALITIES",
-  COMPARISON: "MODALITY_TYPE_COMPARISON",
-  HISTORICAL: "MODALITY_HISTORICAL_ANALYSIS",
-  COMPLETED: "COMPLETED_MODALITIES_REPORT",
-  DEFENSE_CALENDAR: "DEFENSE_CALENDAR"
+/**
+ * Prueba la conexión con el backend
+ */
+export const testConnection = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/reports/health`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Conexión exitosa:', data);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('❌ Error de conexión:', error);
+    return false;
+  }
 };
-
-export const MODALITY_STATUSES = [
-  "MODALITY_SELECTED",
-  "UNDER_REVIEW_PROGRAM_HEAD",
-  "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE",
-  "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE",
-  "PROPOSAL_APPROVED",
-  "CORRECTIONS_SUBMITTED",
-  "CORRECTIONS_APPROVED",
-  "DEFENSE_SCHEDULED",
-  "EXAMINERS_ASSIGNED",
-  "DEFENSE_COMPLETED",
-  "UNDER_EVALUATION_PRIMARY_EXAMINERS",
-  "EVALUATION_COMPLETED",
-  "GRADED_APPROVED",
-  "GRADED_FAILED"
-];
-
-export const RESULT_TYPES = [
-  { value: "SUCCESS", label: "Exitosas" },
-  { value: "FAILED", label: "Fallidas" }
-];
-
-export const DISTINCTION_TYPES = [
-  { value: "AGREED_MERITORIOUS", label: "Meritorio (Acuerdo)" },
-  { value: "TIEBREAKER_MERITORIOUS", label: "Meritorio (Desempate)" },
-  { value: "AGREED_LAUREATE", label: "Laureado (Acuerdo)" },
-  { value: "TIEBREAKER_LAUREATE", label: "Laureado (Desempate)" }
-];
-
-export const TIMELINE_STATUSES = [
-  { value: "ON_TIME", label: "A tiempo" },
-  { value: "AT_RISK", label: "En riesgo" },
-  { value: "DELAYED", label: "Retrasado" },
-  { value: "COMPLETED", label: "Completado" }
-];
-
-export const SORT_OPTIONS = [
-  { value: "NAME", label: "Nombre" },
-  { value: "DATE", label: "Fecha" },
-  { value: "STATUS", label: "Estado" },
-  { value: "MODALITY", label: "Modalidad" },
-  { value: "PROGRESS", label: "Progreso" },
-  { value: "GRADE", label: "Calificación" },
-  { value: "DURATION", label: "Duración" }
-];
