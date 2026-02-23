@@ -19,8 +19,7 @@ function Login() {
 
   // 🔹 Redirigir según el rol
   const redirectByRole = (role) => {
-    console.log("🚀 Redirigiendo según rol:", role);
-    
+  
     const normalizedRole = role.toUpperCase();
     
     switch (normalizedRole) {
@@ -200,6 +199,7 @@ function Login() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
+          <span className="login-logo">SIGMA</span>
           <h1>Iniciar sesión</h1>
           <p>Ingresa tus credenciales para acceder al sistema</p>
         </div>

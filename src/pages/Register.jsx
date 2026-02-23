@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 import "../styles/register.css";
+
 
 function Register() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [form, setForm] = useState({
     name: "",
     lastName: "",
@@ -71,6 +75,43 @@ function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const VALID_ROLES = [
+    "ADMIN",
+    "SUPERADMIN",
+    "PROGRAM_HEAD",
+    "PROGRAM_CURRICULUM_COMMITTEE",
+    "STUDENT",
+    "PROJECT_DIRECTOR",
+    "EXAMINER"
+  ];
+
+  const redirectByRole = (role) => {
+    const normalizedRole = role.toUpperCase();
+    switch (normalizedRole) {
+      case "SUPERADMIN":
+      case "ADMIN":
+        navigate("/admin", { replace: true });
+        break;
+      case "PROGRAM_HEAD":
+        navigate("/jefeprograma", { replace: true });
+        break;
+      case "PROGRAM_CURRICULUM_COMMITTEE":
+        navigate("/comite", { replace: true });
+        break;
+      case "STUDENT":
+        navigate("/student", { replace: true });
+        break;
+      case "PROJECT_DIRECTOR":
+        navigate("/project-director", { replace: true });
+        break;
+      case "EXAMINER":
+        navigate("/examiner", { replace: true });
+        break;
+      default:
+        navigate("/login", { replace: true });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -82,24 +123,38 @@ function Register() {
     try {
       // Enviar solo los campos que el backend necesita
       const { confirmPassword, ...registerData } = form;
-      await register(registerData);
-      
-      // Redirigir al login con mensaje de éxito
-      navigate("/login", { 
-        state: { 
-          message: "Registro exitoso. Ahora puedes iniciar sesión." 
-        } 
-      });
+      const response = await register(registerData);
+      // El backend retorna el token directamente
+      const token = typeof response === "string" ? response : response?.token;
+      if (!token) throw new Error("Token inválido recibido del servidor");
+
+      // Decodificar y extraer rol
+      const decoded = jwtDecode(token);
+      let role = null;
+      if (decoded?.role && VALID_ROLES.includes(decoded.role.toUpperCase())) {
+        role = decoded.role.toUpperCase();
+      } else if (decoded?.authorities) {
+        let authorities = Array.isArray(decoded.authorities)
+          ? decoded.authorities
+          : decoded.authorities.split(",").map((a) => a.trim());
+        for (const auth of authorities) {
+          const cleanAuth = auth.replace("ROLE_", "").trim().toUpperCase();
+          if (VALID_ROLES.includes(cleanAuth)) {
+            role = cleanAuth;
+            break;
+          }
+        }
+      }
+      if (!role) role = "STUDENT"; // fallback
+
+      // Guardar token en contexto y redirigir
+      login(token);
+      setTimeout(() => {
+        redirectByRole(role);
+      }, 100);
     } catch (error) {
       console.error("Error al registrarse:", error);
-      
-      // El backend maneja estos mensajes:
-      // - "Todos los campos son obligatorios..."
-      // - "El correo debe ser institucional con dominio @usco.edu.co"
-      // - "Este correo ya está en uso"
       const errorMessage = error.response?.data || "Error al registrarse";
-      
-      // Si el error es sobre el email, mostrarlo en el campo de email
       if (errorMessage.includes("correo") || errorMessage.includes("email")) {
         setErrors({ email: errorMessage });
       } else {
