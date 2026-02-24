@@ -4,8 +4,11 @@
 
 .students-pending-container {
   max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 2rem auto;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(135deg, #f9f6e7 0%, #f7f7fa 60%, #e8ebf0 100%);
+  border-radius: 18px;
+  box-shadow: 0 8px 40px 0 rgba(122, 17, 23, 0.10);
 }
 
 .students-pending-loading {
@@ -21,22 +24,28 @@
 
 .students-pending-header {
   margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid #e0e0e0;
+  padding: 2.5rem 2rem 2rem 2rem;
+  background: linear-gradient(90deg, #7A1117 0%, #a01820 100%);
+  color: #fff;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
+  border-bottom: none;
 }
 
 .students-pending-title {
-  font-size: 2rem;
-  color: #ffffff;
-  margin: 0 0 0.5rem;
+  font-size: 2.3rem;
+  color: #fff;
+  margin: 0;
   font-family: "Georgia", "Times New Roman", serif;
-  font-weight: 700;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
 .students-pending-subtitle {
-  color: #ffffff;
-  margin: 0;
-  font-size: 1rem;
+  color: #f7f7fa;
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
 }
 
 /* ========================================
@@ -53,7 +62,11 @@
 .students-pending-message.error {
   background: #fde1e1;
   color: #7A1117;
-  border-left: 4px solid #7A1117;
+  border-left: 6px solid #7A1117;
+  box-shadow: 0 4px 16px #7A111733;
+  font-weight: 700;
+  font-size: 1.08rem;
+  margin-bottom: 2rem;
 }
 
 /* ========================================
@@ -61,30 +74,46 @@
    ======================================== */
 
 .students-pending-filters {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 6px 24px #7A111733;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  align-items: flex-start;
 }
 
 .filter-section {
-  margin-bottom: 1.5rem;
-}
-
-.filter-section:last-child {
-  margin-bottom: 0;
+  flex: 1 1 320px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
 .filter-label {
-  display: block;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.75rem;
-  font-size: 0.95rem;
+  color: #7A1117;
+  font-weight: 900;
+  font-size: 1.08rem;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.filter-label::before {
+  content: '\1F50D'; /* icono lupa */
+  font-size: 1.1rem;
+  color: #D5CBA0;
+  margin-right: 0.2rem;
+}
+.filter-section:nth-child(2) .filter-label::before {
+  content: '\1F4DD'; /* icono filtro */
+  color: #7A1117;
 }
 
-/* Búsqueda por nombre */
 .search-form {
   display: flex;
   gap: 0.75rem;
@@ -94,122 +123,137 @@
 .search-input {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
+  border: 2px solid #D5CBA0;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  background: #f8f6ef;
+  font-weight: 600;
+  color: #7A1117;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-
 .search-input:focus {
   outline: none;
   border-color: #7A1117;
-  box-shadow: 0 0 0 3px rgba(122, 17, 23, 0.1);
+  box-shadow: 0 0 0 3px rgba(122, 17, 23, 0.12);
 }
 
 .search-button {
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 1.05rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+  box-shadow: 0 2px 8px #7A111733;
+  transition: background 0.2s, box-shadow 0.2s;
 }
-
 .search-button:hover {
+  background: #7A1117;
+  color: #D5CBA0;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.18);
 }
 
-/* Checkboxes de estados */
-.status-checkboxes {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  border: 2px solid #e0e0e0;
-  max-height: 300px;
-  overflow-y: auto;
+.status-dropdown {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #D5CBA0;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #7A1117;
+  background: #f8f6ef;
+  margin-top: 0.5rem;
+  min-height: 3rem;
+  box-shadow: 0 2px 8px #7A111733;
+  transition: border-color 0.2s;
+}
+.status-dropdown:focus {
+  border-color: #7A1117;
+}
+.status-dropdown option {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #7A1117;
+  background: #fff;
+  padding: 0.5rem 1rem;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.apply-statuses-button {
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 900;
+  font-size: 1.05rem;
+  box-shadow: 0 2px 8px rgba(122,17,23,0.12);
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: background 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.apply-statuses-button:hover {
+  background: #7A1117;
+  color: #D5CBA0;
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.18);
 }
 
-.checkbox-label:hover {
-  background: white;
-}
-
-.checkbox-input {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #7A1117;
-}
-
-/* Botón limpiar filtros */
 .clear-filters-button {
-  padding: 0.75rem 1.5rem;
-  background: #f5f5f5;
+  background: #f8f6ef;
   color: #7A1117;
   border: 2px solid #7A1117;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 1.05rem;
   margin-top: 1rem;
+  padding: 0.5rem 1.2rem;
+  box-shadow: 0 2px 8px #7A111733;
+  transition: background 0.2s, color 0.2s;
 }
-
 .clear-filters-button:hover {
   background: #7A1117;
-  color: white;
+  color: #fff;
 }
 
-/* Filtros activos */
+.filters-tip {
+  color: #7A1117;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: block;
+  font-size: 0.98rem;
+}
+
 .active-filters {
-  background: #e8f5e9;
+  background: #f8f6ef;
   padding: 1rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+  box-shadow: 0 2px 8px #7A111733;
 }
-
 .active-filters strong {
-  color: #2e7d32;
+  color: #7A1117;
+  font-weight: 900;
 }
-
 .filter-tag {
-  display: inline-block;
-  padding: 0.4rem 0.85rem;
-  background: white;
-  color: #2e7d32;
-  border: 1px solid #2e7d32;
+  background: #fff;
+  color: #7A1117;
+  border: 1.5px solid #D5CBA0;
   border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 900;
+  font-size: 1rem;
+  padding: 0.45rem 1rem;
+  box-shadow: 0 2px 8px #7A111733;
 }
-
-/* Contador de resultados */
 .results-count {
+  color: #7A1117;
+  font-weight: 900;
+  font-size: 1.05rem;
   margin-bottom: 1rem;
-  color: #666;
-  font-size: 0.95rem;
-  font-weight: 600;
 }
 
 /* ========================================
@@ -217,22 +261,21 @@
    ======================================== */
 
 .students-pending-empty {
-  text-align: center;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px #7A111733;
   padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .students-pending-empty-icon {
   font-size: 4rem;
-  margin-bottom: 1rem;
+  color: #7A1117;
 }
 
 .students-pending-empty-text {
   font-size: 1.25rem;
-  color: #333;
-  font-weight: 600;
+  color: #7A1117;
+  font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
@@ -246,38 +289,40 @@
    ======================================== */
 
 .students-pending-table-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px #7A111733;
   overflow: hidden;
 }
 
-.students-pending-table {
-  width: 100%;
-  border-collapse: collapse;
+.results-count {
+  color: #7A1117;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 1rem;
 }
 
 .students-pending-table thead {
   background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  color: #fff;
 }
 
 .students-pending-table th {
   padding: 1.25rem 1.5rem;
   text-align: left;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .students-pending-table tbody tr {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #D5CBA0;
   transition: background 0.2s;
 }
 
 .students-pending-table tbody tr:hover {
-  background: #f9f9f9;
+  background: #f8f6ef;
 }
 
 .students-pending-table td {
@@ -287,81 +332,69 @@
 
 /* Estilos específicos de celdas */
 .student-name {
-  font-weight: 600;
   color: #7A1117;
+  font-weight: 700;
 }
 
 .student-email {
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .modality-name {
-  color: #333;
-  font-weight: 500;
+  color: #7A1117;
+  font-weight: 600;
 }
 
 .last-updated {
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 /* Status badges */
 .status-badge {
-  display: inline-block;
-  padding: 0.4rem 1rem;
   border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
-  white-space: nowrap;
+  text-transform: uppercase;
 }
 
+.status-badge.approved {
+  background: #D5CBA0;
+  color: #7A1117;
+}
+.status-badge.corrections {
+  background: #fde1e1;
+  color: #7A1117;
+}
+.status-badge.in-review {
+  background: #e7f3ff;
+  color: #0c5da5;
+}
+.status-badge.ready {
+  background: #cfe2ff;
+  color: #084298;
+}
+.status-badge.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
 .status-badge.pending {
   background: #fff3cd;
   color: #856404;
 }
 
-.status-badge.corrections {
-  background: #fde1e1;
-  color: #7A1117;
-}
-
-.status-badge.ready {
-  background: #cfe2ff;
-  color: #084298;
-}
-
-.status-badge.in-review {
-  background: #e7f3ff;
-  color: #0c5da5;
-}
-
-.status-badge.approved {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status-badge.cancelled {
-  background: #f8d7da;
-  color: #721c24;
-}
-
 /* Botón ver perfil */
 .view-profile-button {
-  padding: 0.65rem 1.25rem;
   background: #7A1117;
-  color: white;
-  border: none;
+  color: #fff;
   border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.65rem 1.25rem;
 }
-
 .view-profile-button:hover {
   background: #5d0d12;
   transform: translateY(-2px);
@@ -375,49 +408,65 @@
 @media (max-width: 768px) {
   .students-pending-container {
     padding: 1rem;
+    border-radius: 10px;
   }
-
+  .students-pending-header {
+    padding: 1.2rem 1rem;
+    border-radius: 10px 10px 0 0;
+  }
   .students-pending-title {
     font-size: 1.5rem;
   }
-
-  .search-form {
-    flex-direction: column;
+  .students-pending-filters {
+    padding: 1.2rem;
+    border-radius: 10px;
   }
-
   .status-checkboxes {
     grid-template-columns: 1fr;
   }
-
   .students-pending-table-container {
     overflow-x: auto;
+    border-radius: 10px;
   }
-
   .students-pending-table thead {
     display: none;
   }
-
   .students-pending-table tbody tr {
     display: block;
     margin-bottom: 1rem;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #D5CBA0;
     border-radius: 8px;
   }
-
   .students-pending-table td {
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #f0f0f0;
   }
-
   .students-pending-table td:last-child {
     border-bottom: none;
   }
-
   .students-pending-table td::before {
     content: attr(data-label);
-    font-weight: 600;
+    font-weight: 700;
     color: #7A1117;
+  }
+}
+
+@media (max-width: 480px) {
+  .students-pending-container {
+    padding: 0.7rem 0.3rem;
+    border-radius: 6px;
+  }
+  .students-pending-header {
+    padding: 0.7rem;
+    border-radius: 6px 6px 0 0;
+  }
+  .students-pending-filters {
+    padding: 0.7rem;
+    border-radius: 6px;
+  }
+  .students-pending-table-container {
+    border-radius: 6px;
   }
 }

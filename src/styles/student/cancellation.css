@@ -3,61 +3,75 @@
    ======================================== */
 
 .cancellation-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #f9f6e7 0%, #f7f7fa 60%, #e8ebf0 100%);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px 0 rgba(122, 17, 23, 0.10);
 }
 
 .cancellation-header {
   text-align: center;
   margin-bottom: 3rem;
+  background: linear-gradient(90deg, #7A1117 0%, #a01820 100%);
+  color: #fff;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
 }
 
 .cancellation-header h1 {
-  font-size: 2rem;
-  color: #7A1117;
+  font-size: 2.3rem;
+  color: #fff;
   margin: 0;
   font-family: "Georgia", "Times New Roman", serif;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
 .cancellation-header p {
-  color: #666;
+  color: #f7f7fa;
   margin-top: 0.5rem;
+  font-size: 1.08rem;
 }
 
-/* ========================================
-   MESSAGES
-   ======================================== */
-
 .cancellation-message {
-  padding: 1rem 1.5rem;
-  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  border-radius: 12px;
   margin-bottom: 2rem;
-  font-weight: 500;
+  font-weight: 700;
   animation: slideDown 0.3s ease-out;
+  font-size: 1.08rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
 
 .cancellation-message.success {
-  background: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 6px solid #D5CBA0;
+  box-shadow: 0 4px 16px #7A111733;
 }
 
 .cancellation-message.error {
   background: #fde1e1;
   color: #7A1117;
-  border-left: 4px solid #7A1117;
+  border-left: 6px solid #7A1117;
+  box-shadow: 0 4px 16px #7A111733;
 }
-
-/* ========================================
-   STEPS
-   ======================================== */
 
 .cancellation-steps {
   display: flex;
   justify-content: space-between;
   margin-bottom: 3rem;
   position: relative;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px #D5CBA033;
+  padding: 2rem 1rem;
 }
 
 .cancellation-steps::before {
@@ -67,7 +81,7 @@
   left: 10%;
   right: 10%;
   height: 2px;
-  background: #e0e0e0;
+  background: #D5CBA0;
   z-index: 0;
 }
 
@@ -82,57 +96,59 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: white;
-  border: 3px solid #e0e0e0;
+  background: #fff;
+  border: 3px solid #D5CBA0;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #999;
+  font-weight: 900;
+  color: #7A1117;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px #D5CBA033;
 }
 
 .step.active .step-number {
   border-color: #7A1117;
   background: #7A1117;
-  color: white;
+  color: #fff;
 }
 
 .step.completed .step-number {
-  border-color: #28a745;
-  background: #28a745;
-  color: white;
+  border-color: #D5CBA0;
+  background: #D5CBA0;
+  color: #7A1117;
 }
 
 .step-content h3 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   margin: 0 0 0.5rem;
-  color: #333;
+  color: #7A1117;
+  font-weight: 900;
+  letter-spacing: 0.3px;
 }
 
 .step-content p {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #666;
   margin: 0;
 }
 
-/* ========================================
-   FORM
-   ======================================== */
-
 .cancellation-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px #7A111733;
+  border-top: 4px solid #D5CBA0;
 }
 
 .cancellation-form h2 {
   color: #7A1117;
   margin-top: 0;
   margin-bottom: 1.5rem;
+  font-weight: 900;
+  font-size: 1.4rem;
 }
 
 .form-group {
@@ -141,9 +157,10 @@
 
 .form-group label {
   display: block;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #7A1117;
   margin-bottom: 0.5rem;
+  letter-spacing: 0.2px;
 }
 
 .file-input {
@@ -153,6 +170,7 @@
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: #f8f6ef;
 }
 
 .file-input:hover {
@@ -163,15 +181,12 @@
 .file-info {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: #d4edda;
-  color: #155724;
+  background: #D5CBA0;
+  color: #7A1117;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 700;
 }
-
-/* ========================================
-   BUTTONS
-   ======================================== */
 
 .btn-primary,
 .btn-secondary,
@@ -180,15 +195,16 @@
   border: none;
   border-radius: 10px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  color: #fff;
   box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+  border: 2px solid #D5CBA0;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -202,24 +218,25 @@
 }
 
 .btn-secondary {
-  background: white;
+  background: #fff;
   color: #7A1117;
   border: 2px solid #7A1117;
 }
 
 .btn-secondary:hover {
   background: #7A1117;
-  color: white;
+  color: #fff;
 }
 
 .btn-danger {
-  background: #dc3545;
-  color: white;
+  background: #a01820;
+  color: #fff;
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  border: 2px solid #D5CBA0;
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #c82333;
+  background: #7A1117;
   transform: translateY(-2px);
 }
 
@@ -228,29 +245,29 @@
   cursor: not-allowed;
 }
 
-/* ========================================
-   CONFIRM BOX
-   ======================================== */
-
 .cancellation-confirm {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px #7A111733;
+  border-top: 4px solid #D5CBA0;
 }
 
 .cancellation-confirm h2 {
   color: #7A1117;
   margin-top: 0;
   margin-bottom: 1.5rem;
+  font-weight: 900;
+  font-size: 1.4rem;
 }
 
 .confirm-box {
   background: #fff3cd;
-  border-left: 4px solid #ffc107;
+  border-left: 6px solid #D5CBA0;
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 2rem;
+  box-shadow: 0 2px 8px #D5CBA033;
 }
 
 .confirm-box p {
@@ -264,26 +281,26 @@
   justify-content: center;
 }
 
-/* ========================================
-   SUCCESS STATE
-   ======================================== */
-
 .cancellation-success {
-  background: white;
+  background: #fff;
   padding: 3rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px #7A111733;
   text-align: center;
+  border-top: 4px solid #D5CBA0;
 }
 
 .success-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
+  color: #7A1117;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
 .cancellation-success h2 {
-  color: #28a745;
+  color: #7A1117;
   margin: 0 0 1rem;
+  font-weight: 900;
 }
 
 .cancellation-success p {
@@ -291,10 +308,6 @@
   margin: 0.5rem 0;
   font-size: 1.1rem;
 }
-
-/* ========================================
-   ANIMATIONS
-   ======================================== */
 
 @keyframes slideDown {
   from {
@@ -307,31 +320,57 @@
   }
 }
 
-/* ========================================
-   RESPONSIVE
-   ======================================== */
-
 @media (max-width: 768px) {
   .cancellation-container {
     padding: 1.5rem;
+    border-radius: 12px;
   }
-
+  .cancellation-header {
+    padding: 1.2rem 1rem;
+    border-radius: 12px 12px 0 0;
+  }
   .cancellation-steps {
     flex-direction: column;
     gap: 2rem;
+    padding: 1rem 0.5rem;
+    border-radius: 12px;
   }
-
   .cancellation-steps::before {
     display: none;
   }
-
   .button-group {
     flex-direction: column;
   }
-
   .btn-primary,
   .btn-secondary,
   .btn-danger {
     width: 100%;
+  }
+  .cancellation-form,
+  .cancellation-confirm,
+  .cancellation-success {
+    padding: 1.2rem;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cancellation-container {
+    padding: 0.7rem 0.3rem;
+    border-radius: 8px;
+  }
+  .cancellation-header {
+    padding: 0.7rem;
+    border-radius: 8px 8px 0 0;
+  }
+  .cancellation-steps {
+    padding: 0.5rem 0.2rem;
+    border-radius: 8px;
+  }
+  .cancellation-form,
+  .cancellation-confirm,
+  .cancellation-success {
+    padding: 0.7rem;
+    border-radius: 8px;
   }
 }

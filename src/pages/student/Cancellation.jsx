@@ -33,7 +33,7 @@ export default function StudentCancellation() {
           setMessageType("error");
         }
       } catch (err) {
-        console.error("❌ Error al obtener modalidad:", err);
+        console.error(" Error al obtener modalidad:", err);
         setMessage(err.response?.data?.message || "Error al obtener información de la modalidad");
         setMessageType("error");
       } finally {
@@ -97,7 +97,7 @@ export default function StudentCancellation() {
       setMessageType("success");
       setStep(2);
     } catch (err) {
-      console.error("❌ Error al subir documento:", err);
+      console.error(" Error al subir documento:", err);
       const errorMsg = err.response?.data?.message || err.response?.data || err.message || "Error al subir el documento";
       setMessage(errorMsg);
       setMessageType("error");
@@ -125,7 +125,7 @@ export default function StudentCancellation() {
       setMessageType("success");
       setStep(3);
     } catch (err) {
-      console.error("❌ Error al solicitar cancelación:", err);
+      console.error(" Error al solicitar cancelación:", err);
       const errorMsg = err.response?.data?.message || err.response?.data || err.message || "Error al solicitar cancelación";
       setMessage(errorMsg);
       setMessageType("error");
@@ -149,7 +149,7 @@ export default function StudentCancellation() {
     <div className="cancellation-container">
       <div className="cancellation-header">
         <h1>Cancelar Modalidad de Grado</h1>
-        <p>Sigue estos pasos para solicitar la cancelación de tu modalidad</p>
+        <p>Sigue estos pasos para solicitar la cancelación de tu modalidad. Recuerda que este proceso puede estar sujeto a validación académica y a los plazos definidos en el reglamento institucional.</p>
       </div>
 
       {message && (
@@ -177,7 +177,7 @@ export default function StudentCancellation() {
           <div className="step-number">1</div>
           <div className="step-content">
             <h3>Subir Documento de Justificación</h3>
-            <p>Adjunta un documento PDF explicando las razones de la cancelación</p>
+            <p>Adjunta un documento en formato PDF en el que expongas de manera clara y formal las razones que sustentan la solicitud de cancelación.</p>
           </div>
         </div>
 
@@ -185,7 +185,7 @@ export default function StudentCancellation() {
           <div className="step-number">2</div>
           <div className="step-content">
             <h3>Confirmar Solicitud</h3>
-            <p>Envía formalmente tu solicitud de cancelación al director de proyecto</p>
+            <p>Envía formalmente tu solicitud de cancelación al director de proyecto para su revisión y validación.</p>
           </div>
         </div>
 
@@ -193,7 +193,7 @@ export default function StudentCancellation() {
           <div className="step-number">3</div>
           <div className="step-content">
             <h3>Esperar Aprobación</h3>
-            <p>Tu director y el comité de currículo revisarán tu solicitud</p>
+            <p>Tu director y el comité de currículo revisarán tu solicitud conforme a los lineamientos institucionales vigentes. Durante este proceso, el estado de tu trámite podrá ser consultado en la plataforma hasta que se emita una decisión formal.</p>
           </div>
         </div>
       </div>
@@ -217,7 +217,7 @@ export default function StudentCancellation() {
               />
               {file && (
                 <div className="file-info">
-                  ✅ Archivo seleccionado: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(2)} KB)
+                   Archivo seleccionado: <strong>{file.name}</strong> ({(file.size / 1024).toFixed(2)} KB)
                 </div>
               )}
               <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
@@ -230,7 +230,7 @@ export default function StudentCancellation() {
               className="btn-primary"
               disabled={loading || !file || !studentModalityId}
             >
-              {loading ? "⏳ Subiendo..." : "📤 Subir Documento"}
+              {loading ? " Subiendo..." : " Subir Documento"}
             </button>
           </form>
         </div>
@@ -264,7 +264,7 @@ export default function StudentCancellation() {
               className="btn-danger"
               disabled={loading || !studentModalityId}
             >
-              {loading ? "⏳ Enviando..." : "✅ Confirmar Solicitud"}
+              {loading ? " Enviando..." : " Confirmar Solicitud"}
             </button>
           </div>
         </div>
