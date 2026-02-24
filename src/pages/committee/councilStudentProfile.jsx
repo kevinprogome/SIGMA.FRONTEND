@@ -657,19 +657,45 @@ export default function CommitteeStudentProfile() {
 
       {/* Modal: Cerrar Modalidad */}
       {showCloseModalityModal && (
-        <div className="modal-overlay" onClick={() => !submitting && setShowCloseModalityModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>🔒 Cerrar Modalidad</h2>
-              <button onClick={() => setShowCloseModalityModal(false)} className="modal-close" disabled={submitting}>✕</button>
+        <div className="modal-overlay" style={{ background: 'rgba(122,17,23,0.12)' }} onClick={() => !submitting && setShowCloseModalityModal(false)}>
+          <div
+            className="modal"
+            style={{
+              background: 'linear-gradient(135deg, #fff 0%, #D5CBA0 100%)',
+              border: '2px solid #7A1117',
+              borderRadius: '18px',
+              boxShadow: '0 8px 32px rgba(122,17,23,0.12)',
+              maxWidth: '420px',
+              margin: 'auto',
+              padding: '2rem 1.5rem',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #D5CBA0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h2 style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.25rem', margin: 0 }}>Cerrar Modalidad</h2>
+              <button onClick={() => setShowCloseModalityModal(false)} className="modal-close" disabled={submitting} style={{ color: '#7A1117', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
             </div>
             <form onSubmit={handleCloseModality} className="modal-form">
-              <div className="form-group">
-                <label>Estudiante</label>
-                <input type="text" value={profile.studentName} className="input" disabled />
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label style={{ color: '#7A1117', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Estudiante</label>
+                <input
+                  type="text"
+                  value={profile.studentName}
+                  className="input"
+                  disabled
+                  style={{
+                    border: '1.5px solid #D5CBA0',
+                    borderRadius: '8px',
+                    padding: '0.5rem',
+                    fontSize: '1rem',
+                    color: '#7A1117',
+                    background: '#f9f6ee',
+                    fontWeight: 500,
+                  }}
+                />
               </div>
-              <div className="form-group">
-                <label>Motivo del Cierre *</label>
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label style={{ color: '#7A1117', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Motivo del Cierre *</label>
                 <textarea
                   value={closeReason}
                   onChange={(e) => setCloseReason(e.target.value)}
@@ -677,22 +703,61 @@ export default function CommitteeStudentProfile() {
                   placeholder="Explica por qué se cierra esta modalidad..."
                   required
                   rows="5"
+                  style={{
+                    border: '1.5px solid #D5CBA0',
+                    borderRadius: '8px',
+                    padding: '0.5rem',
+                    fontSize: '1rem',
+                    color: '#7A1117',
+                    background: '#f9f6ee',
+                    fontWeight: 500,
+                  }}
                 />
-                <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
+                <small style={{ color: '#7A1117', marginTop: '0.5rem', display: 'block', fontSize: '0.95rem' }}>
                   El estudiante será notificado por correo electrónico
                 </small>
               </div>
-              <div style={{ background: "#fef3c7", border: "1px solid #f59e0b", padding: "1rem", borderRadius: "6px", marginTop: "1rem" }}>
-                <p style={{ margin: 0, color: "#92400e", fontSize: "0.875rem" }}>
-                  <strong>⚠️ Advertencia:</strong> Esta acción cerrará permanentemente la modalidad del estudiante.
+              <div style={{ background: '#f9f6ee', border: '1px solid #D5CBA0', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
+                <p style={{ margin: 0, color: '#7A1117', fontSize: '0.98rem' }}>
+                  <strong>Advertencia:</strong> Esta acción cerrará permanentemente la modalidad del estudiante.
                 </p>
               </div>
-              <div className="modal-actions">
-                <button type="button" onClick={() => setShowCloseModalityModal(false)} className="btn-cancel" disabled={submitting}>
+              <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCloseModalityModal(false)}
+                  className="btn-cancel"
+                  disabled={submitting}
+                  style={{
+                    background: '#fff',
+                    color: '#7A1117',
+                    border: '1.5px solid #D5CBA0',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    padding: '0.5rem 1.25rem',
+                    cursor: 'pointer',
+                  }}
+                >
                   Cancelar
                 </button>
-                <button type="submit" className="btn-confirm-reject" disabled={submitting} style={{ background: "#dc2626" }}>
-                  {submitting ? "Cerrando..." : "Cerrar Modalidad"}
+                <button
+                  type="submit"
+                  className="btn-confirm-reject"
+                  disabled={submitting}
+                  style={{
+                    background: 'linear-gradient(135deg, #dc2626 0%, #D5CBA0 100%)',
+                    color: '#fff',
+                    border: '1.5px solid #7A1117',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    padding: '0.5rem 1.25rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(122,17,23,0.08)'
+                  }}
+                >
+                  {submitting ? 'Cerrando...' : 'Cerrar Modalidad'}
                 </button>
               </div>
             </form>

@@ -131,8 +131,9 @@ export default function StudentProfileProgramHead() {
     setSubmitting(true);
     try {
       await approveProgramhead(studentModalityId);
-      setSuccessMessage("✅ Estudiante enviado al Comité de Currículo de Programa exitosamente");
+      setSuccessMessage("Estudiante enviado al Comité de Currículo de Programa exitosamente");
       window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => setSuccessMessage(""), 5000);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Error al enviar al Comité");
@@ -232,16 +233,7 @@ export default function StudentProfileProgramHead() {
           <div style={{ marginTop: "0.75rem" }}>
             <button
               onClick={() => navigate("/jefeprograma")}
-              style={{
-                background: "#16a34a",
-                color: "white",
-                border: "none",
-                padding: "0.5rem 1.25rem",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "600",
-                fontSize: "0.9rem",
-              }}
+              className="back-btn"
             >
               ← Volver al listado
             </button>

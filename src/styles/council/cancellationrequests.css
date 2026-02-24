@@ -9,25 +9,38 @@
 }
 
 .cancellation-requests-header {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 6px 18px rgba(122, 17, 23, 0.18);
+  border: 2px solid #D5CBA0;
+  position: relative;
+  overflow: hidden;
+}
 }
 
 .cancellation-requests-header h1 {
-  font-family: "Georgia", "Times New Roman", serif;
-  font-size: 2rem;
-  margin: 0;
-  font-weight: 600;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 2.3rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(122,17,23,0.12);
+}
 }
 
 .cancellation-requests-header p {
-  font-size: 1rem;
+  font-size: 1.15rem;
   margin-top: 0.5rem;
-  opacity: 0.95;
+  opacity: 0.98;
+  color: #fff;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 6px rgba(122,17,23,0.10);
 }
 
 /* ========================================
