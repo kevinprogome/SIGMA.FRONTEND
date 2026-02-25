@@ -28,18 +28,12 @@ export default function DirectorLayout() {
           <div className="admin-nav-section">
             <h3 className="admin-nav-title">Estudiantes</h3>
             <NavLink to="/project-director" end className="admin-nav-link">
-              <span className="admin-nav-icon">📊</span>
+              <span className="admin-nav-icon"></span>
               Dashboard
             </NavLink>
           </div>
 
-          <div className="admin-nav-section">
-            <h3 className="admin-nav-title">Sistema</h3>
-            <NavLink to="/project-director/notifications" className="admin-nav-link">
-              <span className="admin-nav-icon">🔔</span>
-              Notificaciones
-            </NavLink>
-          </div>
+          
         </nav>
 
         <button onClick={handleLogout} className="admin-logout-btn">

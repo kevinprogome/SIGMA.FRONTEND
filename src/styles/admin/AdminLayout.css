@@ -1,12 +1,12 @@
 /* ========================================
-   ADMIN LAYOUT - SIGMA ADMIN PANEL
+   ADMIN LAYOUT - SIGMA DIRECTOR PANEL
    ======================================== */
 
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ebf0 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  background: linear-gradient(135deg, #f9f6ee 0%, #fff 100%);
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
 
 /* ========================================
@@ -15,8 +15,8 @@
 
 .admin-sidebar {
   width: 280px;
-  background: linear-gradient(180deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  background: #5d0d12; 
+  color: #fff;
   padding: 2rem 0;
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@
 
 .admin-sidebar-header {
   padding: 0 1.5rem 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   margin-bottom: 2rem;
 }
 
@@ -46,6 +46,7 @@
   font-size: 0.85rem;
   opacity: 0.85;
   font-weight: 400;
+  color: #D5CBA0; /* dorado secundario institucional */
 }
 
 /* ========================================
@@ -65,7 +66,7 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(213,203,160,0.8); /* dorado institucional más suave */
   margin: 0 0 1rem 0.5rem;
   font-weight: 600;
 }
@@ -74,9 +75,9 @@
   display: flex;
   align-items: center;
   padding: 0.85rem 1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #fff;
   text-decoration: none;
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 0.5rem;
   transition: all 0.3s ease;
   font-weight: 500;
@@ -84,14 +85,14 @@
 }
 
 .admin-nav-link:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(213,203,160,0.2);
   transform: translateX(5px);
-  color: white;
+  color: #fff;
 }
 
 .admin-nav-link.active {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -106,23 +107,24 @@
    ======================================== */
 
 .admin-logout-btn {
-  margin: 1.5rem;
+  margin: 1.5rem 1.5rem 4rem;
   padding: 0.85rem 1.25rem;
-  background: rgba(255, 255, 255, 0.1);
-  margin: 1.5rem 1.5rem 4rem; /* 👈 más espacio abajo */
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #D5CBA0 0%, #7A1117 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .admin-logout-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 /* ========================================
@@ -133,6 +135,9 @@
   flex: 1;
   padding: 2.5rem;
   overflow-y: auto;
+  background: #fff; /* más limpio y neutro para contenido */
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(122,17,23,0.05);
 }
 
 /* ========================================

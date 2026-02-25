@@ -155,8 +155,8 @@ export default function CancellationRequests() {
       {message && (
         <div className={`cancellation-message ${message.includes("Error") ? "error" : "success"}`} style={{
           background: message.includes("Error") ? '#fde1e1' : 'linear-gradient(135deg, #D5CBA0 0%, #fff 100%)',
-          color: message.includes("Error") ? '#7A1117' : '#7A1117',
-          borderLeft: message.includes("Error") ? '4px solid #7A1117' : '4px solid #D5CBA0',
+          color: message.includes("Error") ? '#5d0d12' : '#5d0d12',
+          borderLeft: message.includes("Error") ? '4px solid #5d0d12' : '4px solid #D5CBA0',
           fontFamily: 'Georgia, Times New Roman, serif',
           fontSize: '1rem',
         }}>
@@ -169,7 +169,7 @@ export default function CancellationRequests() {
               border: "none", 
               cursor: "pointer",
               fontSize: "1.2rem",
-              color: '#7A1117',
+              color: '#5d0d12',
               fontWeight: 700
             }}
           >
@@ -180,30 +180,30 @@ export default function CancellationRequests() {
 
       {requests.length === 0 ? (
         <div className="empty-state" style={{ background: '#fff', border: '2px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 12px rgba(122,17,23,0.08)' }}>
-          <div className="empty-icon" style={{ color: '#7A1117', fontSize: '3.5rem', marginBottom: '1rem' }}>Sin solicitudes</div>
-          <p style={{ color: '#7A1117', fontWeight: 500 }}>No hay solicitudes de cancelación pendientes</p>
+          <div className="empty-icon" style={{ color: '#5d0d12', fontSize: '3.5rem', marginBottom: '1rem' }}>Sin solicitudes</div>
+          <p style={{ color: '#5d0d12', fontWeight: 500 }}>No hay solicitudes de cancelación pendientes</p>
         </div>
       ) : (
         <div className="requests-table-container" style={{ background: 'linear-gradient(135deg, #fff 0%, #D5CBA0 100%)', border: '2px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 12px rgba(122,17,23,0.08)' }}>
           <table className="requests-table">
             <thead>
-              <tr style={{ background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)', color: '#fff' }}>
-                <th>Estudiante</th>
-                <th>Modalidad</th>
-                <th>Fecha de Solicitud</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
+  <tr style={{ background: '#5d0d12', color: '#fff' }}>
+    <th>Estudiante</th>
+    <th>Modalidad</th>
+    <th>Fecha de Solicitud</th>
+    <th>Acciones</th>
+  </tr>
+</thead>
             <tbody>
               {requests.map((request) => (
                 <tr key={request.studentModalityId} style={{ borderBottom: '1px solid #D5CBA0' }}>
                   <td>
-                    <strong style={{ color: '#7A1117', fontWeight: 600 }}>{request.studentName}</strong>
+                    <strong style={{ color: '#5d0d12', fontWeight: 600 }}>{request.studentName}</strong>
                     <br />
                     <small style={{ color: '#D5CBA0' }}>{request.studentEmail}</small>
                   </td>
-                  <td style={{ color: '#7A1117', fontWeight: 500 }}>{request.modalityName}</td>
-                  <td style={{ color: '#7A1117', fontWeight: 500 }}>{new Date(request.requestDate).toLocaleDateString("es-CO")}</td>
+                  <td style={{ color: '#5d0d12', fontWeight: 500 }}>{request.modalityName}</td>
+                  <td style={{ color: '#5d0d12', fontWeight: 500 }}>{new Date(request.requestDate).toLocaleDateString("es-CO")}</td>
                   <td>
                     <div className="action-buttons">
                       <button
@@ -211,7 +211,7 @@ export default function CancellationRequests() {
                         disabled={loadingDoc === request.studentModalityId}
                         className={`btn-view-doc ${loadingDoc === request.studentModalityId ? "loading" : ""}`}
                         title="Ver documento"
-                        style={{ background: '#fff', color: '#7A1117', border: '1.5px solid #D5CBA0', fontWeight: 600 }}
+                        style={{ background: '#fff', color: '#5d0d12', border: '1.5px solid #D5CBA0', fontWeight: 600 }}
                       >
                         {loadingDoc === request.studentModalityId ? "Cargando..." : "Documento"}
                       </button>
@@ -219,7 +219,7 @@ export default function CancellationRequests() {
                         onClick={() => handleViewProfile(request.studentModalityId)}
                         className="btn-view-profile"
                         title="Ver perfil"
-                        style={{ background: '#fff', color: '#7A1117', border: '1.5px solid #D5CBA0', fontWeight: 600 }}
+                        style={{ background: '#fff', color: '#5d0d12', border: '1.5px solid #D5CBA0', fontWeight: 600 }}
                       >
                         Perfil
                       </button>
@@ -227,7 +227,7 @@ export default function CancellationRequests() {
                         onClick={() => handleApprove(request.studentModalityId)}
                         className="btn-approve"
                         title="Aprobar"
-                        style={{ background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)', color: '#fff', border: '1.5px solid #7A1117', fontWeight: 600 }}
+                        style={{ background: 'linear-gradient(135deg, #5d0d12 0%, #D5CBA0 100%)', color: '#fff', border: '1.5px solid #5d0d12', fontWeight: 600 }}
                       >
                         {loadingDoc === request.studentModalityId ? "Cargando..." : "Aprobar"}
                       </button>

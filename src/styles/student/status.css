@@ -69,7 +69,7 @@
    ======================================== */
 
 .status-header {
-  background: linear-gradient(90deg, #7A1117 0%, #a01820 100%);
+  background: #5d0d12;
   color: #fff;
   padding: 3rem 2.5rem 2.5rem 2.5rem;
   border-radius: 24px 24px 0 0;
@@ -119,7 +119,7 @@
 
 .status-label {
   font-weight: 900;
-  color: #7A1117;
+  color: #5d0d12;
   font-size: 1.08rem;
   text-transform: uppercase;
   letter-spacing: 0.7px;
@@ -139,7 +139,7 @@
   display: inline-block;
   padding: 0.6rem 1.4rem;
   background: linear-gradient(90deg, #D5CBA0 0%, #f9f6e7 100%);
-  color: #7A1117;
+  color: #5d0d12;
   border-radius: 22px;
   font-size: 1.13rem;
   font-weight: 900;
@@ -171,7 +171,7 @@
 .status-history-title {
   font-family: "Georgia", "Times New Roman", serif;
   font-size: 1.7rem;
-  color: #7A1117;
+  color: #5d0d12;
   margin-bottom: 1.7rem;
   padding-bottom: 1.2rem;
   border-bottom: 4px solid #D5CBA0;
@@ -220,7 +220,7 @@
   border-radius: 50%;
   background: #D5CBA0;
   border: 4px solid #fff;
-  box-shadow: 0 0 0 2px #7A1117;
+  box-shadow: 0 0 0 2px #5d0d12;
   z-index: 1;
 }
 
@@ -235,13 +235,13 @@
 
 .status-history-card:hover {
   background: #fff;
-  box-shadow: 0 8px 24px #7A111733;
+  box-shadow: 0 8px 24px #5d0d1233;
   transform: translateX(8px);
 }
 
 .status-history-status {
   font-weight: 900;
-  color: #7A1117;
+  color: #5d0d12;
   font-size: 1.18rem;
   margin-bottom: 0.7rem;
   letter-spacing: 0.3px;
@@ -273,18 +273,18 @@
 
 .status-message.success {
   background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
-  color: #7A1117;
+  color: #5d0d12;
   border-left: 6px solid #D5CBA0;
-  box-shadow: 0 4px 16px #7A111733;
+  box-shadow: 0 4px 16px #5d0d1233;
   animation: fadeOut 5s linear forwards;
   font-size: 1.13rem;
 }
 
 .status-message.error {
   background: #fde1e1;
-  color: #7A1117;
-  border-left: 6px solid #7A1117;
-  box-shadow: 0 4px 16px #7A111733;
+  color: #5d0d12;
+  border-left: 6px solid #5d0d12;
+  box-shadow: 0 4px 16px #5d0d1233;
   font-size: 1.13rem;
 }
 
@@ -302,7 +302,7 @@
 
 .status-section-title {
   font-size: 1.6rem;
-  color: #7A1117;
+  color: #5d0d12;
   margin: 0 0 1.5rem;
   font-family: "Georgia", "Times New Roman", serif;
   font-weight: 900;
@@ -310,14 +310,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  text-shadow: 0 2px 8px #7A111733;
+  text-shadow: 0 2px 8px #5d0d1233;
 }
 
 .status-info-card {
   background: #fff;
   border-radius: 14px;
   padding: 2rem;
-  box-shadow: 0 4px 16px #7A111733;
+  box-shadow: 0 4px 16px #5d0d1233;
   margin-bottom: 2rem;
   border-top: 4px solid #D5CBA0;
 }
@@ -355,8 +355,8 @@
   border-radius: 16px;
   padding: 2rem 1.5rem;
   text-align: center;
-  box-shadow: 0 4px 16px #D5CBA033;
-  border-left: 6px solid #D5CBA0;
+  box-shadow: 0 4px 16px #5d0d1233;
+  border-left: 6px solid #5d0d12;
   transition: box-shadow 0.2s;
 }
 

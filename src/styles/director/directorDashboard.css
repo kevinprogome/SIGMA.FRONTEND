@@ -1,3 +1,50 @@
+/* Select múltiple de filtro de estado */
+.director-status-select[multiple] {
+  min-height: 2.8em;
+  height: auto;
+  background: #fff;
+  border: 2px solid #D5CBA0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #5d0d12;
+  font-weight: 600;
+  padding: 0.85rem 1.25rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.director-status-select[multiple]:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 4px rgba(213, 203, 160, 0.13);
+}
+.director-status-select-hint {
+  font-size: 0.85em;
+  color: #B7A873;
+  margin-top: 0.2em;
+  margin-bottom: 0.5em;
+}
+/* Select de filtro de estado */
+.director-status-select {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border: 2px solid #D5CBA0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  background: #fff;
+  color: #5d0d12;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.director-status-select:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 4px rgba(213, 203, 160, 0.13);
+}
 /* ========================================
    DIRECTOR DASHBOARD - Universidad Surcolombiana
    Colores: #7A1117 (Granate), Oro/Amarillo
@@ -8,7 +55,7 @@
   max-width: 1600px;
   margin: 0 auto;
   padding: 2.5rem;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  background: #f8f6ef;
   min-height: 100vh;
   font-family: 'Arial', 'Helvetica', sans-serif;
 }
@@ -24,14 +71,16 @@
 
 /* Header */
 .director-header {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
-  padding: 2.5rem 3rem;
-  border-radius: 16px;
+  background: #5d0d12;
+  color: #fff;
+  padding: 2.5rem 3rem 2.2rem 3rem;
+  border-radius: 18px 18px 0 0;
   margin-bottom: 2.5rem;
   box-shadow: 0 8px 24px rgba(122, 17, 23, 0.4);
   position: relative;
   overflow: hidden;
+  border-bottom: 6px solid #D5CBA0;
+  border-top: 4px solid #B7A873;
 }
 
 .director-header::before {
@@ -39,31 +88,40 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 300px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.05);
+  width: 220px;
+  height: 220px;
+  background: rgba(213, 203, 160, 0.13);
   border-radius: 50%;
-  transform: translate(50%, -50%);
+  transform: translate(40%, -40%);
+  box-shadow: 0 0 0 8px rgba(213,203,160,0.08);
 }
 
 .director-header-content {
   position: relative;
   z-index: 1;
+  border-left: 7px solid #D5CBA0;
+  padding-left: 2.2rem;
+  background: rgba(255,255,255,0.01);
+  border-radius: 12px 0 0 12px;
 }
 
 .director-title {
   font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 2.2rem;
-  margin: 0;
+  font-size: 2.3rem;
+  margin: 0 0 0.2rem 0;
   font-weight: 700;
   letter-spacing: -0.5px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(93,13,18,0.10), 0 1px 0 #B7A873;
 }
 
 .director-subtitle {
-  font-size: 1rem;
+  font-size: 1.08rem;
   margin-top: 0.5rem;
-  opacity: 0.95;
+  opacity: 0.98;
   font-weight: 400;
+  color: #D5CBA0;
+  text-shadow: 0 1px 4px rgba(93,13,18,0.10);
 }
 
 /* Messages */
@@ -81,15 +139,15 @@
 }
 
 .director-message.error {
-  background: linear-gradient(135deg, #fde1e1 0%, #fcc8c8 100%);
-  color: #7A1117;
-  border-left: 5px solid #7A1117;
+  background: #fde1e1;
+  color: #5d0d12;
+  border-left: 5px solid #5d0d12;
 }
 
 .director-message.success {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  background: #d4edda;
   color: #155724;
-  border-left: 5px solid #28a745;
+  border-left: 5px solid #B7A873;
 }
 
 .director-message button {
@@ -108,16 +166,45 @@
 
 /* Filter Panel */
 .director-filter-panel {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
+  background: #fff;
+  border-radius: 18px;
+  padding: 2.2rem 2.2rem 1.7rem 2.2rem;
   margin-bottom: 2.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 8px 32px rgba(93, 13, 18, 0.08);
+  border: 2.5px solid #D5CBA0;
+  border-top: 5px solid #B7A873;
+  border-bottom: 5px solid #B7A873;
+  position: relative;
+  overflow: hidden;
+}
+.director-filter-panel::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: -60px;
+  width: 120px;
+  height: 120px;
+  background: rgba(213,203,160,0.10);
+  border-radius: 50%;
+  z-index: 0;
+}
+.director-filter-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 90px;
+  height: 90px;
+  background: rgba(93,13,18,0.07);
+  border-radius: 50%;
+  z-index: 0;
+}
 }
 
 .director-filter-group {
   margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .director-filter-group:last-child {
@@ -126,34 +213,42 @@
 
 .director-filter-label {
   display: block;
-  font-size: 0.9rem;
+  font-size: 1.01rem;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #5d0d12;
+  margin-bottom: 0.85rem;
+  text-transform: none;
+  letter-spacing: 0.7px;
+  padding-left: 0.1rem;
 }
 
 .director-search-box {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
+  background: #f8f6ef;
+  border-radius: 10px;
+  padding: 0.5rem 0.7rem;
+  box-shadow: 0 2px 8px rgba(213,203,160,0.07);
 }
 
 .director-input {
   flex: 1;
   padding: 0.85rem 1.25rem;
-  border: 2px solid #ddd;
+  border: 2px solid #D5CBA0;
   border-radius: 10px;
-  font-size: 0.95rem;
+  font-size: 0.97rem;
   font-family: 'Arial', 'Helvetica', sans-serif;
   transition: all 0.3s ease;
+  background: #fff;
+  color: #5d0d12;
+  font-weight: 500;
 }
 
 .director-input:focus {
   outline: none;
   border-color: #7A1117;
-  box-shadow: 0 0 0 4px rgba(122, 17, 23, 0.1);
+  box-shadow: 0 0 0 4px rgba(213, 203, 160, 0.13);
 }
 
 .director-checkbox-group {
@@ -185,8 +280,8 @@
 }
 
 .director-checkbox-label.active {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-color: #7A1117;
+  background: #D5CBA0;
+  border-color: #5d0d12;
   font-weight: 600;
 }
 
@@ -213,8 +308,8 @@
 
 .director-btn-primary {
   padding: 0.85rem 1.75rem;
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  background: #5d0d12;
+  color: #fff;
   font-size: 0.95rem;
   box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
 }
@@ -226,8 +321,8 @@
 
 .director-btn-secondary {
   padding: 0.85rem 1.75rem;
-  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-  color: white;
+  background: #B7A873;
+  color: #5d0d12;
   font-size: 0.95rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -239,8 +334,8 @@
 
 .director-btn-action {
   padding: 0.55rem 0.8rem;
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  background: #7A1117;
+  color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
@@ -295,8 +390,8 @@
 }
 
 .director-table thead {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  background: #5d0d12;
+  color: #fff;
 }
 
 .director-table th {
@@ -315,9 +410,9 @@
 }
 
 .director-table tbody tr:hover {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: #f8f6ef;
   transform: scale(1.005);
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.15);
+  box-shadow: 0 4px 12px rgba(93, 13, 18, 0.10);
 }
 
 .director-table td {
@@ -350,31 +445,31 @@
 }
 
 .director-status-badge.info {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-  color: #1565c0;
-  border: 2px solid #1976d2;
+  background: #D5CBA0;
+  color: #5d0d12;
+  border: 2px solid #5d0d12;
 }
 
 .director-status-badge.warning {
-  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-  color: #e65100;
-  border: 2px solid #ff9800;
+  background: #B7A873;
+  color: #5d0d12;
+  border: 2px solid #B7A873;
 }
 
 .director-status-badge.success {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  background: #d4edda;
   color: #155724;
-  border: 2px solid #28a745;
+  border: 2px solid #B7A873;
 }
 
 .director-status-badge.error {
-  background: linear-gradient(135deg, #fde1e1 0%, #fcc8c8 100%);
-  color: #7A1117;
-  border: 2px solid #7A1117;
+  background: #fde1e1;
+  color: #5d0d12;
+  border: 2px solid #5d0d12;
 }
 
 .director-status-badge.inactive {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  background: #f3f3f3;
   color: #666;
   border: 2px solid #ddd;
 }

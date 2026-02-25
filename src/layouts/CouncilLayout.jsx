@@ -45,7 +45,7 @@ export default function CouncilLayout() {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            <span className="nav-icon">📋</span>
+            <span className="nav-icon"></span>
             Estudiantes Pendientes
           </NavLink>
 
@@ -55,7 +55,7 @@ export default function CouncilLayout() {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            <span className="nav-icon">📅</span>
+            <span className="nav-icon"></span>
             Solicitudes de Sustentación
           </NavLink>      
 
@@ -65,7 +65,7 @@ export default function CouncilLayout() {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            <span className="nav-icon">🚫</span>
+            <span className="nav-icon"></span>
             Solicitudes de Cancelación
           </NavLink>
 
@@ -75,7 +75,7 @@ export default function CouncilLayout() {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            <span className="nav-icon">📊</span>
+            <span className="nav-icon"></span>
             Reportes
           </NavLink>
 
@@ -85,7 +85,7 @@ export default function CouncilLayout() {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            <span className="nav-icon">🔔</span>
+            <span className="nav-icon"></span>
             Notificaciones
           </NavLink>
         </nav>

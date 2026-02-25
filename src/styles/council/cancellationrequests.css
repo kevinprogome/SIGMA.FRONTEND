@@ -9,16 +9,15 @@
 }
 
 .cancellation-requests-header {
-  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  background: #5d0d12;
   color: #fff;
   padding: 2.5rem 3rem;
   border-radius: 16px;
   margin-bottom: 2.5rem;
-  box-shadow: 0 6px 18px rgba(122, 17, 23, 0.18);
-  border: 2px solid #D5CBA0;
+  box-shadow: 0 6px 18px rgba(93, 13, 18, 0.18);
+  border: none;
   position: relative;
   overflow: hidden;
-}
 }
 
 .cancellation-requests-header h1 {
@@ -27,16 +26,15 @@
   margin: 0 0 0.5rem 0;
   font-weight: 700;
   letter-spacing: 1px;
-  color: #fff;
+  color: #fff; /* título blanco */
   text-shadow: 0 2px 8px rgba(122,17,23,0.12);
-}
 }
 
 .cancellation-requests-header p {
   font-size: 1.15rem;
   margin-top: 0.5rem;
   opacity: 0.98;
-  color: #fff;
+  color: #fff; /* subtítulo blanco */
   font-family: 'Georgia', 'Times New Roman', serif;
   font-weight: 500;
   letter-spacing: 0.5px;

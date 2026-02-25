@@ -1,3 +1,95 @@
+/* =========================
+   VARIABLES DE COLOR
+   ========================= */
+:root {
+  --primary-color: #5d0d12;
+  --secondary-color: #D5CBA0;
+}
+/* Utilidades para mover estilos en línea del EMPTY/TABLE */
+.fade-in {
+  animation: fadeIn 0.7s;
+}
+.large-gold {
+  font-size: 4.5rem;
+  color: #D5CBA0;
+}
+.mb-1 {
+  margin-bottom: 1rem;
+}
+.mb-half {
+  margin-bottom: 0.5rem;
+}
+.mb-12 {
+  margin-bottom: 1.2rem;
+}
+.mt-half {
+  margin-top: 0.5rem;
+}
+.large-strong {
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+.gold-strong {
+  color: #5d0d12;
+  font-weight: 600;
+}
+.strong-gold {
+  color: #5d0d12;
+  font-weight: 900;
+}
+.small-gray {
+  color: #666;
+  font-size: 0.98rem;
+}
+.mb-15 {
+  margin-bottom: 1.5rem;
+}
+.reload-btn {
+  background: #5d0d12;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 1.05rem;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  box-shadow: 0 2px 8px #7A111733;
+}
+.profile-btn {
+  background: #5d0d12;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 0.98rem;
+  padding: 0.65rem 1.25rem;
+  box-shadow: 0 2px 8px #7A111733;
+}
+.rounded-shadow {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px #7A111733;
+}
+.thead-gradient {
+  background: #5d0d12;
+  color: #fff;
+}
+.student-row {
+  background: #fff;
+  box-shadow: 0 2px 8px #7A111733;
+  border-radius: 12px;
+  margin: 0.5rem 0;
+  transition: background 0.2s;
+}
+.badge-shadow {
+  font-weight: 900;
+  font-size: 0.98rem;
+  box-shadow: 0 2px 8px #7A111733;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
 /* ========================================
    STUDENTS PENDING - CONTAINER
    ======================================== */
@@ -25,7 +117,7 @@
 .students-pending-header {
   margin-bottom: 2rem;
   padding: 2.5rem 2rem 2rem 2rem;
-  background: linear-gradient(90deg, #7A1117 0%, #a01820 100%);
+  background: #5d0d12;
   color: #fff;
   border-radius: 18px 18px 0 0;
   box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
@@ -78,7 +170,7 @@
   border-radius: 16px;
   padding: 2.5rem 2rem;
   margin-bottom: 2.5rem;
-  box-shadow: 0 6px 24px #7A111733;
+  box-shadow: 0 6px 24px var(--primary-color)33;
   display: flex;
   flex-wrap: wrap;
   gap: 2.5rem;
@@ -94,7 +186,7 @@
 }
 
 .filter-label {
-  color: #7A1117;
+  color: var(--primary-color);
   font-weight: 900;
   font-size: 1.08rem;
   margin-bottom: 0.3rem;
@@ -106,7 +198,7 @@
 .filter-label::before {
   content: '\1F50D'; /* icono lupa */
   font-size: 1.1rem;
-  color: #D5CBA0;
+  color: var(--secondary-color);
   margin-right: 0.2rem;
 }
 .filter-section:nth-child(2) .filter-label::before {
@@ -123,12 +215,12 @@
 .search-input {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 2px solid #D5CBA0;
+  border: 2px solid var(--secondary-color);
   border-radius: 10px;
   font-size: 1.05rem;
   background: #f8f6ef;
   font-weight: 600;
-  color: #7A1117;
+  color: var(--primary-color);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .search-input:focus {
@@ -158,15 +250,15 @@
 .status-dropdown {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid #D5CBA0;
+  border: 2px solid var(--secondary-color);
   border-radius: 10px;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #7A1117;
+  color: var(--primary-color);
   background: #f8f6ef;
   margin-top: 0.5rem;
   min-height: 3rem;
-  box-shadow: 0 2px 8px #7A111733;
+  box-shadow: 0 2px 8px var(--primary-color)33;
   transition: border-color 0.2s;
 }
 .status-dropdown:focus {
@@ -182,7 +274,7 @@
 
 .apply-statuses-button {
   margin-top: 0.5rem;
-  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -194,15 +286,15 @@
   transition: background 0.2s, box-shadow 0.2s;
 }
 .apply-statuses-button:hover {
-  background: #7A1117;
-  color: #D5CBA0;
+  background: var(--primary-color);
+  color: var(--secondary-color);
   box-shadow: 0 4px 12px rgba(122, 17, 23, 0.18);
 }
 
 .clear-filters-button {
   background: #f8f6ef;
-  color: #7A1117;
-  border: 2px solid #7A1117;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
   border-radius: 10px;
   font-weight: 900;
   font-size: 1.05rem;
@@ -212,12 +304,12 @@
   transition: background 0.2s, color 0.2s;
 }
 .clear-filters-button:hover {
-  background: #7A1117;
+  background: var(--primary-color);
   color: #fff;
 }
 
 .filters-tip {
-  color: #7A1117;
+  color: var(--primary-color);
   font-weight: 500;
   margin-top: 0.25rem;
   display: block;
@@ -236,13 +328,13 @@
   box-shadow: 0 2px 8px #7A111733;
 }
 .active-filters strong {
-  color: #7A1117;
+  color: var(--primary-color);
   font-weight: 900;
 }
 .filter-tag {
   background: #fff;
-  color: #7A1117;
-  border: 1.5px solid #D5CBA0;
+  color: var(--primary-color);
+  border: 1.5px solid var(--secondary-color);
   border-radius: 20px;
   font-weight: 900;
   font-size: 1rem;
@@ -250,7 +342,7 @@
   box-shadow: 0 2px 8px #7A111733;
 }
 .results-count {
-  color: #7A1117;
+  color: var(--primary-color);
   font-weight: 900;
   font-size: 1.05rem;
   margin-bottom: 1rem;
@@ -269,12 +361,12 @@
 
 .students-pending-empty-icon {
   font-size: 4rem;
-  color: #7A1117;
+  color: var(--primary-color);
 }
 
 .students-pending-empty-text {
   font-size: 1.25rem;
-  color: #7A1117;
+  color: var(--primary-color);
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
@@ -307,32 +399,56 @@
   color: #fff;
 }
 
-.students-pending-table th {
-  padding: 1.25rem 1.5rem;
-  text-align: left;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.95rem;
+/* ========================================
+   HEADER (ENHANCED)
+   ======================================== */
+.students-pending-header.enhanced-header {
+  margin-bottom: 2rem;
+  padding: 2.7rem 2.2rem 2.2rem 2.2rem;
+  background: linear-gradient(100deg, #7A1117 0%, #a01820 60%, #D5CBA0 100%);
+  color: #fff;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 10px 36px rgba(122, 17, 23, 0.13);
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
 }
-
-.students-pending-table tbody tr {
-  border-bottom: 1px solid #D5CBA0;
-  transition: background 0.2s;
+.students-pending-header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
 }
-
-.students-pending-table tbody tr:hover {
-  background: #f8f6ef;
+.header-icon-circle {
+  background: linear-gradient(135deg, #fff 0%, #D5CBA0 100%);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 18px #7A111733;
+  margin-right: 0.5rem;
 }
-
-.students-pending-table td {
-  padding: 1.25rem 1.5rem;
-  color: #333;
+.enhanced-title {
+  font-size: 2.5rem;
+  color: #fff;
+  margin: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-shadow: 0 3px 12px #7A111755, 0 1px 0 #D5CBA0;
 }
-
+.enhanced-subtitle {
+  color: #fffde7;
+  margin-top: 0.7rem;
+  font-size: 1.13rem;
+  font-weight: 500;
+  text-shadow: 0 1px 0 #7A111733;
+  max-width: 700px;
+}
 /* Estilos específicos de celdas */
 .student-name {
-  color: #7A1117;
+  color: var(--primary-color);
   font-weight: 700;
 }
 
@@ -342,8 +458,9 @@
 }
 
 .modality-name {
-  color: #7A1117;
+  color: var(--primary-color);
   font-weight: 600;
+  font-size: 1rem;
 }
 
 .last-updated {
@@ -362,8 +479,8 @@
 }
 
 .status-badge.approved {
-  background: #D5CBA0;
-  color: #7A1117;
+  background: var(--secondary-color);
+  color: var(--primary-color);
 }
 .status-badge.corrections {
   background: #fde1e1;
@@ -388,7 +505,7 @@
 
 /* Botón ver perfil */
 .view-profile-button {
-  background: #7A1117;
+  background: var(--primary-color);
   color: #fff;
   border-radius: 8px;
   font-weight: 700;

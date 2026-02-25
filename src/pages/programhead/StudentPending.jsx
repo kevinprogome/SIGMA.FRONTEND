@@ -141,34 +141,78 @@ export default function StudentsPending() {
      ========================= */
   const getStatusClass = (status) => {
     switch (status) {
-
+      // Revisión inicial
       case "UNDER_REVIEW_PROGRAM_HEAD":
       case "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE":
         return "in-review";
-
       case "CORRECTIONS_REQUESTED_PROGRAM_HEAD":
       case "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE":
+      case "CORRECTIONS_REQUESTED_EXAMINERS":
         return "corrections";
-
-      case "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE":
-      case "DEFENSE_SCHEDULED":
-        return "ready";
-
-      case "PROPOSAL_APPROVED":
-      case "DEFENSE_COMPLETED":
-      case "GRADED_APPROVED":
+      case "CORRECTIONS_SUBMITTED":
+        return "submitted";
+      case "CORRECTIONS_APPROVED":
         return "approved";
-
-      case "GRADED_FAILED":
+      case "CORRECTIONS_REJECTED_FINAL":
         return "rejected";
 
-      case "MODALITY_CANCELLED":
+      // Comité
+      case "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE":
+        return "ready";
+      case "PROPOSAL_APPROVED":
+        return "approved";
+
+      // Sustentación
+      case "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR":
+        return "pending";
+      case "DEFENSE_SCHEDULED":
+        return "scheduled";
+      case "DEFENSE_COMPLETED":
+        return "completed";
+
+      // Jueces
+      case "EXAMINERS_ASSIGNED":
+      case "READY_FOR_EXAMINERS":
+        return "in-review";
+      case "READY_FOR_DEFENSE":
+        return "ready";
+      case "FINAL_REVIEW_COMPLETED":
+        return "completed";
+
+      // Evaluación
+      case "UNDER_EVALUATION_PRIMARY_EXAMINERS":
+      case "UNDER_EVALUATION_TIEBREAKER":
+        return "in-review";
+      case "DISAGREEMENT_REQUIRES_TIEBREAKER":
+        return "warning";
+      case "EVALUATION_COMPLETED":
+        return "completed";
+
+      // Resultado final
+      case "GRADED_APPROVED":
+        return "approved";
+      case "GRADED_FAILED":
+        return "rejected";
       case "MODALITY_CLOSED":
-      case "CANCELLED_WITHOUT_REPROVAL":
+        return "closed";
+      case "SEMINAR_CANCELED":
         return "cancelled";
 
+      // Cancelaciones
+      case "MODALITY_CANCELLED":
+      case "CANCELLED_WITHOUT_REPROVAL":
+      case "CANCELLED_BY_CORRECTION_TIMEOUT":
+        return "cancelled";
       case "CANCELLATION_REQUESTED":
+        return "pending";
+      case "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR":
+        return "approved";
+      case "CANCELLATION_REJECTED_BY_PROJECT_DIRECTOR":
       case "CANCELLATION_REJECTED":
+        return "rejected";
+
+      // Selección inicial (no se muestra, pero por completitud)
+      case "MODALITY_SELECTED":
         return "pending";
 
       default:
@@ -194,15 +238,18 @@ export default function StudentsPending() {
   return (
     <div className="students-pending-container">
       {/* HEADER */}
-      <div className="students-pending-header">
-        <h2 className="students-pending-title">
-          Gestión de Estudiantes
-        </h2>
-        <p className="students-pending-subtitle">
-            Administra y realiza seguimiento a las solicitudes de modalidades de grado, revisando su estado, documentación asociada y decisiones académicas correspondientes.
-
-        </p>
-      </div>
+      <header className="students-pending-header enhanced-header">
+        <div className="header-content">
+          <div>
+            <h2 className="students-pending-title enhanced-title">
+              Gestión de Estudiantes
+            </h2>
+            <p className="students-pending-subtitle enhanced-subtitle">
+              Administra y realiza seguimiento a las solicitudes de modalidades de grado, revisando su estado, documentación asociada y decisiones académicas correspondientes.
+            </p>
+          </div>
+        </div>
+      </header>
 
       {/* MENSAJE */}
       {message && (
@@ -247,7 +294,7 @@ export default function StudentsPending() {
               borderRadius: "8px",
               fontSize: "1rem",
               fontWeight: 700,
-              color: "#7A1117",
+              color:  "#5d0d12",
               background: "#f8f6ef",
               marginTop: "0.5rem",
               minHeight: "3rem"
@@ -260,13 +307,13 @@ export default function StudentsPending() {
               </option>
             ))}
           </select>
-          <small style={{color:'#7A1117',fontWeight:500,marginTop:'0.25rem',display:'block'}}>Mantén Ctrl (Windows) o Cmd (Mac) para seleccionar varios</small>
+          <small style={{color:'#5d0d12',fontWeight:500,marginTop:'0.25rem',display:'block'}}>Mantén Ctrl (Windows) o Cmd (Mac) para seleccionar varios</small>
           <button
             type="button"
             className="apply-statuses-button"
             style={{
               marginTop: '0.5rem',
-              background: '#7A1117',
+              background: '#5d0d12',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
@@ -312,40 +359,39 @@ export default function StudentsPending() {
 
       {/* EMPTY / TABLE */}
       {filteredStudents.length === 0 ? (
-        <div className="students-pending-empty" style={{animation:'fadeIn 0.7s'}}>
-          <div className="students-pending-empty-icon" style={{fontSize:'4.5rem',color:'#D5CBA0',marginBottom:'1rem'}}>
+        <div className="students-pending-empty fade-in">
+          <div className="students-pending-empty-icon large-gold mb-1">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="32" cy="32" r="32" fill="#f8f6ef"/>
               <path d="M44 40l-6-6" stroke="#7A1117" strokeWidth="3" strokeLinecap="round"/>
               <circle cx="28" cy="28" r="10" stroke="#7A1117" strokeWidth="3" fill="#fff"/>
             </svg>
           </div>
-          <p className="students-pending-empty-text" style={{fontSize:'1.35rem',color:'#7A1117',fontWeight:900,marginBottom:'0.5rem'}}>
+          <p className="students-pending-empty-text large-strong mb-half">
             No se encontraron estudiantes
           </p>
-          <p className="students-pending-empty-subtext" style={{color:'#7A1117',fontSize:'1.05rem',fontWeight:600,marginBottom:'1.2rem'}}>
+          <p className="students-pending-empty-subtext gold-strong mb-12">
             Ajusta los filtros para ver resultados o recarga la página.
           </p>
           <button
-            className="search-button"
-            style={{background:'#7A1117',color:'#fff',borderRadius:'10px',fontWeight:900,fontSize:'1.05rem',padding:'0.7rem 1.5rem',border:'none',boxShadow:'0 2px 8px #7A111733',marginTop:'0.5rem'}}
+            className="search-button reload-btn mt-half"
             onClick={() => window.location.reload()}
           >
             Recargar
           </button>
         </div>
       ) : (
-        <div className="students-pending-table-container" style={{animation:'fadeIn 0.7s'}}>
-          <div className="results-count" style={{marginBottom:'1.5rem',fontWeight:900,fontSize:'1.1rem',color:'#7A1117'}}>
+        <div className="students-pending-table-container fade-in">
+          <div className="results-count mb-15 strong-gold">
             {filteredStudents.length === students.length
               ? `Total: ${students.length} estudiante${students.length !== 1 ? "s" : ""}`
               : `Mostrando ${filteredStudents.length} de ${students.length} estudiante${students.length !== 1 ? "s" : ""}`
             }
           </div>
 
-          <table className="students-pending-table" style={{borderRadius:'14px',overflow:'hidden',boxShadow:'0 4px 16px #7A111733'}}>
+          <table className="students-pending-table rounded-shadow">
             <thead>
-              <tr style={{background:'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)',color:'#fff'}}>
+              <tr className="thead-gradient">
                 <th>Estudiante</th>
                 <th>Email</th>
                 <th>Modalidad</th>
@@ -356,35 +402,31 @@ export default function StudentsPending() {
             </thead>
             <tbody>
               {filteredStudents.map((s) => (
-                <tr key={s.studentModalityId} style={{background:'#fff',boxShadow:'0 2px 8px #7A111733',borderRadius:'12px',margin:'0.5rem 0',transition:'background 0.2s'}}>
+                <tr key={s.studentModalityId} className="student-row">
                   <td data-label="Estudiante">
-                    <span className="student-name" style={{fontWeight:900,color:'#7A1117',fontSize:'1.05rem'}}>{s.studentName}</span>
+                    <span className="student-name strong-gold large-strong">{s.studentName}</span>
                   </td>
                   <td data-label="Email">
-                    <span className="student-email" style={{color:'#666',fontSize:'0.98rem'}}>{s.studentEmail}</span>
+                    <span className="student-email small-gray">{s.studentEmail}</span>
                   </td>
                   <td data-label="Modalidad">
-                    <span className="modality-name" style={{color:'#7A1117',fontWeight:700}}>{s.modalityName}</span>
+                    <span className="modality-name">{s.modalityName}</span>
                   </td>
                   <td data-label="Estado">
                     <span
-                      className={`status-badge ${getStatusClass(
-                        s.currentStatus
-                      )}`}
-                      style={{fontWeight:900,fontSize:'0.98rem',boxShadow:'0 2px 8px #7A111733'}}
+                      className={`status-badge ${getStatusClass(s.currentStatus)} badge-shadow`}
                     >
                       {getStatusLabel(s.currentStatus)}
                     </span>
                   </td>
                   <td data-label="Última actualización">
-                    <span className="last-updated" style={{color:'#666',fontSize:'0.98rem'}}>
+                    <span className="last-updated small-gray">
                       {new Date(s.lastUpdatedAt).toLocaleDateString("es-CO")}
                     </span>
                   </td>
                   <td data-label="Acciones">
                     <button
-                      className="view-profile-button"
-                      style={{background:'#7A1117',color:'#fff',borderRadius:'8px',fontWeight:900,fontSize:'0.98rem',padding:'0.65rem 1.25rem',boxShadow:'0 2px 8px #7A111733'}}
+                      className="view-profile-button profile-btn"
                       onClick={() =>
                         navigate(
                           `/jefeprograma/students/${s.studentModalityId}`

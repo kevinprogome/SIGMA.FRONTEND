@@ -304,7 +304,7 @@ export default function DirectorStudentProfile() {
             ← Volver al Dashboard
           </button>
           <h1 className="director-profile-title">Perfil del Estudiante</h1>
-          <p className="director-profile-subtitle">{student.studentName}</p>
+          <p className="director-profile-subtitle">Información completa sobre el estudiante, su progreso académico, modalidad de grado y estado de sus documentos.</p>
         </div>
        
         <div className="director-profile-actions">
@@ -354,47 +354,18 @@ export default function DirectorStudentProfile() {
       )}
 
       {/* Alerta de Cancelación */}
-      {hasCancellationRequest(student.currentStatus) && (
-        <div className="director-alert-warning">
-          <h3>⚠️ Solicitud de Cancelación Pendiente</h3>
-          <p>
-            El estudiante ha solicitado cancelar esta modalidad. Como director de proyecto,
-            debes revisar y decidir si apruebas o rechazas esta solicitud.
-          </p>
-          <div className="director-alert-actions">
-            <button
-              onClick={handleViewCancellationDocument}
-              disabled={loadingCancellationDoc}
-              className="btn-view"
-            >
-              {loadingCancellationDoc ? "⏳ Cargando..." : "📄 Ver Documento de Cancelación"}
-            </button>
-            <button
-              onClick={handleApproveCancellation}
-              className="btn-approve"
-            >
-              ✓ Aprobar Cancelación
-            </button>
-            <button
-              onClick={() => setShowRejectModal(true)}
-              className="btn-reject"
-            >
-              ✕ Rechazar Cancelación
-            </button>
-          </div>
-        </div>
-      )}
+    
 
       {/* Información del Estudiante */}
       <div className="director-profile-card">
-        <h3 className="director-profile-card-title">👤 Información del Estudiante</h3>
+        <h3 className="director-profile-card-title"> Información del Estudiante</h3>
         <div className="director-profile-grid">
           <div className="director-profile-item">
             <span className="director-profile-label">Nombre Completo</span>
-            <span className="director-profile-value">{student.studentName}</span>
+            <span className="director-profile-value">{student.studentName} {student.studentLastName}</span>
           </div>
           <div className="director-profile-item">
-            <span className="director-profile-label">Email</span>
+            <span className="director-profile-label">Correo institucional</span>
             <span className="director-profile-value">{student.studentEmail}</span>
           </div>
           <div className="director-profile-item">
@@ -447,13 +418,12 @@ export default function DirectorStudentProfile() {
       {/* ✅ SECCIÓN DE DOCUMENTOS - NUEVA Y MEJORADA */}
       {student.documents && student.documents.length > 0 && (
         <div className="director-documents-section">
-          <h3 className="director-documents-title">📄 Documentos del Estudiante</h3>
+          <h3 className="director-documents-title"> Documentos del Estudiante</h3>
           <div>
             {/* Documentos Subidos */}
             {uploadedDocs.length > 0 && (
               <div className="director-uploaded-docs">
-                <h4 className="director-uploaded-title">✅ Documentos Subidos ({uploadedDocs.length})</h4>
-                
+                <h4 className="director-uploaded-title" style={{ color: '#5d0d12' }}> Documentos Subidos ({uploadedDocs.length})</h4>
                 <div style={{ overflowX: "auto" }}>
                   <table className="director-docs-table">
                     <thead>
@@ -470,16 +440,16 @@ export default function DirectorStudentProfile() {
                       {uploadedDocs.map((doc, index) => (
                         <tr key={doc.studentDocumentId || index}>
                           <td>
-                            <strong className="director-doc-name">{doc.documentName}</strong>
+                            <strong className="director-doc-name" style={{ color: '#5d0d12' }}>{doc.documentName}</strong>
                             {doc.description && (
-                              <div className="director-doc-description">{doc.description}</div>
+                              <div className="director-doc-description" style={{ color: '#B7A873' }}>{doc.description}</div>
                             )}
                           </td>
                           <td style={{ textAlign: "center" }}>
                             {doc.documentType === "MANDATORY" ? (
-                              <span className="director-doc-mandatory">Sí</span>
+                              <span className="director-doc-mandatory" style={{ background: '#B7A873', color: '#5d0d12' }}>Sí</span>
                             ) : (
-                              <span className="director-doc-optional">No</span>
+                              <span className="director-doc-optional" style={{ background: '#D5CBA0', color: '#5d0d12' }}>No</span>
                             )}
                           </td>
                           <td>
@@ -489,17 +459,17 @@ export default function DirectorStudentProfile() {
                           </td>
                           <td>
                             {doc.notes ? (
-                              <span style={{ fontSize: "0.875rem", color: "#4b5563" }}>
+                              <span style={{ fontSize: "0.875rem", color: '#5d0d12', fontWeight: 600 }}>
                                 {doc.notes}
                               </span>
                             ) : (
-                              <span style={{ color: "#9ca3af", fontSize: "0.875rem" }}>
+                              <span style={{ color: '#B7A873', fontSize: "0.875rem", fontWeight: 600 }}>
                                 Sin comentarios
                               </span>
                             )}
                           </td>
                           <td>
-                            <span style={{ fontSize: "0.875rem", color: "#6b7280" }}>
+                            <span style={{ fontSize: "0.875rem", color: '#5d0d12', fontWeight: 600 }}>
                               {doc.lastUpdate 
                                 ? formatDate(doc.lastUpdate) 
                                 : formatDate(doc.uploadDate) || "N/A"}
@@ -530,55 +500,54 @@ export default function DirectorStudentProfile() {
                 <h3 style={{ 
                   marginTop: uploadedDocs.length > 0 ? "1.5rem" : 0, 
                   marginBottom: "1rem", 
-                  color: "#dc2626",
+                  color: '#5d0d12',
                   fontSize: "1.1rem",
-                  fontWeight: 600
+                  fontWeight: 700
                 }}>
-                  ❌ Documentos Pendientes ({notUploadedDocs.length})
+                   Documentos Pendientes ({notUploadedDocs.length})
                 </h3>
-                
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                   {notUploadedDocs.map((doc, index) => (
                     <div
                       key={index}
                       style={{
                         padding: "1rem",
-                        background: "#fef2f2",
-                        border: "1px solid #fecaca",
-                        borderRadius: "6px"
+                        background: '#f8f6ef',
+                        border: '1px solid #D5CBA0',
+                        borderRadius: '8px'
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                         <div>
-                          <strong style={{ display: "block", marginBottom: "0.25rem", color: "#991b1b" }}>
+                          <strong style={{ display: "block", marginBottom: "0.25rem", color: '#5d0d12', fontWeight: 700 }}>
                             {doc.documentName}
                             {doc.documentType === "MANDATORY" && (
                               <span style={{ 
                                 marginLeft: "0.5rem",
-                                background: "#fef3c7",
-                                color: "#92400e",
+                                background: '#B7A873',
+                                color: '#5d0d12',
                                 padding: "0.125rem 0.5rem",
                                 borderRadius: "4px",
                                 fontSize: "0.75rem",
-                                fontWeight: 600
+                                fontWeight: 700
                               }}>
                                 Obligatorio
                               </span>
                             )}
                           </strong>
                           {doc.description && (
-                            <span style={{ fontSize: "0.875rem", color: "#7f1d1d" }}>
+                            <span style={{ fontSize: "0.875rem", color: '#B7A873', fontWeight: 600 }}>
                               {doc.description}
                             </span>
                           )}
                         </div>
                         <span style={{
-                          background: "#fee2e2",
-                          color: "#991b1b",
+                          background: '#D5CBA0',
+                          color: '#5d0d12',
                           padding: "0.25rem 0.75rem",
                           borderRadius: "4px",
                           fontSize: "0.75rem",
-                          fontWeight: 600
+                          fontWeight: 700
                         }}>
                           Sin subir
                         </span>
@@ -592,36 +561,75 @@ export default function DirectorStudentProfile() {
         </div>
       )}
 
+        {hasCancellationRequest(student.currentStatus) && (
+        <div className="director-alert-warning">
+          <h3>⚠️ Solicitud de Cancelación Pendiente</h3>
+          <p>
+            El estudiante ha solicitado cancelar esta modalidad. Como director de proyecto,
+            debes revisar y decidir si apruebas o rechazas esta solicitud.
+          </p>
+          <div className="director-alert-actions">
+            <button
+              onClick={handleViewCancellationDocument}
+              disabled={loadingCancellationDoc}
+              className="btn-view"
+            >
+              {loadingCancellationDoc ? "⏳ Cargando..." : "📄 Ver Documento de Cancelación"}
+            </button>
+            <button
+              onClick={handleApproveCancellation}
+              className="btn-approve"
+            >
+              ✓ Aprobar Cancelación
+            </button>
+            <button
+              onClick={() => setShowRejectModal(true)}
+              className="btn-reject"
+            >
+              ✕ Rechazar Cancelación
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Historial de Cambios */}
       {student.history && student.history.length > 0 && (
         <div className="director-history-section">
-          <h3 className="director-history-title">📋 Historial de Estados</h3>
+          <h3 className="director-history-title" style={{ color: '#5d0d12', fontSize: '1.45rem', borderBottom: '3px solid #B7A873' }}> Historial de Estados</h3>
           <div>
             {student.history.map((history, index) => (
-              <div key={index} className="director-history-item">
+              <div
+                key={index}
+                className="director-history-item"
+                style={{
+                  borderLeft: `4px solid ${getStatusBadgeClass(history.status) === 'accepted' ? '#B7A873' : '#5d0d12'}`,
+                  background: '#f8f6ef',
+                  boxShadow: '0 2px 8px rgba(93, 13, 18, 0.08)',
+                  marginBottom: '1.2rem',
+                  borderRadius: '12px',
+                  padding: '1.2rem 1rem',
+                }}
+              >
                 <div className="director-history-item-header">
-                  <strong className={`director-doc-status-badge ${getStatusBadgeClass(history.status)}`}>
+                  <strong className={`director-doc-status-badge ${getStatusBadgeClass(history.status)}`} style={{ fontSize: '1rem', fontWeight: 700 }}>
                     {getStatusLabel(history.status)}
                   </strong>
-                  <span className="director-history-item-date">
+                  <span className="director-history-item-date" style={{ color: '#B7A873', fontWeight: 600 }}>
                     {formatDate(history.changeDate)}
                   </span>
                 </div>
-               
                 {history.description && (
-                  <p className="director-history-item-description">
+                  <p className="director-history-item-description" style={{ color: '#7A1117', fontWeight: 600 }}>
                     {history.description}
                   </p>
                 )}
-               
                 {history.observations && (
-                  <p className="director-history-item-observations">
-                    <strong>Observaciones:</strong> {history.observations}
+                  <p className="director-history-item-observations" style={{ background: '#fffbe6', color: '#92400e', borderLeft: '4px solid #B7A873', fontWeight: 600 }}>
+                    <strong style={{ color: '#5d0d12' }}>Observaciones:</strong> {history.observations}
                   </p>
                 )}
-               
                 {history.responsible && (
-                  <p className="director-history-item-responsible">
+                  <p className="director-history-item-responsible" style={{ color: '#7A1117', fontWeight: 600 }}>
                     Responsable: {history.responsible}
                   </p>
                 )}

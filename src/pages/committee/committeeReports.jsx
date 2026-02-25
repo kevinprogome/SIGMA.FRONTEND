@@ -885,33 +885,37 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
   );
 
   const renderCalendarFilters = () => (
-    <div className="filters-panel">
-      <div className="alert-info" style={{ marginBottom: '1.5rem' }}>
-        ℹ️ Por defecto: últimos 30 días + próximos 60 días
+    <div className="filters-panel calendar-filters-panel">
+      <div className="calendar-alert-info">
+        
+        <span>Por defecto: últimos 30 días + próximos 60 días</span>
       </div>
 
-      <div className="filter-group">
-        <label>Fecha Inicio (Opcional)</label>
+      <div className="filter-group calendar-filter-group">
+        <label className="calendar-label">Fecha Inicio <span className="calendar-hint">(Opcional)</span></label>
         <input
           type="datetime-local"
+          className="calendar-input"
           value={filters.calendar.startDate}
           onChange={(e) => handleFilterChange('calendar', 'startDate', e.target.value)}
         />
       </div>
 
-      <div className="filter-group">
-        <label>Fecha Fin (Opcional)</label>
+      <div className="filter-group calendar-filter-group">
+        <label className="calendar-label">Fecha Fin <span className="calendar-hint">(Opcional)</span></label>
         <input
           type="datetime-local"
+          className="calendar-input"
           value={filters.calendar.endDate}
           onChange={(e) => handleFilterChange('calendar', 'endDate', e.target.value)}
         />
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group calendar-checkbox-group">
+        <label className="calendar-checkbox-label">
           <input
             type="checkbox"
+            className="calendar-checkbox-input"
             checked={filters.calendar.includeCompleted}
             onChange={(e) => handleFilterChange('calendar', 'includeCompleted', e.target.checked)}
           />
@@ -922,14 +926,55 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
   );
 
   const renderStudentListingFilters = () => (
-    <div className="filters-panel">
-      <div className="filter-group">
-        <label>Estados</label>
-        <div className="checkbox-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-          {PROCESS_STATUSES.map((status) => (
-            <label key={status.value}>
+    <div className="filters-panel student-listing-filters-panel">
+      <div className="filter-group student-listing-filter-group">
+        <label className="student-listing-label">Estados de la modalidad</label>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+          <input
+            type="text"
+            placeholder="Buscar estado..."
+            value={filters.studentListing.statusSearch || ''}
+            onChange={e => handleFilterChange('studentListing', 'statusSearch', e.target.value)}
+            style={{
+              border: '1.5px solid #e6d7da',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: '1em',
+              color: '#5d0d12',
+              outline: 'none',
+              fontFamily: 'inherit',
+              width: '100%',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
+              maxWidth: 220
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => handleFilterChange('studentListing', 'statuses', []) || handleFilterChange('studentListing', 'statusSearch', '')}
+            style={{
+              background: '#f8e9eb',
+              color: '#7A1117',
+              border: '1px solid #e6d7da',
+              borderRadius: 6,
+              padding: '6px 14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '1em',
+              marginLeft: 4
+            }}
+          >
+            Borrar filtros
+          </button>
+        </div>
+        <div className="checkbox-list student-listing-checkbox-list">
+          {PROCESS_STATUSES.filter(status =>
+            !filters.studentListing.statusSearch || status.label.toLowerCase().includes(filters.studentListing.statusSearch.toLowerCase())
+          ).map((status) => (
+            <label key={status.value} className="student-listing-checkbox-label">
               <input
                 type="checkbox"
+                className="student-listing-checkbox-input"
                 checked={filters.studentListing.statuses.includes(status.value)}
                 onChange={() => handleCheckboxChange('studentListing', 'statuses', status.value)}
               />
@@ -939,51 +984,46 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
         </div>
       </div>
 
-      <div className="filter-group">
-        <label>Tipos de Modalidad</label>
-        <div className="checkbox-list">
+      <div className="filter-group student-listing-filter-group">
+        <label className="student-listing-label">Tipos de Modalidad</label>
+        <select
+          className="individual-director-select-multimodal"
+          multiple
+          value={filters.studentListing.modalityTypes}
+          onChange={e => {
+            const selected = Array.from(e.target.selectedOptions, option => option.value);
+            handleFilterChange('studentListing', 'modalityTypes', selected);
+          }}
+        >
           {modalityTypes.map((type) => (
-            <label key={type.id}>
-              <input
-                type="checkbox"
-                checked={filters.studentListing.modalityTypes.includes(type.name)}
-                onChange={() => handleCheckboxChange('studentListing', 'modalityTypes', type.name)}
-              />
-              {type.name}
-            </label>
+            <option key={type.id} value={type.name}>{type.name}</option>
           ))}
+        </select>
+        <div className="individual-director-select-hint">
+          Mantén presionada Ctrl o Shift para seleccionar varias modalidades
         </div>
       </div>
 
-      <div className="filter-group">
-        <label>Año (Opcional)</label>
-        <input
-          type="number"
-          value={filters.studentListing.year || ''}
-          onChange={(e) => handleFilterChange('studentListing', 'year', e.target.value ? parseInt(e.target.value) : null)}
-          min="2020"
-          max="2030"
-        />
-      </div>
-
-      <div className="filter-group">
-        <label>Estado de Cronograma</label>
+      <div className="filter-group student-listing-filter-group">
+        <label className="student-listing-label">Año (Opcional)</label>
         <select
-          value={filters.studentListing.timelineStatus}
-          onChange={(e) => handleFilterChange('studentListing', 'timelineStatus', e.target.value)}
+          className="student-listing-select"
+          value={filters.studentListing.year || ''}
+          onChange={e => handleFilterChange('studentListing', 'year', e.target.value ? parseInt(e.target.value) : null)}
         >
           <option value="">Todos</option>
-          {TIMELINE_STATUSES.map((status) => (
-            <option key={status.value} value={status.value}>
-              {status.label}
-            </option>
+          {Array.from({ length: 11 }, (_, i) => 2026 + i).map(year => (
+            <option key={year} value={year}>{year}</option>
           ))}
         </select>
       </div>
 
-      <div className="filter-group">
-        <label>Tipo (Individual/Grupal)</label>
+     
+
+      <div className="filter-group student-listing-filter-group">
+        <label className="student-listing-label">Tipo (Individual/Grupal)</label>
         <select
+          className="student-listing-select"
           value={filters.studentListing.modalityTypeFilter}
           onChange={(e) => handleFilterChange('studentListing', 'modalityTypeFilter', e.target.value)}
         >
@@ -996,9 +1036,10 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
         </select>
       </div>
 
-      <div className="filter-group">
-        <label>Tiene Director</label>
+      <div className="filter-group student-listing-filter-group">
+        <label className="student-listing-label">Tiene Director</label>
         <select
+          className="student-listing-select"
           value={filters.studentListing.hasDirector === null ? 'all' : filters.studentListing.hasDirector.toString()}
           onChange={(e) => {
             const value = e.target.value === 'all' ? null : e.target.value === 'true';
@@ -1011,10 +1052,11 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
         </select>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-        <div className="filter-group">
-          <label>Ordenar Por</label>
+      <div className="student-listing-filters-row">
+        <div className="filter-group student-listing-filter-group">
+          <label className="student-listing-label">Ordenar Por</label>
           <select
+            className="student-listing-select"
             value={filters.studentListing.sortBy}
             onChange={(e) => handleFilterChange('studentListing', 'sortBy', e.target.value)}
           >
@@ -1026,9 +1068,10 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
           </select>
         </div>
 
-        <div className="filter-group">
-          <label>Dirección</label>
+        <div className="filter-group student-listing-filter-group">
+          <label className="student-listing-label">Dirección</label>
           <select
+            className="student-listing-select"
             value={filters.studentListing.sortDirection}
             onChange={(e) => handleFilterChange('studentListing', 'sortDirection', e.target.value)}
           >
@@ -1038,10 +1081,11 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
         </div>
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group student-listing-checkbox-group">
+        <label className="student-listing-checkbox-label">
           <input
             type="checkbox"
+            className="student-listing-checkbox-input"
             checked={filters.studentListing.includeInactive}
             onChange={(e) => handleFilterChange('studentListing', 'includeInactive', e.target.checked)}
           />
@@ -1237,7 +1281,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
     <div className="filters-panel individual-director-filters-panel">
       <div className="filter-group individual-director-filter-group">
         <label className="individual-director-label">
-          {"Seleccionar director".toLowerCase()} <span className="individual-director-required">*</span>
+          Seleccionar director <span className="individual-director-required">*</span>
         </label>
         <select
           className="individual-director-select"
@@ -1248,23 +1292,63 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
           }}
           required
         >
-          <option value="">{"Seleccionar...".toLowerCase()}</option>
+          <option value="">Seleccionar...</option>
           {directors && directors.length > 0 ? (
             directors.map((director) => (
               <option key={director.id} value={director.id}>
-                {(director.name || director.fullName)?.toLowerCase()}
+                {director.name || director.fullName}
               </option>
             ))
           ) : (
-            <option value="" disabled>{"No hay directores disponibles".toLowerCase()}</option>
+            <option value="" disabled>No hay directores disponibles</option>
           )}
         </select>
       </div>
 
     <div className="filter-group individual-director-filter-group">
-      <label className="individual-director-label">{"Estados de proceso".toLowerCase()}</label>
+      <label className="individual-director-label">Estados de proceso</label>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+        <input
+          type="text"
+          placeholder="Buscar estado..."
+          value={filters.individualDirector.processStatusSearch || ''}
+          onChange={e => handleFilterChange('individualDirector', 'processStatusSearch', e.target.value)}
+          style={{
+            border: '1.5px solid #e6d7da',
+            borderRadius: 6,
+            padding: '6px 10px',
+            fontSize: '1em',
+            color: '#5d0d12',
+            outline: 'none',
+            fontFamily: 'inherit',
+            width: '100%',
+            boxSizing: 'border-box',
+            transition: 'border-color 0.2s',
+            maxWidth: 220
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => handleFilterChange('individualDirector', 'processStatuses', []) || handleFilterChange('individualDirector', 'processStatusSearch', '')}
+          style={{
+            background: '#f8e9eb',
+            color: '#7A1117',
+            border: '1px solid #e6d7da',
+            borderRadius: 6,
+            padding: '6px 14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontSize: '1em',
+            marginLeft: 4
+          }}
+        >
+          Borrar filtros
+        </button>
+      </div>
       <div className="checkbox-list individual-director-checkbox-list">
-        {PROCESS_STATUSES.map((status) => (
+        {PROCESS_STATUSES.filter(status =>
+          !filters.individualDirector.processStatusSearch || status.label.toLowerCase().includes(filters.individualDirector.processStatusSearch.toLowerCase())
+        ).map((status) => (
           <label key={status.value} className="individual-director-checkbox-label">
             <input
               type="checkbox"
@@ -1278,33 +1362,28 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
                 handleFilterChange('individualDirector', 'processStatuses', newStatuses);
               }}
             />
-            <span>{status.label.toLowerCase()}</span>
+            <span>{status.label}</span>
           </label>
         ))}
       </div>
     </div>
 
     <div className="filter-group individual-director-filter-group">
-      <label className="individual-director-label">{"Tipos de modalidad".toLowerCase()}</label>
-      <div className="checkbox-list individual-director-checkbox-list">
+      <label className="individual-director-label">Tipos de modalidad</label>
+      <select
+        className="individual-director-select-multimodal"
+        multiple
+        value={filters.individualDirector.modalityTypes || []}
+        onChange={e => {
+          const selected = Array.from(e.target.selectedOptions, option => option.value);
+          handleFilterChange('individualDirector', 'modalityTypes', selected.map(Number));
+        }}
+      >
         {modalityTypes.map((type) => (
-          <label key={type.id} className="individual-director-checkbox-label">
-            <input
-              type="checkbox"
-              className="individual-director-checkbox-input"
-              checked={Array.isArray(filters.individualDirector.modalityTypes) && filters.individualDirector.modalityTypes.includes(type.id)}
-              onChange={() => {
-                const prev = Array.isArray(filters.individualDirector.modalityTypes) ? filters.individualDirector.modalityTypes : [];
-                const newTypes = prev.includes(type.id)
-                  ? prev.filter(v => v !== type.id)
-                  : [...prev, type.id];
-                handleFilterChange('individualDirector', 'modalityTypes', newTypes);
-              }}
-            />
-            <span>{type.name.toLowerCase()}</span>
-          </label>
+          <option key={type.id} value={type.id}>{type.name}</option>
         ))}
-      </div>
+      </select>
+      <div className="individual-director-select-hint">Mantén presionada Ctrl o Shift para seleccionar varias modalidades</div>
     </div>
 
     <div className="filter-group checkbox-group individual-director-checkbox-group">
@@ -1315,7 +1394,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
           checked={!!filters.individualDirector.onlyActiveModalities}
           onChange={e => handleFilterChange('individualDirector', 'onlyActiveModalities', e.target.checked)}
         />
-        {"Solo modalidades activas".toLowerCase()}
+        Solo modalidades activas
       </label>
     </div>
     <div className="filter-group checkbox-group individual-director-checkbox-group">
@@ -1326,7 +1405,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
           checked={!!filters.individualDirector.includeWorkloadAnalysis}
           onChange={e => handleFilterChange('individualDirector', 'includeWorkloadAnalysis', e.target.checked)}
         />
-        {"Incluir análisis de carga de trabajo".toLowerCase()}
+        Incluir análisis de carga de trabajo
       </label>
     </div>
   </div>
@@ -1714,96 +1793,20 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
           {openFilterDialog === 'individualDirector' && renderIndividualDirectorFilters()}
         </div>
 
-        {/* Modalidades Completadas */}
+         {/* Listado de Estudiantes */}
         <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
           <div className="report-card-header">
-            <span className="report-icon" style={{ color: '#7A1117', background: '#f8e9eb', borderRadius: '50%', padding: '0.5rem', marginRight: '0.5rem' }}>✅</span>
-            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Modalidades Completadas</h3>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Reporte Institucional de Estudiantes en Modalidades de Grado
+</h3>
           </div>
           <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
-            Análisis detallado de modalidades finalizadas con resultados, calificaciones y distinciones
+            Genera un reporte institucional que lista a los estudiantes inscritos en modalidades de grado.
           </p>
           <div className="report-stats">
-            <span className="report-badge rf-info">Finalizadas</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Exitosas/Fallidas</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Distinciones</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Análisis temporal</span>
-          </div>
-          <div className="report-actions">
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button
-                className="btn-filters"
-                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
-                onClick={() => setOpenFilterDialog(openFilterDialog === 'completed' ? null : 'completed')}
-                disabled={loading}
-              >
-                ⚙️ {openFilterDialog === 'completed' ? 'Ocultar' : 'Configurar'} Filtros
-              </button>
-              <button
-                className="btn-primary"
-                style={{ fontWeight: 700 }}
-                onClick={handleDownloadCompleted}
-                disabled={loading}
-              >
-                {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-              </button>
-            </div>
-          </div>
-          {openFilterDialog === 'completed' && renderCompletedFilters()}
-        </div>
-
-        {/* Calendario de Sustentaciones */}
-        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
-          <div className="report-card-header">
-            <span className="report-icon" style={{ color: '#7A1117', background: '#f8e9eb', borderRadius: '50%', padding: '0.5rem', marginRight: '0.5rem' }}>📅</span>
-            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Calendario de Sustentaciones</h3>
-          </div>
-          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
-            Calendario completo de defensas programadas, alertas y estadísticas de jurados
-          </p>
-          <div className="report-stats">
-            <span className="report-badge rf-info">Calendario</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Próximas defensas</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Alertas</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>20-30 páginas</span>
-          </div>
-          <div className="report-actions">
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button
-                className="btn-filters"
-                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
-                onClick={() => setOpenFilterDialog(openFilterDialog === 'calendar' ? null : 'calendar')}
-                disabled={loading}
-              >
-                ⚙️ {openFilterDialog === 'calendar' ? 'Ocultar' : 'Configurar'} Filtros
-              </button>
-              <button
-                className="btn-primary"
-                style={{ fontWeight: 700 }}
-                onClick={handleDownloadCalendar}
-                disabled={loading}
-              >
-                {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-              </button>
-            </div>
-          </div>
-          {openFilterDialog === 'calendar' && renderCalendarFilters()}
-        </div>
-
-        {/* Listado de Estudiantes */}
-        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
-          <div className="report-card-header">
-            <span className="report-icon" style={{ color: '#7A1117', background: '#f8e9eb', borderRadius: '50%', padding: '0.5rem', marginRight: '0.5rem' }}>👥</span>
-            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Listado de Estudiantes</h3>
-          </div>
-          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
-            Reporte detallado de estudiantes con filtros avanzados y análisis de progreso
-          </p>
-          <div className="report-stats">
-            <span className="report-badge rf-info">Estudiantes</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>10+ filtros</span>
+            
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Estudiantes</span>
             <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Ordenamiento</span>
-            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Timeline</span>
+            
           </div>
           <div className="report-actions">
             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -1813,7 +1816,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
                 onClick={() => setOpenFilterDialog(openFilterDialog === 'studentListing' ? null : 'studentListing')}
                 disabled={loading}
               >
-                ⚙️ {openFilterDialog === 'studentListing' ? 'Ocultar' : 'Configurar'} Filtros
+                {openFilterDialog === 'studentListing' ? 'Ocultar' : 'Configurar'} Filtros
               </button>
               <button
                 className="btn-primary"
@@ -1821,40 +1824,64 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
                 onClick={handleDownloadStudentListing}
                 disabled={loading}
               >
-                {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
+                {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
               </button>
             </div>
           </div>
           {openFilterDialog === 'studentListing' && renderStudentListingFilters()}
         </div>
 
+
+        
+
+       
+
+        {/* Calendario de Sustentaciones */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
+          <div className="report-card-header">
+          
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Reporte Institucional de Calendario de Sustentaciones y Evaluaciones
+</h3>
+          </div>
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Genera un reporte institucional completo del calendario de sustentaciones de modalidades de grado, mostrando fechas programadas, estado de cada defensa, jurados asignados y alertas importantes.
+          </p>
+          <div className="report-stats">
+            
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Próximas defensas</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Alertas</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Calendario</span>
+          </div>
+          <div className="report-actions">
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'calendar' ? null : 'calendar')}
+                disabled={loading}
+              >
+                 {openFilterDialog === 'calendar' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadCalendar}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+              </button>
+            </div>
+          </div>
+          {openFilterDialog === 'calendar' && renderCalendarFilters()}
+        </div>
+
+       
         
 
         
       </div>
 
-      {/* Footer informativo */}
-      <div className="reports-footer">
-        <div className="reports-info-card">
-          <h4>📖 Guía de Uso</h4>
-          <ul>
-            <li>Los reportes marcados con <strong>RF</strong> corresponden a requerimientos funcionales específicos</li>
-            <li>Use el botón <strong>"Configurar Filtros"</strong> para personalizar los reportes</li>
-            <li>Todos los PDFs incluyen análisis detallado, gráficos y estadísticas profesionales</li>
-            <li>Los reportes se generan en tiempo real con los datos más actualizados</li>
-          </ul>
-        </div>
-
-        <div className="reports-info-card">
-          <h4>ℹ️ Información Adicional</h4>
-          <ul>
-            <li>Tamaño de reportes: entre 10-30 páginas según complejidad</li>
-            <li>Tiempo de generación: 5-30 segundos aproximadamente</li>
-            <li>Formato de salida: PDF con diseño institucional USCO</li>
-            <li>Los filtros son opcionales en la mayoría de reportes</li>
-          </ul>
-        </div>
-      </div>
+     
     </div>
   );
 };

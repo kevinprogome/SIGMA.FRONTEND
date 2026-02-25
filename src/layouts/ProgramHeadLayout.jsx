@@ -48,8 +48,8 @@ export default function ProgramHeadLayout() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              <span className="nav-icon">📊</span>
-              <span className="nav-label">Dashboard</span>
+              <span className="nav-icon"></span>
+              <span className="nav-label">    Dashboard</span>
             </NavLink>
 
           </div>
@@ -63,7 +63,7 @@ export default function ProgramHeadLayout() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              <span className="nav-icon">📚</span>
+              <span className="nav-icon"></span>
               <span className="nav-label">Gestión de Seminarios</span>
             </NavLink>
 
@@ -77,7 +77,7 @@ export default function ProgramHeadLayout() {
                 isActive ? "nav-link active" : "nav-link"
               }
             >
-              <span className="nav-icon">🔔</span>
+              <span className="nav-icon"></span>
               <span className="nav-label">Notificaciones</span>
             </NavLink>
           </div>

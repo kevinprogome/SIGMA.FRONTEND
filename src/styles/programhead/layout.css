@@ -1,7 +1,6 @@
 /* ========================================
    PROGRAM HEAD LAYOUT - SIGMA JEFATURA
    ======================================== */
-
 .program-head-layout {
   display: flex;
   min-height: 100vh;
@@ -12,10 +11,9 @@
 /* ========================================
    SIDEBAR
    ======================================== */
-
 .program-head-sidebar {
   width: 280px;
-  background: linear-gradient(180deg, #7A1117 0%, #5d0d12 100%);
+  background: #5d0d12; /* vinotinto primario */
   color: white;
   padding: 0;
   display: flex;
@@ -31,7 +29,6 @@
 /* ========================================
    SIDEBAR HEADER
    ======================================== */
-
 .sidebar-header {
   padding: 2rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -44,6 +41,7 @@
   margin: 0 0 0.25rem;
   letter-spacing: 2px;
   font-family: "Georgia", "Times New Roman", serif;
+  color: #fff; /* Título blanco */
 }
 
 .sidebar-subtitle {
@@ -60,7 +58,6 @@
   color: rgba(255, 255, 255, 0.8);
   margin: 0;
   word-break: break-word;
-  padding-top: 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 0.75rem;
   max-width: 240px;
@@ -72,7 +69,6 @@
 /* ========================================
    NAVIGATION
    ======================================== */
-
 .sidebar-nav {
   flex: 1;
   padding: 0 0.75rem;
@@ -138,7 +134,6 @@
 /* ========================================
    SIDEBAR FOOTER
    ======================================== */
-
 .sidebar-footer {
   padding: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -167,6 +162,26 @@
 
 .logout-button:active {
   transform: translateY(0);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 1024px) {
+  .program-head-sidebar {
+    width: 220px;
+  }
+  .nav-section-title {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .program-head-sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
 }
 
 /* ========================================

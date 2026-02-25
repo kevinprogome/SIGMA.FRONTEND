@@ -102,7 +102,7 @@ export default function DirectorDashboard() {
         <div className="director-header-content">
           <h1 className="director-title">Mis Estudiantes Asignados</h1>
           <p className="director-subtitle">
-            Vista general de estudiantes bajo tu dirección
+            Vista general de estudiantes bajo tu dirección, con información detallada sobre su modalidad, estado académico y contacto para seguimiento.
           </p>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function DirectorDashboard() {
       <div className="director-filter-panel">
         {/* Búsqueda por nombre */}
         <div className="director-filter-group">
-          <label className="director-filter-label">Buscar por nombre o email</label>
+          <label className="director-filter-label">Buscar por nombre o Correo institucional</label>
           <form className="director-search-box" onSubmit={handleSearchSubmit}>
             <input
               type="text"
@@ -133,25 +133,28 @@ export default function DirectorDashboard() {
           </form>
         </div>
 
-        {/* Filtros por estado */}
+        {/* Filtro por estado (select múltiple) */}
         <div className="director-filter-group">
           <label className="director-filter-label">Filtrar por estado</label>
-          <div className="director-checkbox-group">
+          <select
+            className="director-status-select"
+            value={selectedStatuses}
+            onChange={e => {
+              const options = Array.from(e.target.selectedOptions, option => option.value);
+              setSelectedStatuses(options.filter(v => v !== ""));
+            }}
+            multiple
+            size={Math.min(5, DIRECTOR_STATUS_OPTIONS.length)}
+            disabled={DIRECTOR_STATUS_OPTIONS.length === 0}
+          >
+            <option value="">-- Todos los estados --</option>
             {DIRECTOR_STATUS_OPTIONS.map((status) => (
-              <label 
-                key={status.value}
-                className={`director-checkbox-label ${selectedStatuses.includes(status.value) ? 'active' : ''}`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedStatuses.includes(status.value)}
-                  onChange={() => handleStatusToggle(status.value)}
-                  className="director-checkbox"
-                />
+              <option key={status.value} value={status.value}>
                 {status.label}
-              </label>
+              </option>
             ))}
-          </div>
+          </select>
+          <div className="director-status-select-hint">(Ctrl/Cmd + clic para seleccionar varios)</div>
         </div>
 
         {/* Botón limpiar filtros */}

@@ -10,7 +10,7 @@
 }
 
 .documents-header {
-  background: linear-gradient(90deg, #7A1117 0%, #a01820 100%);
+  background: #5d0d12;
   color: #fff;
   padding: 2rem 2.5rem 1.5rem 2.5rem;
   border-radius: 18px 18px 0 0;
@@ -26,6 +26,7 @@
   margin: 0 0 1.5rem 0;
   font-weight: 900;
   letter-spacing: 0.5px;
+  color: #fff; 
 }
 
 .documents-progress {
@@ -309,7 +310,7 @@
 .document-view-button {
   width: 100%;
   padding: 0.7rem 1.2rem;
-  background: #7A1117;
+  background: #5d0d12;
   color: #fff;
   border: none;
   border-radius: 8px;

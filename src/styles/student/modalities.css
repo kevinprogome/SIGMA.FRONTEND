@@ -19,8 +19,8 @@
 .modalities-title {
   font-family: "Georgia", "Times New Roman", serif;
   text-align: center;
-  font-size: 2.3rem;
-  color: #7A1117;
+  font-size: 2.8rem;
+  color: #5d0d12;
   margin-bottom: 0.5rem;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -30,7 +30,7 @@
 .modalities-subtitle {
   color: #7A1117cc;
   text-align: center;
-  font-size: 1.13rem;
+  font-size: 1.5rem;
   margin-bottom: 2.2rem;
   font-weight: 500;
 }
@@ -339,7 +339,7 @@
 .modality-button {
   width: 100%;
   padding: 0.85rem 1.5rem;
-  background-color: #7A1117;
+  background-color: #5d0d12;
   color: #ffffff;
   border: none;
   border-radius: 10px;

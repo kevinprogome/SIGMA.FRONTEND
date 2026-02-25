@@ -87,7 +87,7 @@ export default function ExaminerDashboard() {
         status === "UNDER_EVALUATION_PRIMARY_EXAMINERS" || 
         status === "UNDER_EVALUATION_TIEBREAKER" ||
         status === "DISAGREEMENT_REQUIRES_TIEBREAKER") {
-      return "📊 Evaluar Sustentación";
+      return " Evaluar Sustentación";
     }
     if (status === "EXAMINERS_ASSIGNED") return "Revisar Documentos";
     return "Ver Detalles";
@@ -107,9 +107,9 @@ export default function ExaminerDashboard() {
     <div className="examiner-dashboard-container">
       {/* Header */}
       <div className="examiner-header">
-        <h1 className="examiner-title">Mis Asignaciones como Juez</h1>
+        <h1 className="examiner-title">Mis Asignaciones</h1>
         <p className="examiner-subtitle">
-          Modalidades de grado en las que participas como evaluador - Universidad Surcolombiana
+          Modalidades de grado en las que participas como evaluador, con información detallada sobre fechas, estudiantes asignados y estado de cada sustentación.
         </p>
       </div>
 
@@ -126,14 +126,14 @@ export default function ExaminerDashboard() {
           onClick={() => setShowFilters(!showFilters)}
           className="examiner-btn examiner-btn-primary"
         >
-          {showFilters ? "🔽 Ocultar Filtros" : "🔍 Mostrar Filtros"}
+          {showFilters ? "🔽 Ocultar Filtros" : " Mostrar Filtros"}
         </button>
       </div>
 
       {/* Filter Panel */}
       {showFilters && (
         <div className="examiner-filter-panel">
-          <h3 className="examiner-filter-title">🔍 Filtros de Búsqueda</h3>
+          <h3 className="examiner-filter-title"> Filtros de Búsqueda</h3>
           
           <div className="examiner-filter-group">
             <label className="examiner-filter-label">
@@ -149,22 +149,26 @@ export default function ExaminerDashboard() {
           </div>
 
           <div className="examiner-filter-group">
-            <label className="examiner-filter-label">Filtrar por estado</label>
-            <div className="examiner-checkbox-grid">
+            <label className="examiner-filter-label" htmlFor="status-select">Filtrar por estado</label>
+            <select
+              id="status-select"
+              className="examiner-input examiner-multiselect"
+              multiple
+              value={filters.statuses}
+              onChange={e => {
+                const selected = Array.from(e.target.selectedOptions, option => option.value);
+                setFilters(prev => ({ ...prev, statuses: selected }));
+              }}
+              style={{ minHeight: '120px', fontSize: '1rem', background: '#fff', border: '2px solid #B7A873', color: '#5d0d12', fontWeight: 600 }}
+            >
               {Object.entries(EXAMINER_MODALITY_STATUS).map(([key, value]) => (
-                <label
-                  key={key}
-                  className={`examiner-checkbox-label ${filters.statuses.includes(value) ? 'active' : ''}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={filters.statuses.includes(value)}
-                    onChange={() => handleStatusToggle(value)}
-                    className="examiner-checkbox"
-                  />
-                  <span>{getStatusLabel(value)}</span>
-                </label>
+                <option key={key} value={value} style={{ color: '#5d0d12', fontWeight: 600 }}>
+                  {getStatusLabel(value)}
+                </option>
               ))}
+            </select>
+            <div style={{ fontSize: '0.95rem', color: '#7A1117', marginTop: '4px', fontWeight: 500 }}>
+              Mantén presionada <b>Ctrl</b> para seleccionar múltiples estados (Windows)
             </div>
           </div>
 

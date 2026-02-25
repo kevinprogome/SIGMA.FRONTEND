@@ -31,10 +31,9 @@
   color: #D5CBA0;
   text-shadow: 0 1px 4px #7A111733;
 }
-.filter-divider {
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, #D5CBA0 0%, #7A1117 100%);
+  background: linear-gradient(90deg, #D5CBA0 0%, #5d0d12 100%);
   border-radius: 2px;
   margin: 0.7rem 0 0.7rem 0;
 }
@@ -50,9 +49,8 @@
   gap: 0.7rem;
   align-items: center;
 }
-.filter-tag-premium {
   background: #D5CBA0;
-  color: #7A1117;
+  color: #5d0d12;
   border-radius: 16px;
   padding: 0.35rem 1rem;
   font-size: 0.95rem;
@@ -63,9 +61,8 @@
   align-items: center;
   gap: 0.4rem;
 }
-.filter-tag-icon {
   font-size: 1.1rem;
-  color: #7A1117;
+  color: #5d0d12;
   margin-right: 0.2rem;
 }
 /* ========================================
@@ -84,9 +81,8 @@
   min-width: 260px;
 }
 
-.filter-label {
   font-weight: 700;
-  color: #7A1117;
+  color: #5d0d12;
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
   display: block;
@@ -99,103 +95,92 @@
   align-items: center;
 }
 
-.search-input {
   flex: 1;
   padding: 0.7rem 1rem;
   border: 2px solid #D5CBA0;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
-  color: #7A1117;
+  color: #5d0d12;
   background: #f8f6ef;
-  box-shadow: 0 2px 8px rgba(122,17,23,0.08);
+  box-shadow: 0 2px 8px rgba(93,13,18,0.08);
   font-family: "Georgia", "Times New Roman", serif;
   transition: border-color 0.2s;
 }
-.search-input:focus {
-  border-color: #7A1117;
+  border-color: #5d0d12;
   outline: none;
 }
 
-.search-button {
-  background: #7A1117;
+  background: #5d0d12;
   color: #fff;
   border: none;
   border-radius: 8px;
   padding: 0.7rem 1.2rem;
   font-weight: 700;
   font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(122,17,23,0.08);
+  box-shadow: 0 2px 8px rgba(93,13,18,0.08);
   cursor: pointer;
   font-family: "Georgia", "Times New Roman", serif;
   transition: background 0.2s;
 }
-.search-button:hover {
-  background: #a01820;
+  background: #5d0d12;
 }
 
-.status-dropdown {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 2px solid #D5CBA0;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 700;
-  color: #7A1117;
+  color: #5d0d12;
   background: #f8f6ef;
   margin-top: 0.5rem;
   min-height: 3rem;
-  box-shadow: 0 2px 8px rgba(122,17,23,0.08);
+  box-shadow: 0 2px 8px rgba(93,13,18,0.08);
   font-family: "Georgia", "Times New Roman", serif;
   transition: border-color 0.2s;
 }
-.status-dropdown:focus {
-  border-color: #7A1117;
+  border-color: #5d0d12;
   outline: none;
 }
 
-.status-dropdown-hint {
-  color: #7A1117;
+  color: #5d0d12;
   font-weight: 500;
   margin-top: 0.25rem;
   display: block;
   font-size: 0.95rem;
 }
 
-.apply-statuses-button {
   margin-top: 0.5rem;
-  background: #7A1117;
+  background: #5d0d12;
   color: #fff;
   border: none;
   border-radius: 8px;
   padding: 0.5rem 1.2rem;
   font-weight: 700;
   font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(122,17,23,0.08);
+  box-shadow: 0 2px 8px rgba(93,13,18,0.08);
   cursor: pointer;
   font-family: "Georgia", "Times New Roman", serif;
   transition: background 0.2s;
 }
-.apply-statuses-button:hover {
-  background: #a01820;
+  background: #5d0d12;
 }
 
-.clear-filters-button {
   background: #fff;
-  color: #7A1117;
+  color: #5d0d12;
   border: 2px solid #D5CBA0;
   border-radius: 8px;
   padding: 0.5rem 1.2rem;
   font-weight: 700;
   font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(122,17,23,0.08);
+  box-shadow: 0 2px 8px rgba(93,13,18,0.08);
   cursor: pointer;
   margin-left: 1rem;
   margin-top: 0.5rem;
   font-family: "Georgia", "Times New Roman", serif;
   transition: background 0.2s;
 }
-.clear-filters-button:hover {
   background: #f8f6ef;
 }
 
@@ -206,15 +191,13 @@
   gap: 0.7rem;
   align-items: center;
 }
-.active-filters-title {
   font-weight: 700;
-  color: #7A1117;
+  color: #5d0d12;
   font-size: 1.05rem;
   font-family: "Georgia", "Times New Roman", serif;
 }
-.filter-tag {
   background: #D5CBA0;
-  color: #7A1117;
+  color: #5d0d12;
   border-radius: 16px;
   padding: 0.35rem 1rem;
   font-size: 0.95rem;
@@ -252,15 +235,12 @@
    ======================================== */
 
 .students-pending-header {
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  margin-bottom: 2rem;
   padding: 2.5rem 2rem 2rem 2rem;
-  background: linear-gradient(90deg, #7A1117 0%, #a01820 100%);
+  margin-bottom: 2rem;
+  background-color: #5d0d12;
   color: #fff;
   border-radius: 18px 18px 0 0;
-  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
+  box-shadow: 0 8px 32px rgba(93, 13, 18, 0.15);
   border-bottom: none;
 }
 
@@ -414,9 +394,8 @@
   color: #333;
 }
 
-.student-name {
   font-weight: 600;
-  color: #7A1117;
+  color: #5d0d12;
   font-size: 1rem;
 }
 
@@ -461,10 +440,9 @@
   border: 1px solid #28a745;
 }
 
-.status-badge.rejected {
   background-color: #fde1e1;
-  color: #7A1117;
-  border: 1px solid #7A1117;
+  color: #5d0d12;
+  border: 1px solid #5d0d12;
 }
 
 .status-badge.defense {
@@ -489,9 +467,8 @@
    ACTION BUTTON
    ======================================== */
 
-.view-profile-button {
   padding: 0.7rem 0.9rem;
-  background-color: #7A1117;
+  background-color: #5d0d12;
   color: white;
   border: none;
   border-radius: 8px;
@@ -499,16 +476,15 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(122, 17, 23, 0.3);
+  box-shadow: 0 2px 6px rgba(93, 13, 18, 0.3);
   white-space: nowrap;
   margin-left: auto;
   margin-right: 1rem;
 }
 
-.view-profile-button:hover {
-  background-color: #741015;
+  background-color: #5d0d12;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(122, 17, 23, 0.4);
+  box-shadow: 0 4px 10px rgba(93, 13, 18, 0.4);
 }
 
 .view-profile-button:active {

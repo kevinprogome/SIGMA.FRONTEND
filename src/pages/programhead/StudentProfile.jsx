@@ -159,6 +159,54 @@ export default function StudentProfileProgramHead() {
   // Helper para obtener etiqueta legible del estado
   const getStatusLabel = (status) => {
     const statusLabels = {
+      // ========== SELECCIÓN Y REVISIÓN INICIAL ========== 
+      "MODALITY_SELECTED": "Modalidad seleccionada",
+      "UNDER_REVIEW_PROGRAM_HEAD": "En revisión por Jefe de Programa",
+      "CORRECTIONS_REQUESTED_PROGRAM_HEAD": "Correcciones solicitadas por Jefe de Programa",
+      "CORRECTIONS_SUBMITTED": "Correcciones enviadas",
+      "CORRECTIONS_APPROVED": "Correcciones aprobadas",
+      "CORRECTIONS_REJECTED_FINAL": "Correcciones rechazadas (final)",
+
+      // ========== REVISIÓN DE COMITÉ ========== 
+      "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE": "Listo para Comité de Currículo",
+      "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE": "En revisión por Comité de Currículo",
+      "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité de Currículo",
+      "PROPOSAL_APPROVED": "Propuesta aprobada",
+
+      // ========== PROGRAMACIÓN DE SUSTENTACIÓN ========== 
+      "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR": "Sustentación solicitada por Director",
+      "DEFENSE_SCHEDULED": "Sustentación programada",
+
+      // ========== ASIGNACIÓN DE JUECES (NUEVO) ========== 
+      "EXAMINERS_ASSIGNED": "Jueces asignados",
+      "READY_FOR_EXAMINERS": "Listo para jueces",
+      "CORRECTIONS_REQUESTED_EXAMINERS": "Correcciones solicitadas por jueces",
+      "READY_FOR_DEFENSE": "Listo para sustentación",
+      "FINAL_REVIEW_COMPLETED": "Revisión final completada",
+
+      // ========== SUSTENTACIÓN Y EVALUACIÓN ========== 
+      "DEFENSE_COMPLETED": "Sustentación realizada",
+      "UNDER_EVALUATION_PRIMARY_EXAMINERS": "En evaluación por jueces principales",
+      "DISAGREEMENT_REQUIRES_TIEBREAKER": "Desacuerdo, requiere juez desempate",
+      "UNDER_EVALUATION_TIEBREAKER": "En evaluación por juez desempate",
+      "EVALUATION_COMPLETED": "Evaluación completada",
+
+      // ========== RESULTADO FINAL ========== 
+      "GRADED_APPROVED": "Aprobado",
+      "GRADED_FAILED": "Reprobado",
+      "MODALITY_CLOSED": "Modalidad cerrada",
+      "SEMINAR_CANCELED": "Seminario cancelado",
+
+      // ========== CANCELACIONES ========== 
+      "MODALITY_CANCELLED": "Modalidad cancelada",
+      "CANCELLATION_REQUESTED": "Cancelación solicitada",
+      "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR": "Cancelación aprobada por Director",
+      "CANCELLATION_REJECTED_BY_PROJECT_DIRECTOR": "Cancelación rechazada por Director",
+      "CANCELLED_WITHOUT_REPROVAL": "Cancelado sin reprobación",
+      "CANCELLATION_REJECTED": "Cancelación rechazada",
+      "CANCELLED_BY_CORRECTION_TIMEOUT": "Cancelado por tiempo de corrección",
+
+      // ========== ESTADOS ANTERIORES Y GENERALES ========== 
       "PENDING": "Pendiente",
       "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW": "Aceptado",
       "REJECTED_FOR_PROGRAM_HEAD_REVIEW": "Rechazado",
@@ -243,7 +291,7 @@ export default function StudentProfileProgramHead() {
 
       {/* Student Info Card - EXPANDIDA */}
       <div className="student-info-card">
-        <h3 className="card-section-title">👤 Información del Estudiante</h3>
+        <h3 className="card-section-title"> Información del Estudiante</h3>
         <div className="student-info-grid">
           <div className="student-info-item">
             <span className="student-info-label">Nombre Completo</span>
@@ -390,7 +438,7 @@ export default function StudentProfileProgramHead() {
 
       {/* Documents Statistics */}
       <div className="documents-stats-card">
-        <h3 className="card-section-title">📊 Estadísticas de Documentos</h3>
+        <h3 className="card-section-title"> Estadísticas de Documentos</h3>
         <div className="stats-grid">
           <div className="stat-item total">
             <div className="stat-number">{profile.totalDocuments || 0}</div>
@@ -413,11 +461,11 @@ export default function StudentProfileProgramHead() {
 
       {/* Documents Section - SOLO DOCUMENTOS CARGADOS */}
       <div className="documents-section">
-        <h3 className="documents-section-title">📄 Documentos</h3>
+        <h3 className="documents-section-title"> Documentos</h3>
 
         {uploadedDocs.length === 0 ? (
           <div className="documents-empty">
-            <div className="documents-empty-icon">📭</div>
+            <div className="documents-empty-icon"></div>
             <p className="documents-empty-text">
               El estudiante aún no ha cargado documentos
             </p>

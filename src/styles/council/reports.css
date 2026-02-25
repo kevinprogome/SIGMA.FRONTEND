@@ -1,3 +1,288 @@
+/* ===============================
+   CALENDAR FILTERS PANEL
+   =============================== */
+.calendar-filters-panel {
+  background: linear-gradient(120deg, #fff 80%, #f8e9eb 100%);
+  border: 2px solid #7A1117;
+  border-radius: 18px;
+  padding: 2.2rem 2.2rem 1.7rem 2.2rem;
+  box-shadow: 0 6px 32px 0 rgba(122,17,23,0.13);
+  margin-bottom: 28px;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #5d0d12;
+  font-size: 1.09rem;
+  max-width: 560px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.calendar-filters-panel:hover, .calendar-filters-panel:focus-within {
+  box-shadow: 0 10px 40px 0 rgba(122,17,23,0.18);
+  border-color: #5d0d12;
+}
+.calendar-alert-info {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: #f8e9eb;
+  color: #7A1117;
+  border-radius: 8px;
+  padding: 0.85rem 1.2rem;
+  font-weight: 600;
+  font-size: 1.04rem;
+  margin-bottom: 1.5rem;
+}
+.calendar-alert-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.calendar-filter-group {
+  margin-bottom: 22px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0e3e5;
+}
+.calendar-filter-group:last-child {
+  border-bottom: none;
+}
+.calendar-label {
+  font-weight: 700;
+  color: #7A1117;
+  margin-bottom: 7px;
+  display: block;
+  letter-spacing: 0.2px;
+  font-size: 1.08em;
+  text-shadow: 0 1px 0 #f8e9eb;
+}
+.calendar-hint {
+  color: #666;
+  font-size: 0.92em;
+  font-weight: 400;
+  margin-left: 0.3rem;
+}
+.calendar-input {
+  border: 1.5px solid #e6d7da;
+  border-radius: 7px;
+  padding: 9px 13px;
+  font-size: 1em;
+  color: #5d0d12;
+  outline: none;
+  font-family: inherit;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f9f6f7;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(122,17,23,0.03);
+}
+.calendar-input:focus {
+  border-color: #7A1117;
+  box-shadow: 0 0 0 2px #f8e9eb;
+}
+.calendar-checkbox-group {
+  margin-bottom: 14px;
+}
+.calendar-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #5d0d12;
+  border-radius: 5px;
+  padding: 2px 6px;
+  transition: background 0.15s;
+}
+.calendar-checkbox-label:hover {
+  background: #f8e9eb;
+}
+.calendar-checkbox-input {
+  accent-color: #7A1117;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #7A1117;
+  transition: box-shadow 0.15s;
+}
+.calendar-checkbox-input:focus {
+  box-shadow: 0 0 0 2px #f8e9eb;
+}
+/* ===============================
+   STUDENT LISTING FILTERS PANEL
+   =============================== */
+.student-listing-filters-panel {
+  background: linear-gradient(120deg, #fff 80%, #f8e9eb 100%);
+  border: 2px solid #7A1117;
+  border-radius: 18px;
+  padding: 2.2rem 2.2rem 1.7rem 2.2rem;
+  box-shadow: 0 6px 32px 0 rgba(122,17,23,0.13);
+  margin-bottom: 28px;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #5d0d12;
+  font-size: 1.09rem;
+  max-width: 560px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.student-listing-filters-panel:hover, .student-listing-filters-panel:focus-within {
+  box-shadow: 0 10px 40px 0 rgba(122,17,23,0.18);
+  border-color: #5d0d12;
+}
+.student-listing-filter-group {
+  margin-bottom: 26px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0e3e5;
+}
+.student-listing-filter-group:last-child {
+  border-bottom: none;
+}
+.student-listing-label {
+  font-weight: 700;
+  color: #7A1117;
+  margin-bottom: 7px;
+  display: block;
+  letter-spacing: 0.2px;
+  font-size: 1.08em;
+  text-shadow: 0 1px 0 #f8e9eb;
+}
+.student-listing-input {
+  border: 1.5px solid #e6d7da;
+  border-radius: 7px;
+  padding: 9px 13px;
+  font-size: 1em;
+  color: #5d0d12;
+  outline: none;
+  font-family: inherit;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f9f6f7;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(122,17,23,0.03);
+}
+.student-listing-input:focus {
+  border-color: #7A1117;
+  box-shadow: 0 0 0 2px #f8e9eb;
+}
+.student-listing-select {
+  border: 1.5px solid #e6d7da;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 1em;
+  color: #7A1117;
+  outline: none;
+  font-family: inherit;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(122,17,23,0.03);
+  appearance: none;
+  text-align: left;
+}
+.student-listing-select:focus {
+  border-color: #7A1117;
+  box-shadow: 0 0 0 2px #f8e9eb;
+}
+.student-listing-select option {
+  color: #7A1117;
+  background: #fff;
+  font-weight: 600;
+}
+.student-listing-label {
+  font-weight: 700;
+  color: #444;
+  margin-bottom: 7px;
+  display: block;
+  letter-spacing: 0.2px;
+  font-size: 1.08em;
+  text-shadow: 0 1px 0 #f8e9eb;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.student-listing-checkbox-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 0 2px 2px;
+  background: #faf7f8;
+  border-radius: 7px;
+  border: 1px solid #f0e3e5;
+  box-shadow: 0 1px 2px rgba(122,17,23,0.02);
+}
+.student-listing-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #5d0d12;
+  border-radius: 5px;
+  padding: 2px 6px;
+  transition: background 0.15s;
+}
+.student-listing-checkbox-label:hover {
+  background: #f8e9eb;
+}
+.student-listing-checkbox-input {
+  accent-color: #7A1117;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #7A1117;
+  transition: box-shadow 0.15s;
+}
+.student-listing-checkbox-input:focus {
+  box-shadow: 0 0 0 2px #f8e9eb;
+}
+.student-listing-checkbox-group {
+  margin-bottom: 14px;
+}
+.student-listing-filters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-top: 0.5rem;
+}
+/* Estilo para el select múltiple de tipos de modalidad en filtros de director individual */
+.individual-director-select-multimodal {
+  border: 1.5px solid #e6d7da;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 1em;
+  color: #5d0d12;
+  outline: none;
+  font-family: inherit;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f9f6f7;
+  transition: border-color 0.2s;
+  font-weight: 500;
+  min-height: 44px;
+}
+.individual-director-select-multimodal:focus {
+  border-color: #7A1117;
+}
+.individual-director-select-multimodal option {
+  padding: 6px 10px;
+}
+.individual-director-select-hint {
+  font-size: 0.92em;
+  color: #7A1117;
+  margin-top: 6px;
+}
+/* Forzar minúsculas/capitalización normal en los filtros de director individual */
+.individual-director-label,
+.individual-director-checkbox-label,
+.individual-director-select,
+.individual-director-checkbox-list label,
+.individual-director-select option {
+  text-transform: none !important;
+}
 /* ========================================
    INDIVIDUAL DIRECTOR FILTERS PANEL
    ======================================== */

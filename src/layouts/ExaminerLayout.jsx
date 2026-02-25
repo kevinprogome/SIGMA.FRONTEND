@@ -44,19 +44,11 @@ export default function ExaminerLayout() {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            <span className="nav-icon">👨‍⚖️</span>
+            <span className="nav-icon"></span>
             Mis Asignaciones
           </NavLink>
 
-          <NavLink
-            to="/examiner/notifications"
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-          >
-            <span className="nav-icon">🔔</span>
-            Notificaciones
-          </NavLink>
+          
         </nav>
 
         <div className="sidebar-footer">

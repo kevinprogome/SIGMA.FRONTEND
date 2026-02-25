@@ -23,7 +23,7 @@
 }
 
 .examiner-header {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  background:  #5d0d12;
   color: white;
   padding: 2.5rem 3rem;
   border-radius: 16px;
@@ -125,20 +125,22 @@
 }
 
 .examiner-filter-panel {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
+  background: linear-gradient(135deg, #f8f6ef 0%, #D5CBA0 100%);
+  border-radius: 16px;
+  padding: 2.2rem 2rem 2rem 2rem;
   margin-bottom: 2.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 8px 32px rgba(93, 13, 18, 0.10);
+  border: 2px solid #B7A873;
 }
 
 .examiner-filter-title {
   font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 1.35rem;
-  color: #7A1117;
+  font-size: 1.45rem;
+  color: #5d0d12;
   margin: 0 0 1.75rem 0;
   font-weight: 700;
+  border-bottom: 3px solid #B7A873;
+  padding-bottom: 0.5rem;
 }
 
 .examiner-filter-group {
@@ -149,26 +151,26 @@
   display: block;
   font-size: 1rem;
   font-weight: 700;
-  color: #333;
+  color: #5d0d12;
   margin-bottom: 0.75rem;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .examiner-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
+  border: 2px solid #B7A873;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-family: 'Arial', 'Helvetica', sans-serif;
   transition: all 0.3s ease;
+  background: #fff;
 }
 
 .examiner-input:focus {
   outline: none;
-  border-color: #7A1117;
-  box-shadow: 0 0 0 4px rgba(122, 17, 23, 0.1);
+  border-color: #5d0d12;
+  box-shadow: 0 0 0 4px rgba(93, 13, 18, 0.10);
 }
 
 .examiner-checkbox-grid {
@@ -183,32 +185,34 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
+  background: #f8f6ef;
+  border: 2px solid #B7A873;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
+  color: #5d0d12;
 }
 
 .examiner-checkbox-label:hover {
   background: #fff;
-  border-color: #7A1117;
+  border-color: #5d0d12;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.15);
+  box-shadow: 0 4px 12px rgba(93, 13, 18, 0.13);
 }
 
 .examiner-checkbox-label.active {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-color: #7A1117;
-  font-weight: 600;
+  background: linear-gradient(135deg, #D5CBA0 0%, #B7A873 100%);
+  border-color: #5d0d12;
+  font-weight: 700;
+  color: #5d0d12;
 }
 
 .examiner-checkbox {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #7A1117;
+  accent-color: #5d0d12;
 }
 
 .examiner-filter-actions {
@@ -220,16 +224,16 @@
 .examiner-filter-info {
   margin-top: 1.5rem;
   padding: 1.25rem;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-left: 5px solid #7A1117;
+  background: linear-gradient(135deg, #D5CBA0 0%, #B7A873 100%);
+  border-left: 5px solid #5d0d12;
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #7A1117;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5d0d12;
 }
 
 .examiner-stats-card {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  background: #5d0d12;
   color: white;
   padding: 2.5rem 3rem;
   border-radius: 16px;
@@ -291,69 +295,104 @@
   line-height: 1.6;
 }
 
+
 .examiner-table-container {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(135deg, #fffdfa 0%, #f8f6ef 100%);
+  border-radius: 22px;
+  box-shadow: 0 10px 32px rgba(122, 17, 23, 0.13), 0 2px 8px rgba(183, 168, 115, 0.10);
   overflow: hidden;
   animation: examinerFadeIn 0.5s ease-out;
+  border: 2.5px solid #B7A873;
+  margin-bottom: 2.5rem;
 }
+
 
 .examiner-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  background: transparent;
 }
+
 
 .examiner-table thead {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  background: #5d0d12;
+  color: #fff;
 }
+
 
 .examiner-table th {
-  padding: 1.2rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   text-align: left;
   font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.8px;
+  border-bottom: 3px solid #B7A873;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
+
 .examiner-table tbody tr {
-  border-bottom: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
+  border-bottom: 1.5px solid #e5dec2;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  background: transparent;
+}
+
+.examiner-table tbody tr:nth-child(even) {
+  background: #f8f6ef;
 }
 
 .examiner-table tbody tr:hover {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  transform: scale(1.01);
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.15);
+  background: linear-gradient(90deg, #fff3cd 0%, #fde68a 100%);
+  transform: scale(1.012);
+  box-shadow: 0 6px 18px rgba(122, 17, 23, 0.10);
+  z-index: 1;
 }
 
+
 .examiner-table td {
-  padding: 1.2rem 1.5rem;
-  font-size: 0.9rem;
-  color: #333;
+  padding: 1.15rem 1.5rem;
+  font-size: 1rem;
+  color: #5d0d12;
+  background: transparent;
+  vertical-align: middle;
+  border: none;
 }
+
+.examiner-table td:last-child {
+  text-align: center;
+}
+
 
 .examiner-student-name {
   font-weight: 700;
   color: #7A1117;
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-family: 'Georgia', 'Times New Roman', serif;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.2px;
 }
+
 
 .examiner-student-email {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.93rem;
+  color: #8a8a8a;
   font-style: italic;
+  margin-top: 0.1rem;
 }
 
+
 .examiner-modality {
-  color: #555;
-  font-weight: 600;
-  font-size: 1rem;
+  color: #B7A873;
+  font-weight: 700;
+  font-size: 1.01rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  letter-spacing: 0.2px;
 }
 
 .examiner-status-badge {
@@ -362,7 +401,7 @@
   border-radius: 25px;
   font-size: 0.9rem;
   font-weight: 700;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }

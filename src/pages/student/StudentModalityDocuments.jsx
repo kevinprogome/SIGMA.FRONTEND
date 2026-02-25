@@ -246,7 +246,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
           <div className="documents-progress">
             <div className="documents-progress-info">
               <span className="documents-progress-text">
-                📋 Documentos obligatorios: {uploadedMandatoryCount} de {mandatoryDocs.length}
+                 Documentos obligatorios: {uploadedMandatoryCount} de {mandatoryDocs.length}
               </span>
               <span className="documents-progress-percentage">{progressPercentage}%</span>
             </div>
@@ -295,7 +295,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
               alignItems: 'center',
               gap: '0.5rem',
             }}>
-              <span style={{ fontSize: '1.5rem', color: '#D5CBA0' }}>📑</span>
+              
               Documentos Obligatorios
             </h4>
             <p className="documents-section-subtitle" style={{
@@ -429,7 +429,7 @@ function DocumentCard({
       {isUploaded && (
         <div className="document-uploaded-info">
           <div className="uploaded-info-row">
-            <span className="uploaded-info-label">📅 Fecha de carga:</span>
+            <span className="uploaded-info-label"> Fecha de carga:</span>
             <span className="uploaded-info-value">
               {new Date(doc.uploadDate).toLocaleString("es-CO", {
                 dateStyle: "medium",
@@ -439,7 +439,7 @@ function DocumentCard({
           </div>
 
           <div className="uploaded-info-row">
-            <span className="uploaded-info-label">📊 Estado:</span>
+            <span className="uploaded-info-label">Estado:</span>
             <span className={`uploaded-status-badge ${getStatusClass(doc.status)}`}>
               {getStatusLabel(doc.status)}
             </span>
@@ -447,7 +447,7 @@ function DocumentCard({
 
           {doc.notes && (
             <div className="uploaded-info-row">
-              <span className="uploaded-info-label">💬 Notas:</span>
+              <span className="uploaded-info-label">Notas:</span>
               <span className="uploaded-info-value notes">{doc.notes}</span>
             </div>
           )}
@@ -492,7 +492,7 @@ function DocumentCard({
             </div>
           ) : (
             <div className="document-locked-message">
-              🔒 Ya subiste este documento. Si necesitas modificarlo, contacta al Jefe de Programa.
+              Ya subiste este documento. Si necesitas modificarlo, contacta al Jefe de Programa.
             </div>
           )}
         </div>

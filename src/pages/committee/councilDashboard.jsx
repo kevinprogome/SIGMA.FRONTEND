@@ -209,18 +209,7 @@ export default function CommitteeDashboard() {
     return (
       <div className="students-pending-container">
         {/* Header */}
-        <div className="students-pending-header" style={{
-          background: 'linear-gradient(90deg, #7A1117 0%, #D5CBA0 100%)',
-          color: '#fff',
-          borderRadius: '18px 18px 0 0',
-          boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)',
-          padding: '2.5rem 2rem 2rem 2rem',
-          marginBottom: '2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          borderBottom: 'none',
-        }}>
+        <div className="students-pending-header">
           <h2 className="students-pending-title" style={{
             fontSize: '2.5rem',
             color: '#fff',
@@ -228,9 +217,9 @@ export default function CommitteeDashboard() {
             fontFamily: 'Georgia, Times New Roman, serif',
             fontWeight: 900,
             letterSpacing: '0.7px',
-            textShadow: '0 2px 8px #7A111733',
+            textShadow: '0 2px 8px #5d0d1233',
           }}>
-            Gestión de Modalidades <span style={{color:'#D5CBA0'}}>– Comité de Currículo</span>
+            Gestión de Modalidades - Comité de Currículo de Programa
           </h2>
           <p className="students-pending-subtitle" style={{
             color: '#f7f7fa',
@@ -238,14 +227,14 @@ export default function CommitteeDashboard() {
             fontSize: '1.15rem',
             fontWeight: 600,
             letterSpacing: '0.2px',
-            textShadow: '0 1px 4px #7A111733',
+            textShadow: '0 1px 4px #5d0d1233',
           }}>
             Revisa y valida la documentación presentada, asigna directores de proyecto y coordina la programación de sustentaciones conforme a los lineamientos académicos vigentes.
           </p>
           <div style={{
             marginTop: '1.2rem',
             background: 'rgba(213,203,160,0.13)',
-            color: '#7A1117',
+            color: '#5d0d12',
             borderRadius: '8px',
             padding: '0.7rem 1.2rem',
             fontWeight: 700,
@@ -301,7 +290,7 @@ export default function CommitteeDashboard() {
           padding: '1.3rem 1.5rem',
         }}>
           <div className="filter-header" style={{marginBottom:'0.7rem',display:'flex',alignItems:'center',gap:'0.7rem'}}>
-            <span className="filter-icon" style={{fontSize:'1.7rem',color:'#7A1117',textShadow:'0 1px 4px #D5CBA0'}}>🔎</span>
+            
             <label className="filter-label" style={{fontSize:'1.25rem',fontWeight:900,letterSpacing:'0.5px'}}>Buscar por nombre o email</label>
           </div>
           <form onSubmit={handleSearchSubmit} className="search-form" style={{marginTop:'0.5rem'}}>
@@ -332,7 +321,7 @@ export default function CommitteeDashboard() {
           padding: '1.3rem 1.5rem',
         }}>
           <div className="filter-header" style={{marginBottom:'0.7rem',display:'flex',alignItems:'center',gap:'0.7rem'}}>
-            <span className="filter-icon" style={{fontSize:'1.7rem',color:'#7A1117',textShadow:'0 1px 4px #D5CBA0'}}>📋</span>
+            
             <label className="filter-label" style={{fontSize:'1.25rem',fontWeight:900,letterSpacing:'0.5px'}}>Filtrar por estado</label>
           </div>
           <div style={{background:'#f8f6ef',border:'2px solid #D5CBA0',borderRadius:'8px',padding:'0.7rem 0.7rem',marginBottom:'0.7rem',boxShadow:'0 2px 8px rgba(122,17,23,0.08)'}}>
@@ -465,7 +454,7 @@ export default function CommitteeDashboard() {
         }}>
           <div className="results-count" style={{
             fontWeight: 700,
-            color: '#7A1117',
+            color: '#010101',
             fontSize: '1.1rem',
             padding: '1rem 1.2rem 0.5rem 1.2rem',
             fontFamily: 'Georgia, Times New Roman, serif',
@@ -482,7 +471,7 @@ export default function CommitteeDashboard() {
             fontFamily: 'Georgia, Times New Roman, serif',
           }}>
             <thead style={{
-              background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)',
+              background: 'linear-gradient(135deg, #5d0d12 1000%)',
               color: 'white',
             }}>
               <tr>
@@ -498,7 +487,7 @@ export default function CommitteeDashboard() {
               {filteredStudents.map((s) => (
                 <tr key={s.studentModalityId} style={{borderBottom:'1px solid #e0e0e0',transition:'all 0.3s ease',background:'#fff'}}>
                   <td data-label="Estudiante">
-                    <span className="student-name" style={{fontWeight:600,color:'#7A1117',fontSize:'1.05rem'}}>{s.studentName}</span>
+                    <span className="student-name" style={{fontWeight:300,color:'#7A1117',fontSize:'1.05rem'}}>{s.studentName}</span>
                   </td>
                   <td data-label="Email">
                     <span className="student-email" style={{color:'#555',fontWeight:500,fontSize:'0.98rem'}}>{s.studentEmail}</span>
@@ -509,7 +498,7 @@ export default function CommitteeDashboard() {
                   <td data-label="Estado">
                     <span
                       className={`status-badge ${getStatusClass(s.currentStatus)}`}
-                      style={{display:'inline-block',padding:'0.4rem 1rem',borderRadius:'20px',fontSize:'0.92rem',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.3px',background:'#D5CBA0',color:'#7A1117',border:'1px solid #D5CBA0'}}
+                      style={{display:'inline-block',padding:'0.4rem 1rem',borderRadius:'20px',fontSize:'0.92rem',fontWeight:400,textTransform:'none',letterSpacing:'0.3px',background:'#D5CBA0',color:'#7A1117',border:'1px solid #D5CBA0'}}
                     >
                       {getStatusLabel(s.currentStatus)}
                     </span>
