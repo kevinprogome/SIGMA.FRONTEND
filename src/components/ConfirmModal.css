@@ -149,13 +149,13 @@
 
 .confirm-modal-btn.confirm.warning {
   background: #5d0d12;
-  color: #7A1117;
+  color: #fff;
   border: 2px solid #FFD700;
 }
 
 .confirm-modal-btn.confirm.warning:hover:not(:disabled) {
-  background: #5d0d12;
-  color: #7A1117;
+  background: #7A1117;
+  color: #fff;
   box-shadow: 0 4px 12px rgba(213, 203, 160, 0.18);
   border-color: #7A1117;
 }
