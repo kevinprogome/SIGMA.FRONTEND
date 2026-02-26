@@ -366,14 +366,15 @@
 }
 
 .profile-modal-warning {
-  background: #fff3cd;
-  border-left: 4px solid #ffc107;
+  background: linear-gradient(135deg, #fdf6e3 0%, #f8edd0 100%);
+  border-left: 4px solid #d4af37;
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 1.5rem;
-  color: #856404;
+  color: #7a5c00;
   font-size: 0.95rem;
   line-height: 1.6;
+  box-shadow: 0 4px 12px rgba(184, 134, 11, 0.12);
 }
 
 .profile-modal-warning strong {
@@ -520,8 +521,8 @@
 
 .profile-button.secondary {
   background: #f8f6ef;
-  color: #7A1117;
-  border: 2px solid #7A1117;
+  color: #5d0d12;
+  border: 2px solid #5d0d12;
   font-weight: 700;
 }
 
@@ -531,7 +532,7 @@
 }
 
 .profile-button.primary {
-  background: linear-gradient(90deg, #7A1117 0%, #a31621 100%);
+  background: #5d0d12;
 }
 
 /* ========================================
@@ -644,16 +645,17 @@
 }
 
 /* Advertencia en modal */
+/* Advertencia en modal - Dorado Institucional */
 .profile-modal-warning {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
-  border-left: 5px solid #ffc107;
+  background: linear-gradient(135deg, #fbf4dc 0%, #f3e2b3 100%);
+  border-left: 5px solid #b8860b;
   padding: 1.25rem;
   border-radius: 10px;
   margin-bottom: 1.5rem;
-  color: #856404;
+  color: #6a4e00;
   font-size: 0.95rem;
   line-height: 1.7;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+  box-shadow: 0 6px 18px rgba(184, 134, 11, 0.15);
 }
 
 .profile-modal-warning strong {

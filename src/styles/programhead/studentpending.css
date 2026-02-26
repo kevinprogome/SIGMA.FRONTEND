@@ -395,7 +395,7 @@
 }
 
 .students-pending-table thead {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  background: #5d0d12;
   color: #fff;
 }
 
@@ -405,7 +405,7 @@
 .students-pending-header.enhanced-header {
   margin-bottom: 2rem;
   padding: 2.7rem 2.2rem 2.2rem 2.2rem;
-  background: linear-gradient(100deg, #7A1117 0%, #a01820 60%, #D5CBA0 100%);
+  background: #5d0d12;
   color: #fff;
   border-radius: 22px 22px 0 0;
   box-shadow: 0 10px 36px rgba(122, 17, 23, 0.13);

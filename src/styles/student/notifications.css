@@ -1,12 +1,10 @@
-/* ========================================
-   📬 PÁGINA DE NOTIFICACIONES - LIMPIA
-   ======================================== */
+
 
 .notifications-page {
   max-width: 1000px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
-  background: #f9fafb;
+  background:#d4af3733;
   min-height: 100vh;
 }
 
@@ -29,12 +27,12 @@
 .notifications-title-section h1 {
   margin: 0;
   font-size: 2rem;
-  color: #111827;
-  font-weight: 700;
+  color: #fff;
+  font-weight: 900;
 }
 
 .unread-badge-header {
-  background: #7A1117;
+  background: #5d0d12;
   color: white;
   padding: 0.4rem 0.9rem;
   border-radius: 20px;
@@ -116,52 +114,64 @@
   transition: all 0.2s;
 }
 
-.tab:hover {
-  color: #7A1117;
-}
-
-.tab.active {
-  color: #7A1117;
-  border-bottom-color: #7A1117;
-  font-weight: 700;
-}
-
-/* ========== LISTA ========== */
-.notifications-list-container {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 5rem 2rem;
-  color: #9ca3af;
-}
-
-.empty-icon {
-  font-size: 5rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.5;
-}
-
-.empty-state h3 {
-  margin: 0;
-  font-size: 1.3rem;
-  color: #4b5563;
-  font-weight: 600;
-}
-
-/* ========== ITEMS DE NOTIFICACIÓN ========== */
-.notifications-list {
-  padding: 0;
-  margin: 0;
-}
-
-.notification-item {
+.notifications-header {
   display: flex;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  background: #5d0d12;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(213, 203, 160, 0.13);
+  padding: 2rem 2rem;
+  border: 2px solid #D5CBA0;
+}
+}
+.notifications-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+.notifications-title-section h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: #fff;
+  font-weight: 700;
+  
+}
+  color: #9ca3af;
+.unread-badge-header {
+  background: #D5CBA0;
+  color: #7A1117;
+  padding: 0.5rem 1.2rem;
+  border-radius: 22px;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px #7A111733;
+  border: 2px solid #7A1117;
+}
+.empty-state h3 {
+.btn-mark-all {
+  background: linear-gradient(90deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px #7A111733;
+  border: 2px solid #D5CBA0;
+}
+.btn-mark-all:hover {
+  background: linear-gradient(90deg, #D5CBA0 0%, #7A1117 100%);
+  color: #7A1117;
+  box-shadow: 0 4px 16px #7A111733;
+}
   gap: 1rem;
   padding: 2rem 1.5rem; /* ✅ MÁS PADDING */
   border-bottom: 1px solid #f3f4f6;
@@ -177,28 +187,32 @@
   background: #fafafa;
 }
 
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid #D5CBA0;
+  transition: background 0.2s;
+  position: relative;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(213, 203, 160, 0.08);
+}
+.notification-item:last-child {
+  border-bottom: none;
+}
+.notification-item:hover {
+  background: #f9f6e7;
+}
 .notification-item.unread {
-  background: #fefce8; /* ✅ Amarillo muy suave */
-  border-left: 4px solid #f59e0b;
+  background: linear-gradient(90deg, #FFF9D1 60%, #fff 100%);
+  border-left: 5px solid #FFD700;
+  box-shadow: 0 4px 16px rgba(213, 203, 160, 0.13);
 }
-
 .notification-item.unread:hover {
-  background: #fef9c3;
+  background: linear-gradient(90deg, #FFF9D1 80%, #fff 100%);
 }
-
-/* ========== MAIN CONTENT ========== */
-.notification-main {
-  display: flex;
-  gap: 1.5rem; /* ✅ MÁS ESPACIO */
-  flex: 1;
-}
-
-.notification-icon-container {
-  flex-shrink: 0;
-}
-
-.notification-icon {
-  display: flex;
   align-items: center;
   justify-content: center;
   width: 56px;
@@ -230,14 +244,16 @@
 }
 
 .badge-nuevo {
-  background: #7A1117;
-  color: white;
-  padding: 0.25rem 0.7rem;
+  background: #FFD700;
+  color: #7A1117;
+  padding: 0.3rem 0.8rem;
   border-radius: 14px;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
+  border: 1.5px solid #7A1117;
+  box-shadow: 0 2px 8px #D5CBA033;
 }
 
 .notification-text {

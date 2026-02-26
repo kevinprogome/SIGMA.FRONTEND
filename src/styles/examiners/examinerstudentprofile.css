@@ -1,3 +1,49 @@
+.examiner-profile-card-modality {
+  background: linear-gradient(135deg, #fffdfa 0%, #f8f6ef 60%, #f9e7c2 100%);
+  border: 3px solid #B7A873;
+  box-shadow: 0 12px 36px 0 rgba(183, 168, 115, 0.13), 0 2px 12px 0 rgba(93, 13, 18, 0.10);
+  border-radius: 22px;
+  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  position: relative;
+  overflow: hidden;
+}
+.examiner-profile-card-modality::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, #7A1117 0%, #fffdfa 80%);
+  opacity: 0.13;
+  border-radius: 50%;
+  z-index: 0;
+}
+.examiner-profile-card-modality .examiner-profile-grid-modality {
+  gap: 2.2rem;
+  z-index: 1;
+}
+.examiner-profile-card-modality .examiner-profile-label {
+  font-size: 0.93rem;
+  font-weight: 700;
+  color: #B7A873;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 0.15rem;
+}
+.examiner-profile-card-modality .examiner-profile-value-strong {
+  color: #7A1117;
+  font-size: 1.22rem;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 0 #f8f6ef;
+}
+.examiner-profile-card-modality .examiner-profile-value {
+  font-size: 1.08rem;
+  color: #5d0d12;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+}
 /* ========================================
    EXAMINER STUDENT PROFILE - Universidad Surcolombiana
    Colores: #7A1117 (Granate), #FFD700 (Dorado)
@@ -17,13 +63,13 @@
   text-align: center;
   padding: 5rem 2rem;
   font-size: 1.3rem;
-  color: #7A1117;
+  color: #5d0d12;
   font-weight: 600;
   font-family: 'Georgia', 'Times New Roman', serif;
 }
 
 .examiner-profile-header {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  background: #5d0d12;
   color: white;
   padding: 2.5rem 3rem;
   border-radius: 16px;
@@ -110,13 +156,105 @@
   background: rgba(0, 0, 0, 0.1);
 }
 
+
 .examiner-profile-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1.75rem;
   margin-bottom: 2rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border: 1px solid #e0e0e0;
+  border: 1.5px solid #e0e0e0;
+}
+
+.examiner-profile-card-student {
+  background: linear-gradient(135deg, #fffdfa 0%, #f8f6ef 60%, #f9e7c2 100%);
+  border: 3px solid #7A1117;
+  box-shadow: 0 12px 36px 0 rgba(93, 13, 18, 0.13), 0 2px 12px 0 rgba(183, 168, 115, 0.10);
+  border-radius: 22px;
+  padding: 2.5rem 2.2rem 2.2rem 2.2rem;
+  position: relative;
+  overflow: hidden;
+}
+.examiner-profile-card-student::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, #B7A873 0%, #fffdfa 80%);
+  opacity: 0.18;
+  border-radius: 50%;
+  z-index: 0;
+}
+.examiner-profile-card-student .examiner-profile-grid-student {
+  gap: 2.2rem;
+  z-index: 1;
+}
+.examiner-profile-card-student .examiner-profile-label {
+  font-size: 0.93rem;
+  font-weight: 700;
+  color: #7A1117;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 0.15rem;
+}
+.examiner-profile-card-student .examiner-profile-value-strong {
+  color: #5d0d12;
+  font-size: 1.22rem;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 0 #f8f6ef;
+}
+.examiner-profile-card-student .examiner-profile-value {
+  font-size: 1.08rem;
+  color: #5d0d12;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+}
+.examiner-profile-card-student .examiner-profile-value.email {
+  color: #B7A873;
+  font-weight: 800;
+  font-size: 1.09rem;
+  letter-spacing: 0.2px;
+}
+.examiner-profile-card-student .examiner-profile-status {
+  display: inline-block;
+  padding: 0.5rem 1.3rem;
+  border-radius: 22px;
+  font-size: 1.08rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #7A1117 0%, #B7A873 100%);
+  color: #fff;
+  border: 2.5px solid #B7A873;
+  margin-top: 0.2rem;
+  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.10);
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0 #5d0d12;
+}
+}
+
+.examiner-profile-grid-student {
+  gap: 2.2rem;
+}
+
+.examiner-profile-value-strong {
+  color: #7A1117;
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.examiner-profile-status {
+  display: inline-block;
+  padding: 0.45rem 1.1rem;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #fff3cd 0%, #fde68a 100%);
+  color: #856404;
+  border: 2px solid #ffc107;
+  margin-top: 0.2rem;
 }
 
 .examiner-profile-card-title {
@@ -258,9 +396,9 @@
 }
 
 .examiner-doc-status.approved {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-  color: #155724;
-  border: 2px solid #28a745;
+  background: #5d0d12;
+  color: white;
+  border: 2px solid #5d0d12;
 }
 
 .examiner-doc-status.pending {

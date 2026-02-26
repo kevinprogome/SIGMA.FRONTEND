@@ -292,63 +292,136 @@ export default function StudentProfileProgramHead() {
       {/* Student Info Card - EXPANDIDA */}
       <div className="student-info-card">
         <h3 className="card-section-title"> Información del Estudiante</h3>
-        <div className="student-info-grid">
-          <div className="student-info-item">
-            <span className="student-info-label">Nombre Completo</span>
-            <span className="student-info-value">
-              {profile.studentName} {profile.studentLastName}
-            </span>
+        {/* Si hay miembros, mostrar todos; si no, mostrar el estudiante principal */}
+        {Array.isArray(profile.members) && profile.members.length > 0 ? (
+          <div className="student-group-list">
+            {profile.members.map((member, idx) => (
+              <div
+                className="student-group-member-block"
+                key={member.studentCode || idx}
+                style={{
+                  marginBottom: "2rem",
+                  padding: "1.5rem",
+                  border: "2px solid #7A1117",
+                  borderRadius: "16px",
+                  background: "#fff",
+                  boxShadow: "0 2px 8px rgba(122,17,23,0.08)",
+                }}
+              >
+                <h4 style={{
+                  color: "#7A1117",
+                  marginBottom: "1rem",
+                  fontWeight: 700,
+                  fontSize: "1.15rem",
+                  letterSpacing: "0.02em",
+                }}>
+                  Estudiante {idx + 1}
+                </h4>
+                <div className="student-info-grid">
+                  <div className="student-info-item">
+                    <span className="student-info-label">Nombre Completo</span>
+                    <span className="student-info-value">
+                      {member.studentName} {member.studentLastName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Correo institucional</span>
+                    <span className="student-info-value email">
+                      {member.studentEmail}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Código Estudiantil</span>
+                    <span className="student-info-value">
+                      {member.studentCode || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Programa Académico</span>
+                    <span className="student-info-value">
+                      {profile.academicProgramName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Facultad</span>
+                    <span className="student-info-value">
+                      {profile.facultyName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Créditos Aprobados</span>
+                    <span className="student-info-value">
+                      {member.approvedCredits || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Promedio Ponderado Actual</span>
+                    <span className="student-info-value">
+                      {member.gpa || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Semestre Cursado</span>
+                    <span className="student-info-value">
+                      {member.semester || "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-
-          <div className="student-info-item">
-            <span className="student-info-label">Email</span>
-            <span className="student-info-value email">
-              {profile.studentEmail}
-            </span>
+        ) : (
+          <div className="student-info-grid">
+            <div className="student-info-item">
+              <span className="student-info-label">Nombre Completo</span>
+              <span className="student-info-value">
+                {profile.studentName} {profile.studentLastName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Email</span>
+              <span className="student-info-value email">
+                {profile.studentEmail}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Código Estudiantil</span>
+              <span className="student-info-value">
+                {profile.studentCode || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Programa Académico</span>
+              <span className="student-info-value">
+                {profile.academicProgramName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Facultad</span>
+              <span className="student-info-value">
+                {profile.facultyName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Créditos Aprobados</span>
+              <span className="student-info-value">
+                {profile.approvedCredits || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Promedio (GPA)</span>
+              <span className="student-info-value">
+                {profile.gpa || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Semestre</span>
+              <span className="student-info-value">
+                {profile.semester || "N/A"}
+              </span>
+            </div>
           </div>
-
-          <div className="student-info-item">
-            <span className="student-info-label">Código Estudiantil</span>
-            <span className="student-info-value">
-              {profile.studentCode || "N/A"}
-            </span>
-          </div>
-
-          <div className="student-info-item">
-            <span className="student-info-label">Programa Académico</span>
-            <span className="student-info-value">
-              {profile.academicProgramName}
-            </span>
-          </div>
-
-          <div className="student-info-item">
-            <span className="student-info-label">Facultad</span>
-            <span className="student-info-value">
-              {profile.facultyName}
-            </span>
-          </div>
-
-          <div className="student-info-item">
-            <span className="student-info-label">Créditos Aprobados</span>
-            <span className="student-info-value">
-              {profile.approvedCredits || "N/A"}
-            </span>
-          </div>
-
-          <div className="student-info-item">
-            <span className="student-info-label">Promedio (GPA)</span>
-            <span className="student-info-value">
-              {profile.gpa || "N/A"}
-            </span>
-          </div>
-
-          <div className="student-info-item">
-            <span className="student-info-label">Semestre</span>
-            <span className="student-info-value">
-              {profile.semester || "N/A"}
-            </span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Modality Info Card */}
@@ -362,7 +435,7 @@ export default function StudentProfileProgramHead() {
 
           <div className="student-info-item">
             <span className="student-info-label">Estado Actual</span>
-            <span className="student-info-value status">
+            <span className="student-info-value">
               {getStatusLabel(profile.currentStatus) || profile.currentStatusDescription}
             </span>
           </div>
@@ -570,19 +643,32 @@ export default function StudentProfileProgramHead() {
                         {reviewingDocId === doc.studentDocumentId && canEditDocument(doc) && (
                           <div className="review-panel">
                             <h4 className="review-panel-title">
-                              Revisión de documento
+                              <span style={{
+                                color: '#7A1117',
+                                fontWeight: 900,
+                                fontSize: '1.25rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                              }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:'middle'}}>
+                                  <circle cx="12" cy="12" r="12" fill="#7A1117"/>
+                                  <path d="M8 12.5L11 15.5L16 10.5" stroke="#FFD700" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Revisión de documento
+                              </span>
                             </h4>
 
                             <div className="review-form-group">
-                              <label className="review-label">
-                                Nuevo estado:
+                              <label className="review-label" htmlFor="review-status-select">
+                                <span style={{color:'#7A1117', fontWeight:900}}>Nuevo estado:</span>
                               </label>
                               <select
+                                id="review-status-select"
                                 value={selectedStatus}
-                                onChange={(e) =>
-                                  setSelectedStatus(e.target.value)
-                                }
+                                onChange={(e) => setSelectedStatus(e.target.value)}
                                 className="review-select"
+                                style={{borderColor: '#7A1117', fontWeight:700, color:'#7A1117'}}
                               >
                                 <option value="">Seleccionar estado</option>
                                 <option value="ACCEPTED_FOR_PROGRAM_HEAD_REVIEW">
@@ -595,24 +681,33 @@ export default function StudentProfileProgramHead() {
                             </div>
 
                             <div className="review-form-group">
-                              <label className="review-label">
-                                Comentario:
+                              <label className="review-label" htmlFor="review-notes-textarea">
+                                <span style={{color:'#7A1117', fontWeight:900}}>Comentario:</span>
                               </label>
                               <textarea
+                                id="review-notes-textarea"
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                                 className="review-textarea"
-                                placeholder="Escribe aquí el motivo de tu decisión..."
+                                placeholder="Justifica tu decisión de manera clara y profesional..."
                                 rows={4}
+                                style={{borderColor:'#7A1117', fontWeight:600, color:'#1a1a2e'}}
                               />
                             </div>
 
                             <button
-                              onClick={() =>
-                                handleReviewDocument(doc.studentDocumentId)
-                              }
+                              onClick={() => handleReviewDocument(doc.studentDocumentId)}
                               disabled={submitting}
                               className="review-submit-btn"
+                              style={{
+                                background: submitting ? '#9e9e9e' : 'linear-gradient(135deg, #7A1117 100%)',
+                                color: '#fff',
+                                fontWeight: 900,
+                                fontSize: '1.05rem',
+                                border: 'none',
+                                boxShadow: '0 3px 8px rgba(122,17,23,0.15)',
+                                letterSpacing: '0.5px',
+                              }}
                             >
                               {submitting ? "Guardando..." : "Guardar revisión"}
                             </button>
@@ -634,6 +729,19 @@ export default function StudentProfileProgramHead() {
                   className={`approve-all-btn ${
                     allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length ? "enabled" : "disabled"
                   }`}
+                  style={
+                    allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length
+                      ? {
+                          background: 'linear-gradient(135deg, #7A1117 0%, #5d0d12 100%)',
+                          color: '#fff',
+                          fontWeight: 900,
+                          fontSize: '1.15rem',
+                          border: 'none',
+                          boxShadow: '0 4px 12px rgba(122,17,23,0.15)',
+                          letterSpacing: '0.5px',
+                        }
+                      : {}
+                  }
                 >
                   {submitting
                     ? "Procesando..."

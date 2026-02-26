@@ -1,3 +1,21 @@
+// ========================================
+// 🏅 OBTENER TIPO DE JUEZ (ExaminerType)
+// ========================================
+/**
+ * Obtener el tipo de juez asignado a la modalidad para el usuario autenticado
+ * Endpoint: GET /modalities/examiner-type/{studentModalityId}
+ *
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @returns {Promise<Object>} Objeto con success y examinerType
+ *
+ * @example
+ * getExaminerTypeForModality(24)
+ */
+export const getExaminerTypeForModality = async (studentModalityId) => {
+  console.log("🏅 Obteniendo tipo de juez para modalidad:", studentModalityId);
+  const response = await axios.get(`/modalities/examiner-type/${studentModalityId}`);
+  return response.data;
+};
 import axios from "../api/axios";
 
 // ========================================

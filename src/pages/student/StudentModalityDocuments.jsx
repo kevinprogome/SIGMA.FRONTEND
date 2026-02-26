@@ -4,6 +4,7 @@ import {
   uploadStudentDocument,
   getMyAvailableDocuments,
   getStudentDocumentBlob,
+  getErrorMessage,
 } from "../../services/studentService";
 import "../../styles/student/studentmodalitydocuments.css";
 
@@ -50,7 +51,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
 
     } catch (err) {
       console.error("❌ Error al cargar documentos:", err);
-      setMessage(err.response?.data?.message || "Error al cargar documentos");
+      setMessage(getErrorMessage(err));
       setMessageType("error");
     } finally {
       setLoading(false);
@@ -78,7 +79,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       }, 60000);
     } catch (err) {
       console.error("❌ Error al cargar documento:", err);
-      setMessage(`Error al cargar el documento "${documentName}"`);
+      setMessage(getErrorMessage(err));
       setMessageType("error");
     } finally {
       setViewingDocId(null);
@@ -130,7 +131,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       }
     } catch (err) {
       console.error("❌ Error al enviar documento:", err);
-      setMessage(err.response?.data?.message || "Error al enviar el documento");
+      setMessage(getErrorMessage(err));
       setMessageType("error");
     } finally {
       setSendingDocId(null);
@@ -162,7 +163,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       await fetchDocumentsData();
     } catch (err) {
       console.error("❌ Error al actualizar documento:", err);
-      setMessage(err.response?.data?.message || "Error al actualizar el documento");
+      setMessage(getErrorMessage(err));
       setMessageType("error");
     } finally {
       setSendingDocId(null);
@@ -246,9 +247,9 @@ export default function StudentModalityDocuments({ studentModalityId }) {
           <div className="documents-progress">
             <div className="documents-progress-info">
               <span className="documents-progress-text">
-                 Documentos obligatorios: {uploadedMandatoryCount} de {mandatoryDocs.length}
+                 Documentos obligatorios subidos: {uploadedMandatoryCount} de {mandatoryDocs.length}
               </span>
-              <span className="documents-progress-percentage">{progressPercentage}%</span>
+            
             </div>
             <div className="documents-progress-bar">
               <div
@@ -261,17 +262,6 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       </div>
 
       <div className="documents-body">
-        {message && (
-          <div className={`documents-message ${messageType}`}>
-            {message}
-            {messageType === "success-complete" && (
-              <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
-                Serás redirigido automáticamente en 5 segundos...
-              </div>
-            )}
-          </div>
-        )}
-
         {/* DOCUMENTOS MANDATORY */}
         {mandatoryDocs.length > 0 && (
           <div className="documents-section" style={{
@@ -375,6 +365,18 @@ export default function StudentModalityDocuments({ studentModalityId }) {
             <p className="documents-empty-text">
               No hay documentos disponibles para esta modalidad
             </p>
+          </div>
+        )}
+
+        
+        {message && (
+          <div className={`documents-message ${messageType}`} style={{ marginTop: '2.5rem' }}>
+            {message}
+            {messageType === "success-complete" && (
+              <div style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
+                Serás redirigido automáticamente en 5 segundos...
+              </div>
+            )}
           </div>
         )}
       </div>

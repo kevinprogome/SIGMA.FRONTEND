@@ -1,3 +1,45 @@
+// Traducción de tipo de documento
+const translateDocumentType = (type) => {
+  switch (type) {
+    case "MANDATORY":
+      return "Obligatorio";
+    case "SECONDARY":
+      return "Secundario";
+    case "CANCELLATION":
+      return "Cancelación";
+    default:
+      return type;
+  }
+};
+// Traducción de estados de documentos
+const translateDocumentStatus = (status) => {
+  switch (status) {
+    case "PENDING":
+      return "Pendiente";
+    case "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW":
+      return "Aceptado para revisión de jefe de programa";
+    case "REJECTED_FOR_PROGRAM_HEAD_REVIEW":
+      return "Rechazado por jefe de programa";
+    case "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD":
+      return "Correcciones solicitadas por jefe de programa";
+    case "CORRECTION_RESUBMITTED":
+      return "Corrección reenviada";
+    case "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW":
+      return "Aceptado para revisión de comité curricular";
+    case "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW":
+      return "Rechazado por comité curricular";
+    case "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE":
+      return "Correcciones solicitadas por comité curricular";
+    case "ACCEPTED_FOR_EXAMINER_REVIEW":
+      return "Aceptado para revisión de juez";
+    case "REJECTED_FOR_EXAMINER_REVIEW":
+      return "Rechazado por juez";
+    case "CORRECTIONS_REQUESTED_BY_EXAMINER":
+      return "Correcciones solicitadas por juez";
+    default:
+      return status;
+  }
+};
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -15,9 +57,11 @@ import {
   EXAMINER_DECISIONS,
   isGradeConsistentWithDecision,
   getSuggestedDecision,
+  getExaminerTypeForModality
 } from "../../services/examinerService";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/examiners/examinerstudentprofile.css";
+
 
 export default function ExaminerStudentProfile() {
   const { studentModalityId } = useParams();
@@ -27,6 +71,12 @@ export default function ExaminerStudentProfile() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+
+  const [examinerRoleInfo, setExaminerRoleInfo] = useState(null);
+const [loadingExaminerRole, setLoadingExaminerRole] = useState(false);
+const [examinerRoleError, setExaminerRoleError] = useState(null);
+
+  
 
   const [reviewingDocId, setReviewingDocId] = useState(null);
   const [reviewData, setReviewData] = useState({ status: "", notes: "" });
@@ -45,8 +95,32 @@ export default function ExaminerStudentProfile() {
   const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
-    fetchProfile();
-  }, [studentModalityId]);
+  if (!studentModalityId) return;
+
+  fetchProfile();
+  fetchExaminerRole();
+}, [studentModalityId]);
+
+const fetchExaminerRole = async () => {
+  try {
+    setLoadingExaminerRole(true);
+    setExaminerRoleError(null);
+
+    const response = await getExaminerTypeForModality(studentModalityId);
+
+    if (response?.success) {
+      setExaminerRoleInfo(response);
+    } else {
+      setExaminerRoleInfo(null);
+    }
+
+  } catch (err) {
+    console.error("Error obteniendo rol del juez:", err);
+    setExaminerRoleError("No se pudo cargar la información del rol.");
+  } finally {
+    setLoadingExaminerRole(false);
+  }
+};
 
   const fetchProfile = async () => {
     try {
@@ -297,10 +371,7 @@ export default function ExaminerStudentProfile() {
     return profile?.hasEvaluated === true;
   };
 
-  const getExaminerInfo = () => {
-    if (!profile?.examiners || profile.examiners.length === 0) return null;
-    return profile.examiners[0];
-  };
+  
 
   if (loading) {
     return (
@@ -326,7 +397,7 @@ export default function ExaminerStudentProfile() {
     );
   }
 
-  const examinerInfo = getExaminerInfo();
+  
 
   return (
     <div className="examiner-profile-container">
@@ -339,10 +410,10 @@ export default function ExaminerStudentProfile() {
           ← Volver a Mis Asignaciones
         </button>
         <h1 className="examiner-profile-title">
-          Perfil del Estudiante - Juez Evaluador
+          Perfil del Estudiante
         </h1>
         <p className="examiner-profile-subtitle">
-          {profile.studentName} {profile.studentLastName} - Universidad Surcolombiana
+          En este espacio podrá revisar los trabajos asignados, analizar cada entrega con base en los criterios establecidos, registrar observaciones y emitir su concepto final de manera objetiva y fundamentada.
         </p>
       </div>
 
@@ -360,34 +431,37 @@ export default function ExaminerStudentProfile() {
       )}
 
       {/* Student Info */}
-      <div className="examiner-profile-card">
-        <h3 className="examiner-profile-card-title">👤 Información del Estudiante</h3>
-        <div className="examiner-profile-grid">
+      <div className="examiner-profile-card examiner-profile-card-student">
+        <h3 className="examiner-profile-card-title">
+          <span role="img" aria-label="Estudiante" style={{fontSize: '1.5rem'}}></span>
+          Información del Estudiante
+        </h3>
+        <div className="examiner-profile-grid examiner-profile-grid-student">
           <div className="examiner-profile-item">
-            <span className="examiner-profile-label">Nombre Completo</span>
-            <span className="examiner-profile-value">
+            <span className="examiner-profile-label"><span role="img" aria-label="Nombre"></span> Nombre Completo</span>
+            <span className="examiner-profile-value email">
               {profile.studentName} {profile.studentLastName}
             </span>
           </div>
           <div className="examiner-profile-item">
-            <span className="examiner-profile-label">Email</span>
+            <span className="examiner-profile-label"><span role="img" aria-label="Correo"></span> Correo institucional</span>
             <span className="examiner-profile-value email">{profile.studentEmail}</span>
           </div>
           <div className="examiner-profile-item">
-            <span className="examiner-profile-label">Código</span>
-            <span className="examiner-profile-value">{profile.studentCode || "N/A"}</span>
+            <span className="examiner-profile-label"><span role="img" aria-label="Código"></span> Código institucional</span>
+            <span className="examiner-profile-value email">{profile.studentCode || "N/A"}</span>
           </div>
           <div className="examiner-profile-item">
-            <span className="examiner-profile-label">Programa</span>
-            <span className="examiner-profile-value">{profile.academicProgramName}</span>
+            <span className="examiner-profile-label"><span role="img" aria-label="Programa"></span> Programa</span>
+            <span className="examiner-profile-value email">{profile.academicProgramName}</span>
           </div>
           <div className="examiner-profile-item">
-            <span className="examiner-profile-label">Facultad</span>
-            <span className="examiner-profile-value">{profile.facultyName}</span>
+            <span className="examiner-profile-label"><span role="img" aria-label="Facultad"></span> Facultad</span>
+            <span className="examiner-profile-value email">{profile.facultyName}</span>
           </div>
           <div className="examiner-profile-item">
-            <span className="examiner-profile-label">Estado</span>
-            <span className="examiner-profile-value">
+            <span className="examiner-profile-label"><span role="img" aria-label="Estado"></span> Estado de la modalidad</span>
+            <span className="examiner-profile-value email">
               {getStatusLabel(profile.currentStatus)}
             </span>
           </div>
@@ -395,72 +469,94 @@ export default function ExaminerStudentProfile() {
       </div>
 
       {/* Modality Info */}
-      <div className="examiner-profile-card">
-        <h3 className="examiner-profile-card-title">📚 Información de la Modalidad</h3>
-        <div className="examiner-profile-grid">
+      <div className="examiner-profile-card examiner-profile-card-student">
+        <h3 className="examiner-profile-card-title">
+          <span role="img" aria-label="Modalidad" style={{fontSize: '1.5rem'}}></span>
+          Información de la Modalidad
+        </h3>
+        <div className="examiner-profile-grid examiner-profile-grid-modality">
           <div className="examiner-profile-item">
-            <span className="examiner-profile-label">Modalidad</span>
-            <span className="examiner-profile-value">{profile.modalityName}</span>
+            <span className="examiner-profile-label"><span role="img" aria-label="Modalidad"></span> Modalidad</span>
+            <span className="examiner-profile-value email">{profile.modalityName}</span>
           </div>
           {profile.defenseDate && (
             <div className="examiner-profile-item">
-              <span className="examiner-profile-label">Fecha de Sustentación</span>
-              <span className="examiner-profile-value">{formatDate(profile.defenseDate)}</span>
+              <span className="examiner-profile-label"><span role="img" aria-label="Fecha"></span> Fecha de Sustentación</span>
+              <span className="examiner-profile-value email">{formatDate(profile.defenseDate)}</span>
             </div>
           )}
           {profile.defenseLocation && (
             <div className="examiner-profile-item">
-              <span className="examiner-profile-label">Lugar</span>
-              <span className="examiner-profile-value">{profile.defenseLocation}</span>
+              <span className="examiner-profile-label"><span role="img" aria-label="Lugar"></span> Lugar</span>
+              <span className="examiner-profile-value email">{profile.defenseLocation}</span>
             </div>
           )}
           {profile.projectDirectorName && (
             <div className="examiner-profile-item">
-              <span className="examiner-profile-label">Director</span>
-              <span className="examiner-profile-value">{profile.projectDirectorName}</span>
+              <span className="examiner-profile-label"><span role="img" aria-label="Director"></span> Director</span>
+              <span className="examiner-profile-value email">{profile.projectDirectorName}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Examiner Role */}
-      {examinerInfo && (
-        <div className="examiner-role-card">
-          <h3 className="examiner-role-title">👨‍⚖️ Mi Rol como Juez</h3>
-          <div className="examiner-role-type">
-            {examinerInfo.examinerType === "PRIMARY_EXAMINER_1" && "🥇 Juez Principal 1"}
-            {examinerInfo.examinerType === "PRIMARY_EXAMINER_2" && "🥈 Juez Principal 2"}
-            {examinerInfo.examinerType === "TIEBREAKER_EXAMINER" && "⚖️ Juez de Desempate"}
-          </div>
-          <div className="examiner-role-date">
-            Asignado: {formatDate(examinerInfo.assignmentDate)}
-          </div>
-        </div>
-      )}
+{loadingExaminerRole && (
+  <div className="examiner-profile-card examiner-profile-card-student">
+    <h3 className="examiner-role-title">👨‍⚖️ Mi Rol como Juez</h3>
+    <div>Cargando información del rol...</div>
+  </div>
+)}
+
+{examinerRoleError && (
+  <div className="examiner-profile-card examiner-profile-card-student">
+    <h3 className="examiner-role-title">👨‍⚖️ Mi Rol como Juez</h3>
+    <div style={{ color: "red" }}>{examinerRoleError}</div>
+  </div>
+)}
+
+{examinerRoleInfo && !loadingExaminerRole && (
+  <div className="examiner-profile-card examiner-profile-card-student">
+    <h3 className="examiner-profile-card-title"> Mi Rol como Juez</h3>
+
+    <div className="examiner-profile-value email">
+      {examinerRoleInfo.examinerType === "PRIMARY_EXAMINER_1" && " Juez Principal 1"}
+      {examinerRoleInfo.examinerType === "PRIMARY_EXAMINER_2" && " Juez Principal 2"}
+      {examinerRoleInfo.examinerType === "TIEBREAKER_EXAMINER" && " Juez de Desempate"}
+    </div>
+
+    {examinerRoleInfo.assignmentDate && (
+      <div className="examiner-role-date">
+        Asignado: {formatDate(examinerRoleInfo.assignmentDate)}
+      </div>
+    )}
+  </div>
+)}
 
       {/* Documents */}
       {profile.documents && profile.documents.filter(d => d.uploaded).length > 0 && (
-        <div className="examiner-doc-section">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <h3 className="examiner-doc-title">📄 Documentos para Revisión</h3>
+        <div className="examiner-profile-card examiner-profile-card-student">
+          <div className="examiner-doc-header-top">
+            <h3 className="examiner-doc-title"> Documentos para Revisión</h3>
           </div>
 
           {profile.documents.filter(d => d.uploaded).map((doc) => (
-            <div key={doc.studentDocumentId || Math.random()} className="examiner-doc-item">
+            <div
+              key={doc.studentDocumentId || Math.random()}
+              className={`examiner-doc-item ${doc.status?.includes("ACCEPTED") ? "accepted" : "pending"}`}
+            >
               <div className="examiner-doc-header">
                 <div>
                   <div className="examiner-doc-name">{doc.documentName}</div>
-                  <div className="examiner-doc-type">Tipo: {doc.documentType}</div>
+                  <div className="examiner-doc-type">Tipo de documento: {translateDocumentType(doc.documentType)}</div>
                 </div>
-                <span className={`examiner-doc-status ${doc.status?.includes("ACCEPTED") ? 'approved' : 'pending'}`}>
-                  {getDocumentStatusLabel(doc.status)}
-                </span>
+                <span className={`examiner-doc-status ${doc.status?.includes("ACCEPTED") ? "approved" : "pending"}`}> {translateDocumentStatus(doc.status)} </span>
               </div>
 
               {doc.notes && (
                 <div className="examiner-doc-notes">
                   <strong>Notas previas:</strong>
-                  <p style={{ margin: "0.5rem 0 0 0" }}>{doc.notes}</p>
+                  <p>{doc.notes}</p>
                 </div>
               )}
 
@@ -470,7 +566,7 @@ export default function ExaminerStudentProfile() {
                   disabled={loadingDocId === doc.studentDocumentId}
                   className="examiner-doc-btn view"
                 >
-                  {loadingDocId === doc.studentDocumentId ? "Cargando..." : "👁️ Ver Documento"}
+                  {loadingDocId === doc.studentDocumentId ? "Cargando..." : " Ver Documento"}
                 </button>
 
                 {canReviewDocuments() && !doc.status?.includes("ACCEPTED_FOR_EXAMINER") && (
@@ -483,9 +579,9 @@ export default function ExaminerStudentProfile() {
                         setReviewData({ status: "", notes: "" });
                       }
                     }}
-                    className={`examiner-doc-btn ${reviewingDocId === doc.studentDocumentId ? 'cancel' : 'review'}`}
+                    className={`examiner-doc-btn ${reviewingDocId === doc.studentDocumentId ? "cancel" : "review"}`}
                   >
-                    {reviewingDocId === doc.studentDocumentId ? "✕ Cancelar" : "📝 Revisar"}
+                    {reviewingDocId === doc.studentDocumentId ? "✕ Cancelar" : " Revisar"}
                   </button>
                 )}
               </div>
@@ -536,31 +632,14 @@ export default function ExaminerStudentProfile() {
 
           {/* Botón Aprobar Modalidad */}
           {canApproveModality() && (
-            <div style={{
-              marginTop: "1.5rem",
-              padding: "1.25rem",
-              background: "#ecfdf5",
-              border: "2px solid #10b981",
-              borderRadius: "8px",
-              textAlign: "center"
-            }}>
-              <p style={{ color: "#065f46", marginBottom: "1rem", fontWeight: 500 }}>
+            <div className="examiner-doc-approve">
+              <p>
                 ✅ Todos los documentos obligatorios han sido aprobados. Puedes aprobar la modalidad.
               </p>
               <button
                 onClick={handleApproveModality}
                 disabled={approvingModality}
-                style={{
-                  padding: "0.75rem 2rem",
-                  background: "#10b981",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  fontSize: "1.1rem",
-                  fontWeight: 700,
-                  cursor: approvingModality ? "not-allowed" : "pointer",
-                  opacity: approvingModality ? 0.6 : 1,
-                }}
+                className="examiner-doc-approve-btn"
               >
                 {approvingModality ? "⏳ Aprobando..." : "✅ Aprobar Modalidad"}
               </button>
@@ -569,45 +648,21 @@ export default function ExaminerStudentProfile() {
 
           {/* Mensaje: faltan docs por aprobar */}
           {profile?.currentStatus === "EXAMINERS_ASSIGNED" && !allMandatoryDocsApproved() && (
-            <div style={{
-              marginTop: "1.5rem",
-              padding: "1rem",
-              background: "#fef3c7",
-              border: "1px solid #fcd34d",
-              borderRadius: "6px",
-              color: "#92400e"
-            }}>
+            <div className="examiner-doc-warning">
               ⚠️ Debes aprobar todos los documentos obligatorios antes de poder aprobar la modalidad.
             </div>
           )}
 
           {/* Botón Finalizar Revisión (READY_FOR_DEFENSE) */}
           {canFinalizeReview() && (
-            <div style={{
-              marginTop: "1.5rem",
-              padding: "1.25rem",
-              background: "#ecfdf5",
-              border: "2px solid #10b981",
-              borderRadius: "8px",
-              textAlign: "center"
-            }}>
-              <p style={{ color: "#065f46", marginBottom: "1rem", fontWeight: 500 }}>
+            <div className="examiner-doc-finalize">
+              <p>
                 ✅ Todos los documentos obligatorios han sido aprobados. Puedes finalizar la revisión para notificar al director.
               </p>
               <button
                 onClick={handleFinalizeReview}
                 disabled={finalizingReview}
-                style={{
-                  padding: "0.75rem 2rem",
-                  background: "#1d4ed8",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  fontSize: "1.1rem",
-                  fontWeight: 700,
-                  cursor: finalizingReview ? "not-allowed" : "pointer",
-                  opacity: finalizingReview ? 0.6 : 1,
-                }}
+                className="examiner-doc-finalize-btn"
               >
                 {finalizingReview ? "⏳ Finalizando..." : "📋 Listo para Sustentación"}
               </button>
@@ -615,14 +670,7 @@ export default function ExaminerStudentProfile() {
           )}
 
           {!canFinalizeReview() && profile?.currentStatus === "READY_FOR_DEFENSE" && !allMandatoryDocsApproved() && (
-            <div style={{
-              marginTop: "1.5rem",
-              padding: "1rem",
-              background: "#fef3c7",
-              border: "1px solid #fcd34d",
-              borderRadius: "6px",
-              color: "#92400e"
-            }}>
+            <div className="examiner-doc-warning">
               ⚠️ Debes aprobar todos los documentos obligatorios antes de finalizar la revisión.
             </div>
           )}
@@ -632,7 +680,7 @@ export default function ExaminerStudentProfile() {
       {/* Evaluation Section */}
       {canEvaluate() && (
         <div className="examiner-eval-section">
-          <h3 className="examiner-profile-card-title">📊 Evaluación de la Sustentación</h3>
+          <h3 className="examiner-profile-card-title"> Evaluación de la Sustentación</h3>
 
           {!showEvaluationForm ? (
             <div className="examiner-eval-empty">

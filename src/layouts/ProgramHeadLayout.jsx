@@ -33,7 +33,8 @@ export default function ProgramHeadLayout() {
             <h2 className="sidebar-title">SIGMA</h2>
             <div className="sidebar-bell"><NotificationBell viewAllLink="/jefeprograma/notifications" navigateOnly /></div>
           </div>
-          <p className="sidebar-subtitle">Jefatura de Programa</p>
+          <p className="sidebar-subtitle">Jefatura de Programa </p>
+          <p className="sidebar-subtitle">Coordinador de modalidades </p>
           <p className="user-info">{user?.email || "Cargando..."}</p>
         </div>
 

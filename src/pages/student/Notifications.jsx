@@ -48,7 +48,7 @@ export default function Notifications() {
       await markNotificationAsRead(notificationId);
       await fetchNotifications();
       
-      setMessage("✅ Marcada como leída");
+      setMessage(" Marcada como leída");
       setTimeout(() => setMessage(""), 2000);
     } catch (err) {
       console.error("❌ Error al marcar como leída:", err);
@@ -73,14 +73,14 @@ export default function Notifications() {
       await markAllAsRead(unreadIds);
       await fetchNotifications();
       
-      setMessage(`✅ ${unreadIds.length} marcadas como leídas`);
+      setMessage(` ${unreadIds.length} marcadas como leídas`);
       setTimeout(() => setMessage(""), 2000);
     } catch (err) {
       console.error("Error:", err);
     }
   };
 
-  // ✅ Aceptar invitación
+  //  Aceptar invitación
   const handleAcceptInvitation = async (notification) => {
     const invitationId = await getInvitationId(notification);
     
@@ -101,7 +101,7 @@ export default function Notifications() {
     });
   };
 
-  // ✅ Rechazar invitación
+  //  Rechazar invitación
   const handleRejectInvitation = async (notification) => {
     const invitationId = await getInvitationId(notification);
     
@@ -130,7 +130,7 @@ export default function Notifications() {
       try {
         setProcessingInvitation(action.invitationId);
         await acceptInvitation(action.invitationId);
-        setMessage("✅ Invitación aceptada. ¡Bienvenido al grupo!");
+        setMessage(" Invitación aceptada. ¡Bienvenido al grupo!");
         await markNotificationAsRead(action.notification.id);
         await fetchNotifications();
         setTimeout(() => {
@@ -193,14 +193,14 @@ export default function Notifications() {
       return notification.metadata.invitationId;
     }
     
-    // 3. ✅ NUEVO: Si tiene studentModalityId, buscar la invitación en el backend
+    // 3.  NUEVO: Si tiene studentModalityId, buscar la invitación en el backend
     if (notification.studentModalityId) {
       try {
         console.log("🔍 Buscando invitación en backend para studentModalityId:", notification.studentModalityId);
         const invitationData = await getMyPendingInvitation(notification.studentModalityId);
         
         if (invitationData && invitationData.invitationId) {
-          console.log("✅ Invitación encontrada:", invitationData.invitationId);
+          console.log(" Invitación encontrada:", invitationData.invitationId);
           return invitationData.invitationId;
         }
       } catch (err) {
@@ -305,22 +305,22 @@ export default function Notifications() {
                       {notification.message}
                     </p>
 
-                    {/* ✅ BOTONES DE INVITACIÓN */}
-                    {isInvitationNotification(notification) && !notification.read && (
+                    {/*  BOTONES DE INVITACIÓN */}
+                    {isInvitationNotification(notification) && notification.invitationId && (
                       <div className="invitation-actions">
                         <button
                           className="btn-accept-invitation"
                           onClick={() => handleAcceptInvitation(notification)}
                           disabled={processingInvitation !== null}
                         >
-                          {processingInvitation === getInvitationId(notification) ? "..." : "✓ Aceptar"}
+                          {processingInvitation === getInvitationId(notification) ? "..." : " Aceptar"}
                         </button>
                         <button
                           className="btn-reject-invitation"
                           onClick={() => handleRejectInvitation(notification)}
                           disabled={processingInvitation !== null}
                         >
-                          {processingInvitation === getInvitationId(notification) ? "..." : "✕ Rechazar"}
+                          {processingInvitation === getInvitationId(notification) ? "..." : " Rechazar"}
                         </button>
                       </div>
                     )}
