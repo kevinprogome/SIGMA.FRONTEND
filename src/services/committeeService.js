@@ -304,6 +304,26 @@ export const getExaminersForCommittee = async () => {
 };
 
 /**
+ * Obtener los jueces asignados a una modalidad específica
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @returns {Promise<Array>} Lista de jueces asignados con nombre, email y rol
+ */
+export const getAssignedExaminers = async (studentModalityId) => {
+  console.log("👨‍⚖️ Obteniendo jueces asignados para modalidad:", studentModalityId);
+  try {
+    const response = await axios.get(`/modalities/${studentModalityId}/examiners`);
+    return response.data;
+  } catch (error) {
+    // Si el endpoint no existe o no hay jueces asignados, retornar array vacío
+    if (error.response?.status === 404 || error.response?.status === 400) {
+      console.log("ℹ️ No hay jueces asignados o endpoint no disponible");
+      return [];
+    }
+    throw error;
+  }
+};
+
+/**
  * Asignar jueces a una modalidad
  * @param {number} studentModalityId - ID de la modalidad del estudiante
  * @param {Object} examinersData - Datos de los jueces

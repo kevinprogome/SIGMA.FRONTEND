@@ -7,6 +7,7 @@ import {
   getDocumentBlobUrl,
   getModalityDetails,
   closeModalityByCommittee,
+  getAssignedExaminers,
 } from "../../services/committeeService";
 import AssignDirectorModal from "../../components/committee/AssignDirectorModal";
 import AssignExaminersModal from "../../components/committee/AssignExaminerModal";
@@ -21,9 +22,8 @@ export default function CommitteeStudentProfile() {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
+  const [assignedExaminers, setAssignedExaminers] = useState([]);
 
-  // Paso 3: Se considera OK si hay jueces asignados (profile.examiners) y al menos uno
-  const step3Ok = profile && Array.isArray(profile.examiners) && profile.examiners.length > 0;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -52,6 +52,7 @@ export default function CommitteeStudentProfile() {
     try {
       const res = await getStudentModalityProfile(studentModalityId);
       console.log("RESPUESTA BACKEND (comité):", res);
+      console.log("Examiners data:", res.examiners, "| Status:", res.currentStatus);
       setProfile(res);
     } catch (err) {
       console.error(err);
@@ -127,9 +128,8 @@ export default function CommitteeStudentProfile() {
     setSubmitting(true);
     try {
       await approveCommittee(studentModalityId);
-      setSuccessMessage("✅ Modalidad aprobada exitosamente. Ahora puedes asignar los jueces.");
+      setSuccessMessage("✅ Modalidad aprobada exitosamente por el comité de currículo.");
       await fetchProfile();
-      setShowAssignExaminersModal(true);
     } catch (err) {
       setError(err.response?.data?.message || "Error al aprobar la modalidad");
       setTimeout(() => setError(""), 5000);
@@ -141,20 +141,20 @@ export default function CommitteeStudentProfile() {
   const handleCloseModality = async (e) => {
     e.preventDefault();
     if (!closeReason.trim()) {
-      setError("Debe proporcionar el motivo del cierre");
+      setError("Debe proporcionar el motivo de la cancelación");
       setTimeout(() => setError(""), 3000);
       return;
     }
     setSubmitting(true);
     try {
       const response = await closeModalityByCommittee(studentModalityId, closeReason);
-      setSuccessMessage(`✅ ${response.message || "Modalidad cerrada exitosamente"}`);
+      setSuccessMessage(`✅ ${response.message || "Modalidad cancelada exitosamente"}`);
       setShowCloseModalityModal(false);
       setCloseReason("");
       await fetchProfile();
       setTimeout(() => setSuccessMessage(""), 10000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Error al cerrar la modalidad");
+      setError(err.response?.data?.message || err.message || "Error al cancelar la modalidad");
       setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
@@ -231,10 +231,47 @@ export default function CommitteeStudentProfile() {
   // ✅ Solo aplica para: Posgrado, Seminario de Grado, Producción Académica de Alto Nivel
   const isFinalDecision = isFinalDecisionModality(profile.modalityName);
 
-  // Stepper pre-aprobación (solo docs + director son obligatorios)
+  // Checklist: pasos para aprobar la modalidad
   const step1Ok = allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length;
   const step2Ok = !!profile.projectDirectorName;
-  const canApproveModality = step1Ok && step2Ok;
+  
+  // Jueces: detectar por datos O por estado del proceso
+  const hasExaminersData = profile && Array.isArray(profile.examiners) && profile.examiners.length > 0;
+  const examinersAssignedStatuses = [
+    "EXAMINERS_ASSIGNED", "READY_FOR_EXAMINERS", "CORRECTIONS_REQUESTED_EXAMINERS",
+    "READY_FOR_DEFENSE", "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", "DEFENSE_SCHEDULED",
+    "DEFENSE_COMPLETED", "UNDER_EVALUATION_PRIMARY_EXAMINERS", "DISAGREEMENT_REQUIRES_TIEBREAKER",
+    "UNDER_EVALUATION_TIEBREAKER", "EVALUATION_COMPLETED", "FINAL_REVIEW_COMPLETED",
+    "GRADED_APPROVED", "GRADED_FAILED",
+  ];
+  const step3Ok_examiners = hasExaminersData || examinersAssignedStatuses.includes(profile.currentStatus);
+
+  // Detectar si la modalidad ya fue aprobada por comité (PROPOSAL_APPROVED o cualquier estado posterior)
+  const preApprovalStatuses = [
+    "MODALITY_SELECTED",
+    "UNDER_REVIEW_PROGRAM_HEAD",
+    "CORRECTIONS_REQUESTED_PROGRAM_HEAD",
+    "CORRECTIONS_SUBMITTED",
+    "CORRECTIONS_APPROVED",
+    "CORRECTIONS_REJECTED_FINAL",
+    "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE",
+    "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE",
+    "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE",
+  ];
+  const isModalityApprovedByCommittee = !preApprovalStatuses.includes(profile.currentStatus) 
+    && profile.currentStatus !== "MODALITY_CLOSED" 
+    && profile.currentStatus !== "MODALITY_CANCELLED" 
+    && profile.currentStatus !== "CANCELLED_WITHOUT_REPROVAL"
+    && profile.currentStatus !== "CANCELLATION_REQUESTED"
+    && profile.currentStatus !== "CANCELLATION_REJECTED";
+
+  // Solo se puede aprobar si los docs están OK, director asignado, y el estado es válido para el backend
+  const validStatusesForApproval = [
+    "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE",
+    "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE",
+  ];
+  const isInValidStatusForApproval = validStatusesForApproval.includes(profile.currentStatus);
+  const canApproveModality = step1Ok && step2Ok && !isModalityApprovedByCommittee && isInValidStatusForApproval;
 
   return (
     <div className="student-profile-container">
@@ -648,84 +685,233 @@ export default function CommitteeStudentProfile() {
 
 
 
-      {/* Stepper de aprobación — modalidades con flujo completo (director + jueces) */}
+      {/* Checklist de aprobación — modalidades con flujo completo (director + jueces) */}
       {!isFinalDecision && (
-        <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)' }}>
-          <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Pasos Para Aprobar la Modalidad</h3>
+        <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)', padding: '2rem' }}>
+          <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Checklist de Aprobación de la Modalidad</h3>
 
           {/* Paso 1: Documentos */}
-          <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
-            <span className={`student-info-value${step1Ok ? ' done' : ''}`}>1. Documentos obligatorios aceptados</span>
-            {!step1Ok && (
-              <div className="stepper-info-hint">
-                {uploadedMandatory.length < mandatoryDocs.length
-                  ? `El estudiante debe cargar todos los documentos (${uploadedMandatory.length}/${mandatoryDocs.length})`
-                  : "Debes aceptar todos los documentos obligatorios"}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step1Ok ? '#f0fdf4' : '#fefce8', border: step1Ok ? '1.5px solid #bbf7d0' : '1.5px solid #fde68a', transition: 'all 0.3s ease' }}>
+            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
+              {step1Ok ? '✅' : '⏳'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step1Ok ? '#166534' : '#92400e' }}>
+                  1. Documentos obligatorios aceptados
+                </span>
+                <span style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '20px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  background: step1Ok ? '#dcfce7' : '#fef9c3',
+                  color: step1Ok ? '#166534' : '#92400e',
+                  border: step1Ok ? '1px solid #86efac' : '1px solid #fde047',
+                }}>
+                  {step1Ok ? 'COMPLETADO' : 'PENDIENTE'}
+                </span>
               </div>
-            )}
+              {!step1Ok && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#92400e' }}>
+                  {uploadedMandatory.length < mandatoryDocs.length
+                    ? `El estudiante debe cargar todos los documentos obligatorios (${uploadedMandatory.length}/${mandatoryDocs.length} cargados)`
+                    : "Debes aceptar todos los documentos obligatorios desde la tabla de documentos"}
+                </p>
+              )}
+              {step1Ok && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
+                  Todos los documentos obligatorios han sido aceptados ({uploadedMandatory.length}/{mandatoryDocs.length})
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Paso 2: Director */}
-          <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
-            <div className="step-header">
-              <span className={`student-info-value${step2Ok ? ' done' : ''}`}>
-                2. Asignar director de proyecto
-                {step2Ok && <em className="step-value"> — {profile.projectDirectorName}</em>}
-              </span>
+          {/* Paso 2: Director de Proyecto */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step2Ok ? '#f0fdf4' : '#fefce8', border: step2Ok ? '1.5px solid #bbf7d0' : '1.5px solid #fde68a', transition: 'all 0.3s ease' }}>
+            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
+              {step2Ok ? '✅' : '⏳'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step2Ok ? '#166534' : '#92400e' }}>
+                  2. Director de proyecto asignado
+                  {step2Ok && <em style={{ fontWeight: 500, color: '#374151' }}> — {profile.projectDirectorName}</em>}
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    background: step2Ok ? '#dcfce7' : '#fef9c3',
+                    color: step2Ok ? '#166534' : '#92400e',
+                    border: step2Ok ? '1px solid #86efac' : '1px solid #fde047',
+                  }}>
+                    {step2Ok ? 'COMPLETADO' : 'PENDIENTE'}
+                  </span>
+                  {!step2Ok && (
+                    <button
+                      onClick={() => setShowAssignDirectorModal(true)}
+                      style={{ background: '#7A1117', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.4rem 1rem', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
+                    >
+                      Asignar Director
+                    </button>
+                  )}
+                  {step2Ok && (
+                    <button
+                      onClick={() => setShowChangeDirectorModal(true)}
+                      style={{ background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: '8px', padding: '0.4rem 1rem', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
+                    >
+                      Cambiar
+                    </button>
+                  )}
+                </div>
+              </div>
               {!step2Ok && (
-                <button
-                  onClick={() => setShowAssignDirectorModal(true)}
-                  className="step-action-btn"
-                >
-                  Asignar Director
-                </button>
-              )}
-              {step2Ok && (
-                <button
-                  onClick={() => setShowChangeDirectorModal(true)}
-                  className="step-action-btn"
-                >
-                  Cambiar
-                </button>
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#92400e' }}>
+                  Se debe asignar un director de proyecto antes de aprobar la modalidad
+                </p>
               )}
             </div>
           </div>
 
-          {/* Paso 3: Jueces e iniciar modalidad */}
-          <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
-            <div className="step-header">
-              <span className={`student-info-value${step3Ok ? ' done' : ''}`}>
-                3. Asignar jueces e iniciar modalidad
-                {step3Ok && profile.examiners && profile.examiners.length > 0 && (
-                  <em className="step-value"> — {profile.examiners.map(e => e.name).join(', ')}</em>
-                )}
-              </span>
-              {!step3Ok && (
-                <button
-                  onClick={() => setShowAssignExaminersModal(true)}
-                  className="step-action-btn"
-                >
-                  Asignar Jueces
-                </button>
+          {/* Paso 3: Aprobar modalidad */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: isModalityApprovedByCommittee ? '#f0fdf4' : (canApproveModality ? '#eff6ff' : '#f9fafb'), border: isModalityApprovedByCommittee ? '1.5px solid #bbf7d0' : (canApproveModality ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
+            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
+              {isModalityApprovedByCommittee ? '✅' : (canApproveModality ? '🔵' : '⏳')}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: isModalityApprovedByCommittee ? '#166534' : (canApproveModality ? '#1e40af' : '#6b7280') }}>
+                  3. Aprobar modalidad por comité
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    background: isModalityApprovedByCommittee ? '#dcfce7' : (canApproveModality ? '#dbeafe' : '#f3f4f6'),
+                    color: isModalityApprovedByCommittee ? '#166534' : (canApproveModality ? '#1e40af' : '#6b7280'),
+                    border: isModalityApprovedByCommittee ? '1px solid #86efac' : (canApproveModality ? '1px solid #93c5fd' : '1px solid #d1d5db'),
+                  }}>
+                    {isModalityApprovedByCommittee ? 'COMPLETADO' : (canApproveModality ? 'LISTO' : 'PENDIENTE')}
+                  </span>
+                  {canApproveModality && (
+                    <button
+                      onClick={handleApproveModality}
+                      disabled={submitting}
+                      style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(16,185,129,0.2)' }}
+                    >
+                      {submitting ? 'Aprobando...' : '✅ Aprobar Modalidad'}
+                    </button>
+                  )}
+                </div>
+              </div>
+              {!isModalityApprovedByCommittee && !canApproveModality && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#6b7280' }}>
+                  {!step1Ok && !step2Ok
+                    ? "Completa los pasos 1 y 2 primero"
+                    : !step1Ok
+                    ? "Completa el paso 1 primero (documentos obligatorios)"
+                    : !step2Ok
+                    ? "Completa el paso 2 primero (asignar director)"
+                    : !isInValidStatusForApproval
+                    ? `La modalidad no está en un estado válido para aprobación (estado actual: ${profile.currentStatusDescription || profile.currentStatus})`
+                    : "Completa los pasos anteriores"}
+                </p>
               )}
-              {step3Ok && (
-                <button
-                  onClick={() => setShowAssignExaminersModal(true)}
-                  className="step-action-btn"
-                >
-                  Cambiar Jueces
-                </button>
+              {isModalityApprovedByCommittee && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
+                  La modalidad ha sido aprobada por el comité de currículo
+                </p>
               )}
             </div>
           </div>
-      
+
+          {/* Paso 4: Asignar jueces (opcional) */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step3Ok_examiners ? '#f0fdf4' : '#f9fafb', border: step3Ok_examiners ? '1.5px solid #bbf7d0' : '1.5px dashed #d1d5db', transition: 'all 0.3s ease' }}>
+            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
+              {step3Ok_examiners ? '✅' : '📋'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step3Ok_examiners ? '#166534' : '#6b7280' }}>
+                  4. Asignar jueces evaluadores
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    background: step3Ok_examiners ? '#dcfce7' : '#f3f4f6',
+                    color: step3Ok_examiners ? '#166534' : '#9ca3af',
+                    border: step3Ok_examiners ? '1px solid #86efac' : '1px solid #e5e7eb',
+                  }}>
+                    {step3Ok_examiners ? 'COMPLETADO' : 'OPCIONAL'}
+                  </span>
+                  <button
+                    onClick={() => setShowAssignExaminersModal(true)}
+                    style={{ background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: '8px', padding: '0.4rem 1rem', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
+                  >
+                    {step3Ok_examiners ? 'Cambiar Jueces' : 'Asignar Jueces'}
+                  </button>
+                </div>
+              </div>
+              {step3Ok_examiners && hasExaminersData && (
+                <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {profile.examiners.map((examiner, idx) => (
+                    <div key={examiner.id || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+                      <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                        {examiner.role === 'TIEBREAKER' ? '🔷 Desempate:' : `👨‍⚖️ Juez ${idx + 1}:`}
+                      </span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#166534' }}>
+                        {examiner.name} {examiner.lastName || ''}
+                      </span>
+                      {examiner.email && (
+                        <span style={{ fontSize: '0.8rem', color: '#6b7280', marginLeft: 'auto' }}>
+                          {examiner.email}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {step3Ok_examiners && !hasExaminersData && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
+                  Jueces ya asignados (estado: {profile.currentStatusDescription || profile.currentStatus})
+                </p>
+              )}
+              {!step3Ok_examiners && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#9ca3af' }}>
+                  Los jueces pueden ser asignados ahora o en cualquier momento posterior
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Progress summary */}
+          <div style={{ marginTop: '1.5rem', padding: '1rem', borderRadius: '10px', background: '#fff', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.9rem', color: '#374151' }}>
+                <strong style={{ color: '#10b981' }}>{[step1Ok, step2Ok, isModalityApprovedByCommittee, step3Ok_examiners].filter(Boolean).length}</strong> de <strong>4</strong> pasoscompletados
+              </span>
+              {isModalityApprovedByCommittee && (
+                <span style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 700 }}>
+                  Modalidad aprobada
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Stepper simplificado — modalidades de decisión final (Posgrado, Diplomado, Producción Académica, Semillero) */}
+      {/* Checklist simplificado — modalidades de decisión final (Posgrado, Diplomado, Producción Académica, Semillero) */}
       {isFinalDecision && !isModalityClosed && (
-        <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)' }}>
-          <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Decisión Final del Comité</h3>
+        <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)', padding: '2rem' }}>
+          <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Checklist — Decisión Final del Comité</h3>
 
           <div style={{ background: '#fffbea', border: '1.5px solid #D5CBA0', padding: '1rem 1.25rem', borderRadius: '10px', marginBottom: '1.5rem' }}>
             <p style={{ margin: 0, color: '#7A1117', fontSize: '0.95rem', lineHeight: '1.5' }}>
@@ -734,42 +920,116 @@ export default function CommitteeStudentProfile() {
           </div>
 
           {/* Paso 1: Documentos */}
-          <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
-            <span className={`student-info-value${step1Ok ? ' done' : ''}`}>1. Documentos obligatorios aceptados</span>
-            {!step1Ok && (
-              <div className="stepper-info-hint">
-                {uploadedMandatory.length < mandatoryDocs.length
-                  ? `El estudiante debe cargar todos los documentos (${uploadedMandatory.length}/${mandatoryDocs.length})`
-                  : "Debes aceptar todos los documentos obligatorios"}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step1Ok ? '#f0fdf4' : '#fefce8', border: step1Ok ? '1.5px solid #bbf7d0' : '1.5px solid #fde68a', transition: 'all 0.3s ease' }}>
+            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
+              {step1Ok ? '✅' : '⏳'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step1Ok ? '#166534' : '#92400e' }}>
+                  1. Documentos obligatorios aceptados
+                </span>
+                <span style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '20px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  background: step1Ok ? '#dcfce7' : '#fef9c3',
+                  color: step1Ok ? '#166534' : '#92400e',
+                  border: step1Ok ? '1px solid #86efac' : '1px solid #fde047',
+                }}>
+                  {step1Ok ? 'COMPLETADO' : 'PENDIENTE'}
+                </span>
               </div>
-            )}
+              {!step1Ok && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#92400e' }}>
+                  {uploadedMandatory.length < mandatoryDocs.length
+                    ? `El estudiante debe cargar todos los documentos obligatorios (${uploadedMandatory.length}/${mandatoryDocs.length} cargados)`
+                    : "Debes aceptar todos los documentos obligatorios desde la tabla de documentos"}
+                </p>
+              )}
+              {step1Ok && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
+                  Todos los documentos obligatorios han sido aceptados ({uploadedMandatory.length}/{mandatoryDocs.length})
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Paso 2: Decisión Final */}
-          <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
-            <div className="step-header">
-              <span className={`student-info-value${profile.currentStatus === 'GRADED_APPROVED' || profile.currentStatus === 'GRADED_FAILED' ? ' done' : ''}`}>
-                2. Decisión final del comité (Aprobar o Rechazar)
-              </span>
-              {step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
-                <button
-                  onClick={() => setShowFinalDecisionModal(true)}
-                  className="step-action-btn"
-                  style={{ background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', fontWeight: 700, fontSize: '1rem', padding: '0.6rem 1.5rem' }}
-                >
-                  ⚖️ Tomar Decisión Final
-                </button>
-              )}
-              {!step1Ok && (
-                <div className="stepper-info-hint">
-                  Primero debes aceptar todos los documentos obligatorios
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: profile.currentStatus === 'GRADED_APPROVED' ? '#f0fdf4' : profile.currentStatus === 'GRADED_FAILED' ? '#fef2f2' : (step1Ok ? '#eff6ff' : '#f9fafb'), border: profile.currentStatus === 'GRADED_APPROVED' ? '1.5px solid #bbf7d0' : profile.currentStatus === 'GRADED_FAILED' ? '1.5px solid #fecaca' : (step1Ok ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
+            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
+              {profile.currentStatus === 'GRADED_APPROVED' ? '✅' : profile.currentStatus === 'GRADED_FAILED' ? '❌' : (step1Ok ? '🔵' : '⏳')}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: profile.currentStatus === 'GRADED_APPROVED' ? '#166534' : profile.currentStatus === 'GRADED_FAILED' ? '#991b1b' : (step1Ok ? '#1e40af' : '#6b7280') }}>
+                  2. Decisión final del comité (Aprobar o Rechazar)
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  {profile.currentStatus === 'GRADED_APPROVED' && (
+                    <span style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      background: '#dcfce7',
+                      color: '#166534',
+                      border: '1px solid #86efac',
+                    }}>
+                      APROBADA
+                    </span>
+                  )}
+                  {profile.currentStatus === 'GRADED_FAILED' && (
+                    <span style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      background: '#fee2e2',
+                      color: '#991b1b',
+                      border: '1px solid #fca5a5',
+                    }}>
+                      RECHAZADA
+                    </span>
+                  )}
+                  {profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
+                    <span style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      background: step1Ok ? '#dbeafe' : '#f3f4f6',
+                      color: step1Ok ? '#1e40af' : '#6b7280',
+                      border: step1Ok ? '1px solid #93c5fd' : '1px solid #d1d5db',
+                    }}>
+                      {step1Ok ? 'LISTO' : 'PENDIENTE'}
+                    </span>
+                  )}
+                  {step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
+                    <button
+                      onClick={() => setShowFinalDecisionModal(true)}
+                      style={{ background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(122,17,23,0.2)' }}
+                    >
+                      ⚖️ Tomar Decisión Final
+                    </button>
+                  )}
                 </div>
+              </div>
+              {!step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#6b7280' }}>
+                  Primero debes aceptar todos los documentos obligatorios
+                </p>
               )}
               {profile.currentStatus === 'GRADED_APPROVED' && (
-                <span style={{ color: '#10b981', fontWeight: 700, fontSize: '1rem', marginLeft: '1rem' }}>✅ Modalidad Aprobada</span>
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
+                  La modalidad ha sido aprobada definitivamente por el comité
+                </p>
               )}
               {profile.currentStatus === 'GRADED_FAILED' && (
-                <span style={{ color: '#dc2626', fontWeight: 700, fontSize: '1rem', marginLeft: '1rem' }}>❌ Modalidad Rechazada</span>
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#991b1b' }}>
+                  La modalidad ha sido rechazada definitivamente por el comité
+                </p>
               )}
             </div>
           </div>
@@ -797,7 +1057,7 @@ export default function CommitteeStudentProfile() {
                 className="council-action-btn assign-director premium"
                 style={{ width: '240px', height: '120px', background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', border: 'none', borderRadius: '16px', boxShadow: '0 6px 24px 0 rgba(122,17,23,0.13)', fontWeight: 700, fontSize: '1.25rem', padding: 0, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'box-shadow 0.2s', outline: 'none' }}
               >
-                Cerrar Modalidad
+                Cancelar Modalidad
               </button>
             )}
           </div>
@@ -850,7 +1110,9 @@ export default function CommitteeStudentProfile() {
           onClose={() => setShowAssignExaminersModal(false)}
           onSuccess={() => {
             setShowAssignExaminersModal(false);
-            handleModalSuccess("✅ Jueces asignados correctamente");
+            setSuccessMessage("✅ Jueces asignados correctamente");
+            setTimeout(() => setSuccessMessage(""), 5000);
+            fetchProfile();
           }}
         />
       )}
@@ -862,7 +1124,7 @@ export default function CommitteeStudentProfile() {
         />
       )}
 
-      {/* Modal: Cerrar Modalidad */}
+      {/* Modal: Cancelar Modalidad */}
       {showCloseModalityModal && (
         <div className="modal-overlay" style={{ background: 'rgba(122,17,23,0.12)' }} onClick={() => !submitting && setShowCloseModalityModal(false)}>
           <div
@@ -879,7 +1141,7 @@ export default function CommitteeStudentProfile() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #D5CBA0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
-              <h2 style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.25rem', margin: 0 }}>Cerrar Modalidad</h2>
+              <h2 style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.25rem', margin: 0 }}>Cancelar Modalidad</h2>
               <button onClick={() => setShowCloseModalityModal(false)} className="modal-close" disabled={submitting} style={{ color: '#7A1117', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
             </div>
             <form onSubmit={handleCloseModality} className="modal-form">
@@ -902,12 +1164,12 @@ export default function CommitteeStudentProfile() {
                 />
               </div>
               <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                <label style={{ color: '#7A1117', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Motivo del Cierre *</label>
+                <label style={{ color: '#7A1117', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Motivo de la Cancelación *</label>
                 <textarea
                   value={closeReason}
                   onChange={(e) => setCloseReason(e.target.value)}
                   className="textarea"
-                  placeholder="Explica por qué se cierra esta modalidad..."
+                  placeholder="Explica por qué se cancela esta modalidad..."
                   required
                   rows="5"
                   style={{
@@ -926,7 +1188,7 @@ export default function CommitteeStudentProfile() {
               </div>
               <div style={{ background: '#f9f6ee', border: '1px solid #D5CBA0', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>
                 <p style={{ margin: 0, color: '#7A1117', fontSize: '0.98rem' }}>
-                  <strong>Advertencia:</strong> Esta acción cerrará permanentemente la modalidad del estudiante.
+                  <strong>Advertencia:</strong> Esta acción cancelará permanentemente la modalidad del estudiante.
                 </p>
               </div>
               <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
@@ -964,7 +1226,7 @@ export default function CommitteeStudentProfile() {
                     boxShadow: '0 2px 8px rgba(122,17,23,0.08)'
                   }}
                 >
-                  {submitting ? 'Cerrando...' : 'Cerrar Modalidad'}
+                  {submitting ? 'Cancelando...' : 'Cancelar Modalidad'}
                 </button>
               </div>
             </form>
