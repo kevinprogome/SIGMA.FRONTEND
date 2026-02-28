@@ -648,14 +648,13 @@ export default function CommitteeStudentProfile() {
 
 
 
-      {/* Stepper de aprobación — solo para modalidades que NO son de decisión final */}
+      {/* Stepper de aprobación — modalidades con flujo completo (director + jueces) */}
       {!isFinalDecision && (
         <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)' }}>
           <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Pasos Para Aprobar la Modalidad</h3>
 
           {/* Paso 1: Documentos */}
           <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
-            
             <span className={`student-info-value${step1Ok ? ' done' : ''}`}>1. Documentos obligatorios aceptados</span>
             {!step1Ok && (
               <div className="stepper-info-hint">
@@ -666,7 +665,6 @@ export default function CommitteeStudentProfile() {
             )}
           </div>
 
-          {/* Paso 2: Director */}
           {/* Paso 2: Director */}
           <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
             <div className="step-header">
@@ -724,11 +722,75 @@ export default function CommitteeStudentProfile() {
         </div>
       )}
 
+      {/* Stepper simplificado — modalidades de decisión final (Posgrado, Diplomado, Producción Académica, Semillero) */}
+      {isFinalDecision && !isModalityClosed && (
+        <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)' }}>
+          <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Decisión Final del Comité</h3>
+
+          <div style={{ background: '#fffbea', border: '1.5px solid #D5CBA0', padding: '1rem 1.25rem', borderRadius: '10px', marginBottom: '1.5rem' }}>
+            <p style={{ margin: 0, color: '#7A1117', fontSize: '0.95rem', lineHeight: '1.5' }}>
+              <strong>ℹ️ Modalidad simplificada:</strong> Esta modalidad (<strong>{profile.modalityName}</strong>) no requiere asignación de director de proyecto, jueces ni sustentación. Una vez los documentos estén aceptados, el comité puede aprobar o rechazar directamente.
+            </p>
+          </div>
+
+          {/* Paso 1: Documentos */}
+          <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
+            <span className={`student-info-value${step1Ok ? ' done' : ''}`}>1. Documentos obligatorios aceptados</span>
+            {!step1Ok && (
+              <div className="stepper-info-hint">
+                {uploadedMandatory.length < mandatoryDocs.length
+                  ? `El estudiante debe cargar todos los documentos (${uploadedMandatory.length}/${mandatoryDocs.length})`
+                  : "Debes aceptar todos los documentos obligatorios"}
+              </div>
+            )}
+          </div>
+
+          {/* Paso 2: Decisión Final */}
+          <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
+            <div className="step-header">
+              <span className={`student-info-value${profile.currentStatus === 'GRADED_APPROVED' || profile.currentStatus === 'GRADED_FAILED' ? ' done' : ''}`}>
+                2. Decisión final del comité (Aprobar o Rechazar)
+              </span>
+              {step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
+                <button
+                  onClick={() => setShowFinalDecisionModal(true)}
+                  className="step-action-btn"
+                  style={{ background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', fontWeight: 700, fontSize: '1rem', padding: '0.6rem 1.5rem' }}
+                >
+                  ⚖️ Tomar Decisión Final
+                </button>
+              )}
+              {!step1Ok && (
+                <div className="stepper-info-hint">
+                  Primero debes aceptar todos los documentos obligatorios
+                </div>
+              )}
+              {profile.currentStatus === 'GRADED_APPROVED' && (
+                <span style={{ color: '#10b981', fontWeight: 700, fontSize: '1rem', marginLeft: '1rem' }}>✅ Modalidad Aprobada</span>
+              )}
+              {profile.currentStatus === 'GRADED_FAILED' && (
+                <span style={{ color: '#dc2626', fontWeight: 700, fontSize: '1rem', marginLeft: '1rem' }}>❌ Modalidad Rechazada</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Committee Actions */}
       <div className="council-actions-section" style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'center' }}>
-        <div className="council-actions-premium-card" style={{ background: '#fff', borderRadius: '18px', boxShadow: '0 2px 16px 0 rgba(122,17,23,0.08)', padding: '1.5rem 1.5rem 2.2rem 1.5rem', width: '100%', maxWidth: '430px', minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="council-actions-premium-card" style={{ background: '#fff', borderRadius: '18px', boxShadow: '0 2px 16px 0 rgba(122,17,23,0.08)', padding: '1.5rem 1.5rem 2.2rem 1.5rem', width: '100%', maxWidth: '600px', minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h3 className="section-title premium" style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.55rem', marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733' }}>Acciones del Comité de Currículo</h3>
-          <div className="council-actions-grid premium" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '120px' }}>
+          <div className="council-actions-grid premium" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', minHeight: '120px' }}>
+            {/* Botón Decisión Final — solo para modalidades simplificadas */}
+            {isFinalDecision && !isModalityClosed && step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
+              <button
+                onClick={() => setShowFinalDecisionModal(true)}
+                className="council-action-btn assign-director premium"
+                style={{ width: '240px', height: '120px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none', borderRadius: '16px', boxShadow: '0 6px 24px 0 rgba(16,185,129,0.18)', fontWeight: 700, fontSize: '1.15rem', padding: '0.5rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'box-shadow 0.2s', outline: 'none' }}
+              >
+                ⚖️ Decisión Final del Comité
+              </button>
+            )}
             {!isModalityClosed && (
               <button
                 onClick={() => setShowCloseModalityModal(true)}
