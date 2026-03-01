@@ -7,11 +7,13 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
   const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(false);
+    setIsLoading(true);
 
     try {
       await api.post("/auth/forgot-password", { email });
@@ -25,6 +27,8 @@ export default function ForgotPassword() {
       // - "No se encontró un usuario con el correo proporcionado."
       setMsg(err.response?.data || "Error al enviar el correo");
       setError(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,8 +60,15 @@ export default function ForgotPassword() {
               />
             </div>
 
-            <button className="forgot-button" type="submit">
-              Enviar código
+            <button className="forgot-button" type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <span className="forgot-btn-loading">
+                  <span className="forgot-btn-spinner"></span>
+                  Enviando...
+                </span>
+              ) : (
+                "Enviar código"
+              )}
             </button>
           </form>
 
