@@ -59,10 +59,31 @@ export default function CommitteeStudentProfile() {
       try {
         const examiners = await getAssignedExaminers(studentModalityId);
         console.log("Jurado asignado (endpoint):", examiners);
-        setAssignedExaminers(examiners);
+        if (examiners && examiners.length > 0) {
+          setAssignedExaminers(examiners);
+          // Sincronizar localStorage con la respuesta del backend
+          localStorage.setItem(`examiner_assignment_${studentModalityId}`, JSON.stringify(examiners));
+        } else {
+          // El endpoint no devuelve datos — recuperar desde localStorage si existe
+          const cached = localStorage.getItem(`examiner_assignment_${studentModalityId}`);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.length > 0) {
+              console.log("Jurado recuperado desde localStorage:", parsed);
+              setAssignedExaminers(parsed);
+            }
+          }
+        }
       } catch (exErr) {
         console.log("No se pudo obtener jurado asignado:", exErr);
-        setAssignedExaminers([]);
+        // Intentar recuperar desde localStorage
+        const cached = localStorage.getItem(`examiner_assignment_${studentModalityId}`);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.length > 0) {
+            setAssignedExaminers(parsed);
+          }
+        }
       }
     } catch (err) {
       console.error(err);
@@ -115,9 +136,9 @@ export default function CommitteeStudentProfile() {
   };
 
   const handleApproveModality = async () => {
-    const mandatoryDocs = profile.documents.filter(d => d.mandatory);
+    const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
     const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
-    const allMandatoryAccepted = uploadedMandatory.every(
+    const allMandatoryAccepted = mandatoryDocs.length > 0 && uploadedMandatory.every(
       (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
     );
     if (uploadedMandatory.length < mandatoryDocs.length) {
@@ -230,10 +251,10 @@ export default function CommitteeStudentProfile() {
 
   if (!profile) return <div className="student-profile-no-data">No hay información disponible</div>;
 
-  const mandatoryDocs = profile.documents.filter(d => d.mandatory);
+  const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
-  const allMandatoryAccepted = uploadedMandatory.every(
+  const allMandatoryAccepted = mandatoryDocs.length > 0 && uploadedMandatory.length === mandatoryDocs.length && uploadedMandatory.every(
     (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
   );
   const isModalityClosed = profile.currentStatus === "MODALITY_CLOSED";
@@ -242,20 +263,13 @@ export default function CommitteeStudentProfile() {
   const isFinalDecision = isFinalDecisionModality(profile.modalityName);
 
   // Checklist: pasos para aprobar la modalidad
-  const step1Ok = allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length;
+  const step1Ok = allMandatoryAccepted;
   const step2Ok = !!profile.projectDirectorName;
   
-  // Jurado: detectar por datos O por estado del proceso
+  // Jurado: solo marcar como completado si hay datos reales de jurado asignado
   const hasExaminersData = assignedExaminers.length > 0 || (profile && Array.isArray(profile.examiners) && profile.examiners.length > 0);
   const examinersToDisplay = assignedExaminers.length > 0 ? assignedExaminers : (profile?.examiners || []);
-  const examinersAssignedStatuses = [
-    "EXAMINERS_ASSIGNED", "READY_FOR_EXAMINERS", "CORRECTIONS_REQUESTED_EXAMINERS",
-    "READY_FOR_DEFENSE", "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", "DEFENSE_SCHEDULED",
-    "DEFENSE_COMPLETED", "UNDER_EVALUATION_PRIMARY_EXAMINERS", "DISAGREEMENT_REQUIRES_TIEBREAKER",
-    "UNDER_EVALUATION_TIEBREAKER", "EVALUATION_COMPLETED", "FINAL_REVIEW_COMPLETED",
-    "GRADED_APPROVED", "GRADED_FAILED",
-  ];
-  const step3Ok_examiners = hasExaminersData || examinersAssignedStatuses.includes(profile.currentStatus);
+  const step3Ok_examiners = hasExaminersData;
 
   // Detectar si la modalidad ya fue aprobada por comité (PROPOSAL_APPROVED o cualquier estado posterior)
   const preApprovalStatuses = [
@@ -703,9 +717,6 @@ export default function CommitteeStudentProfile() {
 
           {/* Paso 1: Documentos */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step1Ok ? '#f0fdf4' : '#fefce8', border: step1Ok ? '1.5px solid #bbf7d0' : '1.5px solid #fde68a', transition: 'all 0.3s ease' }}>
-            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
-              {step1Ok ? '✅' : '⏳'}
-            </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step1Ok ? '#166534' : '#92400e' }}>
@@ -740,9 +751,6 @@ export default function CommitteeStudentProfile() {
 
           {/* Paso 2: Director de Proyecto */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step2Ok ? '#f0fdf4' : '#fefce8', border: step2Ok ? '1.5px solid #bbf7d0' : '1.5px solid #fde68a', transition: 'all 0.3s ease' }}>
-            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
-              {step2Ok ? '✅' : '⏳'}
-            </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step2Ok ? '#166534' : '#92400e' }}>
@@ -789,9 +797,6 @@ export default function CommitteeStudentProfile() {
 
           {/* Paso 3: Aprobar modalidad */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: isModalityApprovedByCommittee ? '#f0fdf4' : (canApproveModality ? '#eff6ff' : '#f9fafb'), border: isModalityApprovedByCommittee ? '1.5px solid #bbf7d0' : (canApproveModality ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
-            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
-              {isModalityApprovedByCommittee ? '✅' : (canApproveModality ? '🔵' : '⏳')}
-            </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: isModalityApprovedByCommittee ? '#166534' : (canApproveModality ? '#1e40af' : '#6b7280') }}>
@@ -843,9 +848,6 @@ export default function CommitteeStudentProfile() {
 
           {/* Paso 4: Asignar jurado (opcional) */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step3Ok_examiners ? '#f0fdf4' : '#f9fafb', border: step3Ok_examiners ? '1.5px solid #bbf7d0' : '1.5px dashed #d1d5db', transition: 'all 0.3s ease' }}>
-            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
-              {step3Ok_examiners ? '✅' : '📋'}
-            </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step3Ok_examiners ? '#166534' : '#6b7280' }}>
@@ -907,7 +909,7 @@ export default function CommitteeStudentProfile() {
           <div style={{ marginTop: '1.5rem', padding: '1rem', borderRadius: '10px', background: '#fff', border: '1px solid #e5e7eb', textAlign: 'center' }}>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.9rem', color: '#374151' }}>
-                <strong style={{ color: '#10b981' }}>{[step1Ok, step2Ok, isModalityApprovedByCommittee, step3Ok_examiners].filter(Boolean).length}</strong> de <strong>4</strong> pasoscompletados
+                <strong style={{ color: '#10b981' }}>{[step1Ok, step2Ok, isModalityApprovedByCommittee, step3Ok_examiners].filter(Boolean).length}</strong> de <strong>4</strong> pasos completados
               </span>
               {isModalityApprovedByCommittee && (
                 <span style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 700 }}>
@@ -932,9 +934,6 @@ export default function CommitteeStudentProfile() {
 
           {/* Paso 1: Documentos */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step1Ok ? '#f0fdf4' : '#fefce8', border: step1Ok ? '1.5px solid #bbf7d0' : '1.5px solid #fde68a', transition: 'all 0.3s ease' }}>
-            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
-              {step1Ok ? '✅' : '⏳'}
-            </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step1Ok ? '#166534' : '#92400e' }}>
@@ -969,9 +968,6 @@ export default function CommitteeStudentProfile() {
 
           {/* Paso 2: Decisión Final */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: profile.currentStatus === 'GRADED_APPROVED' ? '#f0fdf4' : profile.currentStatus === 'GRADED_FAILED' ? '#fef2f2' : (step1Ok ? '#eff6ff' : '#f9fafb'), border: profile.currentStatus === 'GRADED_APPROVED' ? '1.5px solid #bbf7d0' : profile.currentStatus === 'GRADED_FAILED' ? '1.5px solid #fecaca' : (step1Ok ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
-            <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
-              {profile.currentStatus === 'GRADED_APPROVED' ? '✅' : profile.currentStatus === 'GRADED_FAILED' ? '❌' : (step1Ok ? '🔵' : '⏳')}
-            </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: profile.currentStatus === 'GRADED_APPROVED' ? '#166534' : profile.currentStatus === 'GRADED_FAILED' ? '#991b1b' : (step1Ok ? '#1e40af' : '#6b7280') }}>
@@ -1119,8 +1115,13 @@ export default function CommitteeStudentProfile() {
         <AssignExaminersModal
           studentModalityId={studentModalityId}
           onClose={() => setShowAssignExaminersModal(false)}
-          onSuccess={() => {
+          onSuccess={(selectedExaminers) => {
             setShowAssignExaminersModal(false);
+            if (selectedExaminers && selectedExaminers.length > 0) {
+              setAssignedExaminers(selectedExaminers);
+              // Guardar en localStorage para persistir el dato si el backend no lo devuelve en GET
+              localStorage.setItem(`examiner_assignment_${studentModalityId}`, JSON.stringify(selectedExaminers));
+            }
             setSuccessMessage("✅ Jurado asignado correctamente");
             setTimeout(() => setSuccessMessage(""), 5000);
             fetchProfile();

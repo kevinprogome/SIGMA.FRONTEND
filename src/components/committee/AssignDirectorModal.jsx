@@ -56,7 +56,7 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
       // Esperar antes de cerrar
       setTimeout(() => {
         onSuccess();
-      }, 100000);
+      }, 5500);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Error al asignar director");
@@ -82,7 +82,7 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
       >
         <div className="modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #D5CBA0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
           <h3 style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.25rem', margin: 0 }}>Asignar Director de Proyecto</h3>
-          <button onClick={onClose} className="modal-close" style={{ color: '#7A1117', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+          <button onClick={successMessage ? onSuccess : onClose} className="modal-close" style={{ color: '#7A1117', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
         </div>
 
         <div className="modal-body">
@@ -92,6 +92,12 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
               <div className="success-submessage" style={{ color: '#D5CBA0', fontSize: '0.95rem', marginBottom: '1rem' }}>
                 El estudiante fue notificado de esta novedad
               </div>
+              <button
+                onClick={onSuccess}
+                style={{ marginTop: '0.5rem', background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.5rem', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
+              >
+                Cerrar
+              </button>
             </div>
           ) : loading ? (
             <div className="loading-message" style={{ color: '#7A1117', fontWeight: 500 }}>Cargando directores...</div>

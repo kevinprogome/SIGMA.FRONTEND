@@ -8,6 +8,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [assignedExaminersResult, setAssignedExaminersResult] = useState([]);
 
   const [formData, setFormData] = useState({
     primaryExaminer1Id: "",
@@ -70,13 +71,26 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
 
       console.log("✅ Jurado asignado:", response);
 
+      // Construir objetos de jurados seleccionados para devolver al padre
+      const e1 = examiners.find(e => e.id === parseInt(formData.primaryExaminer1Id));
+      const e2 = examiners.find(e => e.id === parseInt(formData.primaryExaminer2Id));
+      const et = formData.tiebreakerExaminerId
+        ? examiners.find(e => e.id === parseInt(formData.tiebreakerExaminerId))
+        : null;
+      const selected = [
+        e1 && { ...e1, role: 'PRIMARY' },
+        e2 && { ...e2, role: 'PRIMARY' },
+        et && { ...et, role: 'TIEBREAKER' },
+      ].filter(Boolean);
+      setAssignedExaminersResult(selected);
+
       // Mostrar mensaje de éxito
       setSuccessMessage("✅ Jurado asignado correctamente a la sustentación");
 
-      // Esperar 3 segundos antes de cerrar
+      // Esperar antes de cerrar
       setTimeout(() => {
-        onSuccess();
-      }, 3000);
+        onSuccess(selected);
+      }, 1500);
     } catch (err) {
       console.error("Error al asignar jurado:", err);
       setError(
@@ -126,7 +140,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
       >
         <div className="modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #D5CBA0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
           <h3 style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.25rem', margin: 0 }}>Asignar Jurado de Sustentación</h3>
-          <button onClick={onClose} className="modal-close" disabled={submitting} style={{ color: '#7A1117', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+          <button onClick={successMessage ? () => onSuccess(assignedExaminersResult) : onClose} className="modal-close" disabled={submitting} style={{ color: '#7A1117', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
         </div>
 
         <div className="modal-body">
@@ -136,6 +150,12 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
               <div className="success-submessage" style={{ color: '#D5CBA0', fontSize: '0.95rem', marginBottom: '1rem' }}>
                 Cerrando automáticamente...
               </div>
+              <button
+                onClick={() => onSuccess(assignedExaminersResult)}
+                style={{ marginTop: '0.5rem', background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.5rem', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
+              >
+                Cerrar
+              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
