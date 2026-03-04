@@ -91,7 +91,7 @@ export default function CancellationRequests() {
       message: (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
           <div style={{
-            width: '54px', height: '54px', borderRadius: '50%', background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', boxShadow: '0 2px 8px rgba(122,17,23,0.10)'
+            width: '54px', height: '54px', borderRadius: '50%', background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', boxShadow: '0 2px 8px rgba(122,17,23,0.10)'
           }}>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="none"/><path d="M7 13l3 3 7-7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </div>
@@ -227,7 +227,7 @@ export default function CancellationRequests() {
                         onClick={() => handleApprove(request.studentModalityId)}
                         className="btn-approve"
                         title="Aprobar"
-                        style={{ background: 'linear-gradient(135deg, #5d0d12 0%, #D5CBA0 100%)', color: '#fff', border: '1.5px solid #5d0d12', fontWeight: 600 }}
+                        style={{ background: 'linear-gradient(135deg, #5d0d12 0%, #7A1117 100%)', color: '#fff', border: '1.5px solid #5d0d12', fontWeight: 600 }}
                       >
                         {loadingDoc === request.studentModalityId ? "Cargando..." : "Aprobar"}
                       </button>
@@ -332,7 +332,7 @@ export default function CancellationRequests() {
                   type="submit"
                   className="btn-confirm-reject"
                   style={{
-                    background: 'linear-gradient(135deg, #dc2626 0%, #D5CBA0 100%)',
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
                     color: '#fff',
                     border: '1.5px solid #7A1117',
                     borderRadius: '8px',
@@ -357,7 +357,7 @@ export default function CancellationRequests() {
         message={confirmAction?.message || ""}
         confirmText={
           <span style={{
-            background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)',
+            background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)',
             color: '#fff',
             border: '1.5px solid #7A1117',
             borderRadius: '8px',

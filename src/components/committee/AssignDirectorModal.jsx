@@ -85,7 +85,7 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
           <button onClick={successMessage ? onSuccess : onClose} className="modal-close" style={{ color: '#7A1117', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
         </div>
 
-        <div className="modal-body">
+        <div style={{ padding: 0, background: 'transparent' }}>
           {successMessage ? (
             <div className="modal-success-animation" style={{ textAlign: 'center', padding: '2rem 0' }}>
               <div className="success-message" style={{ color: '#7A1117', fontWeight: 600, fontSize: '1.1rem', marginBottom: '0.5rem' }}>{successMessage.replace('✅ ', '')}</div>
@@ -140,16 +140,15 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
                 </p>
               </div>
 
-              <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem', background: 'transparent' }}>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="btn-cancel"
                   disabled={submitting}
                   style={{
-                    background: '#fff',
+                    background: 'transparent',
                     color: '#7A1117',
-                    border: '1.5px solid #D5CBA0',
+                    border: '1.5px solid #7A1117',
                     borderRadius: '8px',
                     fontWeight: 600,
                     fontSize: '1rem',
@@ -161,10 +160,9 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
                 </button>
                 <button
                   type="submit"
-                  className="btn-submit"
                   disabled={submitting}
                   style={{
-                    background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)',
+                    background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)',
                     color: '#fff',
                     border: '1.5px solid #7A1117',
                     borderRadius: '8px',
@@ -172,7 +170,7 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
                     fontSize: '1rem',
                     padding: '0.5rem 1.25rem',
                     cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(122,17,23,0.08)'
+                    boxShadow: '0 2px 8px rgba(122,17,23,0.08)',
                   }}
                 >
                   {submitting ? "Asignando..." : "Asignar Director"}

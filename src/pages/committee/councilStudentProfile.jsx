@@ -523,19 +523,19 @@ export default function CommitteeStudentProfile() {
       <div className="documents-stats-card">
         <h3 className="card-section-title"> Estadísticas de Documentos</h3>
         <div className="stats-grid">
-          <div className="stat-item total" style={{ background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
+          <div className="stat-item total" style={{ background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.totalDocuments || 0}</div>
             <div className="stat-label">Total</div>
           </div>
-          <div className="stat-item approved" style={{ background: 'linear-gradient(135deg, #28a745 0%, #D5CBA0 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
+          <div className="stat-item approved" style={{ background: 'linear-gradient(135deg, #28a745 0%, #1e7e34 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.approvedDocuments || 0}</div>
             <div className="stat-label">Aprobados</div>
           </div>
-          <div className="stat-item pending" style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #ff9800 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
+          <div className="stat-item pending" style={{ background: 'linear-gradient(135deg, #ff9800 0%, #e68900 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.pendingDocuments || 0}</div>
             <div className="stat-label">Pendientes</div>
           </div>
-          <div className="stat-item rejected" style={{ background: 'linear-gradient(135deg, #dc3545 0%, #D5CBA0 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
+          <div className="stat-item rejected" style={{ background: 'linear-gradient(135deg, #dc3545 0%, #b02a37 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.rejectedDocuments || 0}</div>
             <div className="stat-label">Rechazados</div>
           </div>
@@ -657,12 +657,25 @@ export default function CommitteeStudentProfile() {
                       canEditDocument(doc) && (
                         <div className="review-panel">
                           <h4 className="review-panel-title">
-                            Revisión de documento
+                            <span style={{
+                              color: '#7A1117',
+                              fontWeight: 900,
+                              fontSize: '1.25rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                            }}>
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:'middle'}}>
+                                <circle cx="12" cy="12" r="12" fill="#7A1117"/>
+                                <path d="M8 12.5L11 15.5L16 10.5" stroke="#D5CBA0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              Revisión de documento
+                            </span>
                           </h4>
 
                           <div className="review-form-group">
                             <label className="review-label">
-                              Nuevo estado:
+                              <span style={{color:'#7A1117', fontWeight:900}}>Nuevo estado:</span>
                             </label>
                             <select
                               value={selectedStatus}
@@ -670,27 +683,29 @@ export default function CommitteeStudentProfile() {
                                 setSelectedStatus(e.target.value)
                               }
                               className="review-select"
+                              style={{borderColor: '#7A1117', fontWeight:700, color:'#7A1117'}}
                             >
                               <option value="">Seleccionar estado</option>
                               <option value="ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">
-                                Aceptado
+                                ✅ Aceptado
                               </option>
                               <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE">
-                                Requiere correcciones
+                                🔄 Requiere correcciones
                               </option>
                             </select>
                           </div>
 
                           <div className="review-form-group">
                             <label className="review-label">
-                              Comentario:
+                              <span style={{color:'#7A1117', fontWeight:900}}>Comentario:</span>
                             </label>
                             <textarea
                               value={notes}
                               onChange={(e) => setNotes(e.target.value)}
                               className="review-textarea"
-                              placeholder="Escribe aquí el motivo de tu decisión..."
+                              placeholder="Justifica tu decisión de manera clara y profesional..."
                               rows={4}
+                              style={{borderColor:'#7A1117', fontWeight:600, color:'#1a1a2e'}}
                             />
                           </div>
 
@@ -700,6 +715,15 @@ export default function CommitteeStudentProfile() {
                             }
                             disabled={submitting}
                             className="review-submit-btn"
+                            style={{
+                              background: submitting ? '#9e9e9e' : 'linear-gradient(135deg, #7A1117 100%)',
+                              color: '#fff',
+                              fontWeight: 900,
+                              fontSize: '1.05rem',
+                              border: 'none',
+                              boxShadow: '0 3px 8px rgba(122,17,23,0.15)',
+                              letterSpacing: '0.5px',
+                            }}
                           >
                             {submitting ? "Guardando..." : "Guardar revisión"}
                           </button>
@@ -1218,16 +1242,15 @@ export default function CommitteeStudentProfile() {
                   <strong>Advertencia:</strong> Esta acción cancelará permanentemente la modalidad del estudiante.
                 </p>
               </div>
-              <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem', background: 'transparent' }}>
                 <button
                   type="button"
                   onClick={() => setShowCloseModalityModal(false)}
-                  className="btn-cancel"
                   disabled={submitting}
                   style={{
-                    background: '#fff',
+                    background: 'transparent',
                     color: '#7A1117',
-                    border: '1.5px solid #D5CBA0',
+                    border: '1.5px solid #7A1117',
                     borderRadius: '8px',
                     fontWeight: 600,
                     fontSize: '1rem',
@@ -1239,10 +1262,9 @@ export default function CommitteeStudentProfile() {
                 </button>
                 <button
                   type="submit"
-                  className="btn-confirm-reject"
                   disabled={submitting}
                   style={{
-                    background: 'linear-gradient(135deg, #dc2626 0%, #D5CBA0 100%)',
+                    background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
                     color: '#fff',
                     border: '1.5px solid #7A1117',
                     borderRadius: '8px',
@@ -1250,7 +1272,7 @@ export default function CommitteeStudentProfile() {
                     fontSize: '1rem',
                     padding: '0.5rem 1.25rem',
                     cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(122,17,23,0.08)'
+                    boxShadow: '0 2px 8px rgba(122,17,23,0.08)',
                   }}
                 >
                   {submitting ? 'Cancelando...' : 'Cancelar Modalidad'}
