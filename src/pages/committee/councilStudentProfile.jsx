@@ -980,10 +980,10 @@ export default function CommitteeStudentProfile() {
             const isApproved = isFinalDecisionDone && (profile.currentStatus === 'GRADED_APPROVED' || profile.currentStatus === 'MODALITY_APPROVED_BY_COMMITTEE' || profile.currentStatus === 'APPROVED_BY_COMMITTEE');
             const isRejected = isFinalDecisionDone && !isApproved;
             return (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: isApproved ? '#f0fdf4' : isRejected ? '#fef2f2' : (step1Ok ? '#eff6ff' : '#f9fafb'), border: isApproved ? '1.5px solid #bbf7d0' : isRejected ? '1.5px solid #fecaca' : (step1Ok ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: isApproved ? '#f0fdf4' : isRejected ? '#fef2f2' : '#f9fafb', border: isApproved ? '1.5px solid #bbf7d0' : isRejected ? '1.5px solid #fecaca' : '1.5px solid #e5e7eb', transition: 'all 0.3s ease' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <span style={{ fontWeight: 700, fontSize: '1.05rem', color: isApproved ? '#166534' : isRejected ? '#991b1b' : (step1Ok ? '#1e40af' : '#6b7280') }}>
+                    <span style={{ fontWeight: 700, fontSize: '1.05rem', color: isApproved ? '#166534' : isRejected ? '#991b1b' : '#6b7280' }}>
                       2. Decisión final del comité (Aprobar o Rechazar)
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -1019,9 +1019,9 @@ export default function CommitteeStudentProfile() {
                           borderRadius: '20px',
                           fontSize: '0.8rem',
                           fontWeight: 700,
-                          background: step1Ok ? '#dbeafe' : '#f3f4f6',
-                          color: step1Ok ? '#1e40af' : '#6b7280',
-                          border: step1Ok ? '1px solid #93c5fd' : '1px solid #d1d5db',
+                          background: '#f3f4f6',
+                          color: '#6b7280',
+                          border: '1px solid #d1d5db',
                         }}>
                           {step1Ok ? 'LISTO' : 'PENDIENTE'}
                         </span>
@@ -1068,9 +1068,9 @@ export default function CommitteeStudentProfile() {
               <button
                 onClick={() => setShowFinalDecisionModal(true)}
                 className="council-action-btn assign-director premium"
-                style={{ width: '240px', height: '120px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none', borderRadius: '16px', boxShadow: '0 6px 24px 0 rgba(16,185,129,0.18)', fontWeight: 700, fontSize: '1.15rem', padding: '0.5rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'box-shadow 0.2s', outline: 'none' }}
+                style={{ width: '240px', height: '120px', background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', border: 'none', borderRadius: '16px', boxShadow: '0 6px 24px 0 rgba(122,17,23,0.13)', fontWeight: 700, fontSize: '1.15rem', padding: '0.5rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'box-shadow 0.2s', outline: 'none' }}
               >
-                ⚖️ Decisión Final del Comité
+                Decisión Final Comité
               </button>
             )}
             {!isModalityClosed && (

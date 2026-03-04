@@ -71,7 +71,7 @@ export default function FinalDecisionModal({ studentModalityId, modalityName, st
 
         {/* Header */}
         <div className="modal-header">
-          <h2>⚖️ Decisión Final del Comité</h2>
+          <h2>Decisión Final del Comité</h2>
           <button onClick={onClose} className="modal-close" disabled={submitting}>✕</button>
         </div>
 

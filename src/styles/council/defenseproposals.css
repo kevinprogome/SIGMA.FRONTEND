@@ -92,9 +92,9 @@
 }
 
 .defense-message.success {
-  background: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 4px solid #D5CBA0;
 }
 
 .defense-message.error {
@@ -143,7 +143,7 @@
 
 .empty-text {
   font-size: 1.3rem;
-  color: #28a745;
+  color: #7A1117;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
 }

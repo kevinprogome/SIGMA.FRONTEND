@@ -121,7 +121,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
 
         if (allMandatoryUploaded && mandatoryDocs.length > 0) {
           setMessage(
-            "🎉 ¡Excelente! Has subido todos los documentos obligatorios. Ahora puedes ver el estado de tu modalidad."
+            "¡Excelente! Has subido todos los documentos obligatorios. Ahora puedes ver el estado de tu modalidad."
           );
           setMessageType("success-complete");
           setTimeout(() => {

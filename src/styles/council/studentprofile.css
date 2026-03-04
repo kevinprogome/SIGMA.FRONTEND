@@ -56,7 +56,7 @@
   flex: 1;
 }
 .stepper-info-label.done {
-  color: #155724;
+  color: #7A1117;
 }
 .stepper-info-icon.done {
   color: #D5CBA0;
@@ -107,8 +107,8 @@
 }
 
 .institutional-step.step-done {
-  border-left: 6px solid #28a745;
-  background: linear-gradient(90deg, #e8ebf0 0%, #d4edda 100%);
+  border-left: 6px solid #D5CBA0;
+  background: linear-gradient(90deg, #e8ebf0 0%, #f9f6e7 100%);
 }
 .institutional-step.step-pending {
   border-left: 6px solid #ffc107;
@@ -127,7 +127,7 @@
 }
 
 .institutional-value {
-  color: #155724;
+  color: #7A1117;
   font-weight: 700;
   margin-left: 0.5rem;
 }
@@ -174,9 +174,9 @@
 }
 
 .institutional-approve-btn {
-  background: linear-gradient(135deg, #28a745 0%, #D5CBA0 100%);
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
   color: #fff;
-  border: 1.5px solid #28a745;
+  border: 1.5px solid #7A1117;
   border-radius: 8px;
   font-weight: 700;
   font-size: 1.1rem;
@@ -187,7 +187,7 @@
   transition: background 0.2s, color 0.2s;
 }
 .institutional-approve-btn.enabled:hover {
-  background: linear-gradient(135deg, #218838 0%, #D5CBA0 100%);
+  background: linear-gradient(135deg, #5d0d12 0%, #D5CBA0 100%);
   color: #fff;
 }
 .institutional-approve-btn.disabled {
@@ -325,15 +325,17 @@
 }
 
 .alert-message.success {
-  background: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 4px solid #D5CBA0;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.08);
 }
 
 .alert-message.error {
   background: #fde1e1;
   color: #7A1117;
   border-left: 4px solid #7A1117;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.08);
 }
 
 .alert-close {
@@ -382,7 +384,7 @@
 }
 
 .student-info-value.distinction {
-  color: #28a745;
+  color: #7A1117;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -423,8 +425,8 @@
 }
 
 .stat-item.approved {
-  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
-  color: white;
+  background: linear-gradient(135deg, #D5CBA0 0%, #B7A873 100%);
+  color: #5d0d12;
 }
 
 .stat-item.pending {
@@ -498,12 +500,12 @@
 .locked-badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: #d4edda;
-  color: #155724;
+  background: #f9f6e7;
+  color: #7A1117;
   border-radius: 6px;
   font-size: 0.85rem;
   font-weight: 600;
-  border: 1px solid #28a745;
+  border: 1px solid #D5CBA0;
 }
 
 .not-uploaded-text {
@@ -906,9 +908,9 @@
 }
 
 .doc-status-badge.accepted {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #28a745;
+  background-color: #f9f6e7;
+  color: #7A1117;
+  border: 1px solid #D5CBA0;
 }
 
 .doc-status-badge.rejected {
@@ -1265,13 +1267,13 @@
 }
 
 .approve-all-btn.enabled {
-  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
   color: white;
 }
 
 .approve-all-btn.enabled:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  box-shadow: 0 6px 20px rgba(122, 17, 23, 0.4);
 }
 
 .approve-all-btn.disabled {

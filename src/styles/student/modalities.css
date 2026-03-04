@@ -74,10 +74,10 @@
 }
 
 .profile-complete-msg {
-  background: linear-gradient(90deg, #d4edda 0%, #eaf7e1 100%);
-  color: #155724;
-  border-left: 4px solid #28a745;
-  box-shadow: 0 2px 12px #28a74533;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 4px solid #D5CBA0;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
   font-size: 1.08rem;
   font-weight: 700;
   letter-spacing: 0.2px;
@@ -92,7 +92,6 @@
   90% { opacity: 1; }
   100% { opacity: 0; }
 }
-}
 
 .modalities-message.error {
   background-color: #fde1e1;
@@ -101,9 +100,9 @@
 }
 
 .modalities-message.info {
-  background-color: #d1ecf1;
-  color: #0c5460;
-  border-left: 4px solid #17a2b8;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #5d0d12;
+  border-left: 4px solid #D5CBA0;
 }
 
 /* ========================================
@@ -314,9 +313,9 @@
 }
 
 .modality-specific-message.success {
-  background: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 4px solid #D5CBA0;
 }
 
 .modality-specific-message.error {

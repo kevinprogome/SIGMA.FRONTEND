@@ -286,17 +286,15 @@
 }
 
 .students-pending-message.success {
-  background-color: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background-color: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 4px solid #D5CBA0;
 }
 
 .students-pending-message.info {
-  background-color: #d1ecf1;
-    background: #fff;
-    color: #7A1117;
-  color: #0c5460;
-  border-left: 4px solid #17a2b8;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #5d0d12;
+  border-left: 4px solid #D5CBA0;
 }
 
 /* ========================================
@@ -319,7 +317,7 @@
 
 .students-pending-empty-text {
   font-size: 1.3rem;
-  color: #28a745;
+  color: #7A1117;
   font-weight: 600;
   margin: 0;
 }
@@ -435,9 +433,9 @@
 }
 
 .status-badge.approved {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #28a745;
+  background-color: #f9f6e7;
+  color: #7A1117;
+  border: 1px solid #D5CBA0;
 }
 
   background-color: #fde1e1;

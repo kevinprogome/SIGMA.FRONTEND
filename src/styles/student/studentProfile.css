@@ -177,14 +177,14 @@
 
 /* Mensaje de éxito */
 .profile-message:not(.error) {
-  background: linear-gradient(120deg, #e8f5e9 60%, #D5CBA0 100%);
-  color: #155724;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
   border-left-color: #D5CBA0;
 }
 
 /* Mensaje de error */
 .profile-message.error {
-  background: linear-gradient(120deg, #fde1e1 60%, #D5CBA0 100%);
+  background: #fde1e1;
   color: #7A1117;
   border-left-color: #7A1117;
 }
@@ -423,12 +423,12 @@
 }
 
 .profile-modal-note {
-  background: #e8f5e9;
-  border-left: 4px solid #28a745;
+  background: #f9f6e7;
+  border-left: 4px solid #D5CBA0;
   padding: 1rem;
   border-radius: 6px;
   margin-bottom: 1.5rem;
-  color: #155724;
+  color: #7A1117;
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -686,12 +686,12 @@
 }
 
 .profile-modal-item.editable {
-  background: #e8f5e9;
+  background: #f9f6e7;
   margin: 0.5rem -1rem 0;
   padding: 0.9rem 1rem;
   border-radius: 8px;
   border-bottom: none;
-  border-left: 3px solid #28a745;
+  border-left: 3px solid #D5CBA0;
 }
 
 .profile-modal-label {
@@ -711,15 +711,15 @@
 
 /* Nota en modal */
 .profile-modal-note {
-  background: linear-gradient(135deg, #e8f5e9 0%, #d1e7d1 100%);
-  border-left: 5px solid #28a745;
+  background: linear-gradient(135deg, #f9f6e7 0%, #f7f7fa 100%);
+  border-left: 5px solid #D5CBA0;
   padding: 1.25rem;
   border-radius: 10px;
   margin-bottom: 1.5rem;
-  color: #155724;
+  color: #7A1117;
   font-size: 0.9rem;
   line-height: 1.7;
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+  box-shadow: 0 4px 12px rgba(213, 203, 160, 0.15);
 }
 
 .profile-modal-note strong {

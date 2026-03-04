@@ -54,15 +54,17 @@
 }
 
 .cancellation-message.success {
-  background: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 4px solid #D5CBA0;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.08);
 }
 
 .cancellation-message.error {
   background: #fde1e1;
   color: #7A1117;
   border-left: 4px solid #7A1117;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.08);
 }
 
 /* ========================================
@@ -191,14 +193,14 @@
 }
 
 .btn-approve {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #28a745;
+  background: #f9f6e7;
+  color: #7A1117;
+  border: 1px solid #D5CBA0;
 }
 
 .btn-approve:hover {
-  background: #28a745;
-  color: white;
+  background: #D5CBA0;
+  color: #5d0d12;
 }
 
 .btn-reject {

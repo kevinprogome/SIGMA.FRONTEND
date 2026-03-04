@@ -147,17 +147,17 @@
 }
 
 .alert-success {
-  background: linear-gradient(135deg, #d4edda 0%, #c8e6c9 100%);
-  color: #155724;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
   border-color: var(--success-color);
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
 }
 
 .alert-error {
-  background: linear-gradient(135deg, #f8d7da 0%, #ffcdd2 100%);
-  color: #721c24;
+  background: #fde1e1;
+  color: #7A1117;
   border-color: var(--danger-color);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
 }
 
 .alert-warning {

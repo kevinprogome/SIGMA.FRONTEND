@@ -9,9 +9,9 @@
   --primary-dark: #5d0d12;
   --primary-light: #a01820;
   --secondary-color: #1a4d7a;
-  --accent-gold: #d4af37;
-  --accent-light: #ffd700;
-  --success-color: #27ae60;
+  --accent-gold: #D5CBA0;
+  --accent-light: #D5CBA0;
+  --success-color: #D5CBA0;
   --warning-color: #f39c12;
   --danger-color: #e74c3c;
   --info-color: #3498db;
@@ -216,17 +216,17 @@
 }
 
 .alert-success {
-  background: linear-gradient(135deg, #d4edda 0%, #c8e6c9 100%);
-  color: #155724;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
   border-color: var(--success-color);
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
 }
 
 .alert-error {
-  background: linear-gradient(135deg, #f8d7da 0%, #ffcdd2 100%);
-  color: #721c24;
+  background: #fde1e1;
+  color: #7A1117;
   border-color: var(--danger-color);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
 }
 
 /* ========================================
@@ -501,7 +501,7 @@ textarea.form-control {
 
 .btn-primary:hover:not(:disabled) {
   background: linear-gradient(135deg, #5d0d12 0%, #7A1117 100%);
-  color: #FFD700;
+  color: #D5CBA0;
   border: 2px solid #7A1117;
   box-shadow: 0 12px 32px rgba(122, 17, 23, 0.25);
   transform: translateY(-4px);

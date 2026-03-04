@@ -88,40 +88,38 @@
 }
 
 .documents-message.success {
-    background: linear-gradient(120deg, #FFD700 80%, #D5CBA0 100%);
+    background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
     color: #7A1117;
-    border-left: 5px solid #7A1117;
+    border-left: 5px solid #D5CBA0;
     border-radius: 14px;
     font-size: 1.12rem;
     font-weight: 600;
-    box-shadow: 0 4px 18px #FFD70033, 0 1px 0 #7A111744;
+    box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
     letter-spacing: 0.2px;
-    text-shadow: 0 2px 8px #fffbe522;
     transition: background 0.2s, box-shadow 0.2s;
   }
 
 .documents-message.success-complete {
-    background: linear-gradient(120deg, #FFD700 80%, #D5CBA0 100%);
+    background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
     color: #7A1117;
-    border-left: 5px solid #7A1117;
+    border-left: 5px solid #D5CBA0;
     border-radius: 14px;
     font-size: 1.12rem;
     font-weight: 900;
-    box-shadow: 0 4px 18px #FFD70033, 0 1px 0 #7A111744;
+    box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
     letter-spacing: 0.2px;
-    text-shadow: 0 2px 8px #fffbe522;
     transition: background 0.2s, box-shadow 0.2s;
   }
 
 .documents-message.error {
-  background: #5d0d12;
-  color: #fff;
+  background: #fde1e1;
+  color: #7A1117;
+  border-left: 5px solid #7A1117;
   border-radius: 14px;
   font-size: 1.12rem;
   font-weight: 600;
-  box-shadow: 0 4px 18px #7A111733, 0 1px 0 #FFD70044;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.10);
   letter-spacing: 0.2px;
-  text-shadow: 0 2px 8px #00000022;
   transition: background 0.2s, box-shadow 0.2s;
 }
 

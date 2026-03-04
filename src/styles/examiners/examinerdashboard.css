@@ -1,6 +1,6 @@
 /* ========================================
    EXAMINER DASHBOARD - Universidad Surcolombiana
-   Colores: #7A1117 (Granate), #FFD700 (Dorado)
+   Colores: #7A1117 (Granate), #D5CBA0 (Dorado)
    Tipografía: Georgia para títulos, Arial para texto
    ======================================== */
 
@@ -119,9 +119,9 @@
 }
 
 .examiner-message.success {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-  color: #155724;
-  border-left: 5px solid #28a745;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 5px solid #D5CBA0;
 }
 
 .examiner-filter-panel {
@@ -413,9 +413,9 @@
 }
 
 .examiner-status-badge.approved {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-  color: #155724;
-  border: 2px solid #28a745;
+  background: linear-gradient(135deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border: 2px solid #D5CBA0;
 }
 
 .examiner-status-badge.in-review {

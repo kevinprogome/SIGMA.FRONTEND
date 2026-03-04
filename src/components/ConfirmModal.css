@@ -150,7 +150,7 @@
 .confirm-modal-btn.confirm.warning {
   background: #5d0d12;
   color: #fff;
-  border: 2px solid #FFD700;
+  border: 2px solid #D5CBA0;
 }
 
 .confirm-modal-btn.confirm.warning:hover:not(:disabled) {
