@@ -5,6 +5,7 @@ import {
   getMyAvailableDocuments,
   getStudentDocumentBlob,
   downloadTemplateBlob,
+  requestDocumentEdit,
   getErrorMessage,
 } from "../../services/studentService";
 import "../../styles/student/studentmodalitydocuments.css";
@@ -42,6 +43,9 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editRequestDocId, setEditRequestDocId] = useState(null);
+  const [editRequestReason, setEditRequestReason] = useState("");
+  const [editRequestLoading, setEditRequestLoading] = useState(false);
 
   // Plantillas según la modalidad actual (basado en config local)
   const templates = getTemplatesForModality(modalityName);
@@ -232,6 +236,27 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
     }
   };
 
+  const handleRequestDocumentEdit = async (studentDocumentId, documentName) => {
+    if (!editRequestReason.trim()) return;
+    try {
+      setEditRequestLoading(true);
+      setMessage("");
+      const res = await requestDocumentEdit(studentDocumentId, editRequestReason.trim());
+      setMessage(res.message || `✅ Solicitud de edición para "${documentName}" registrada correctamente.`);
+      setMessageType("success");
+      setEditRequestDocId(null);
+      setEditRequestReason("");
+      await fetchDocumentsData();
+    } catch (err) {
+      console.error("❌ Error al solicitar edición:", err);
+      const errorMsg = err.response?.data?.message || err.message || "Error al solicitar edición del documento";
+      setMessage(errorMsg);
+      setMessageType("error");
+    } finally {
+      setEditRequestLoading(false);
+    }
+  };
+
   const getStatusLabel = (status) => {
     const labels = {
       PENDING: "Pendiente de revisión",
@@ -245,11 +270,17 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
       ACCEPTED_FOR_EXAMINER_REVIEW: "Aceptado por Jurado",
       REJECTED_FOR_EXAMINER_REVIEW: "Rechazado por Jurado",
       CORRECTIONS_REQUESTED_BY_EXAMINER: "Correcciones solicitadas por Jurado",
+      EDIT_REQUESTED: "Edición solicitada — Pendiente de aprobación",
+      EDIT_REQUEST_APPROVED: "Edición aprobada — Puedes subir nueva versión",
+      EDIT_REQUEST_REJECTED: "Solicitud de edición rechazada",
     };
     return labels[status] || status;
   };
 
   const getStatusClass = (status) => {
+    if (status === "EDIT_REQUESTED") return "edit-requested";
+    if (status === "EDIT_REQUEST_APPROVED") return "corrections";
+    if (status === "EDIT_REQUEST_REJECTED") return "rejected";
     if (status?.includes("ACCEPTED")) return "accepted";
     if (status?.includes("REJECTED")) return "rejected";
     if (status?.includes("CORRECTIONS")) return "corrections";
@@ -424,6 +455,12 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
                   getStatusClass={getStatusClass}
                   canReuploadDocument={canReuploadDocument}
                   getDocumentTypeBadge={getDocumentTypeBadge}
+                  editRequestDocId={editRequestDocId}
+                  editRequestReason={editRequestReason}
+                  editRequestLoading={editRequestLoading}
+                  setEditRequestDocId={setEditRequestDocId}
+                  setEditRequestReason={setEditRequestReason}
+                  handleRequestDocumentEdit={handleRequestDocumentEdit}
                 />
               ))}
             </ul>
@@ -457,6 +494,12 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
                   getStatusClass={getStatusClass}
                   canReuploadDocument={canReuploadDocument}
                   getDocumentTypeBadge={getDocumentTypeBadge}
+                  editRequestDocId={editRequestDocId}
+                  editRequestReason={editRequestReason}
+                  editRequestLoading={editRequestLoading}
+                  setEditRequestDocId={setEditRequestDocId}
+                  setEditRequestReason={setEditRequestReason}
+                  handleRequestDocumentEdit={handleRequestDocumentEdit}
                 />
               ))}
             </ul>
@@ -509,6 +552,12 @@ function DocumentCard({
   getStatusClass,
   canReuploadDocument,
   getDocumentTypeBadge,
+  editRequestDocId,
+  editRequestReason,
+  editRequestLoading,
+  setEditRequestDocId,
+  setEditRequestReason,
+  handleRequestDocumentEdit,
 }) {
   const isUploaded = doc.uploaded;
   const hasTemplate = !!doc.templateDocumentId;
@@ -599,7 +648,7 @@ function DocumentCard({
             disabled={viewingDocId === doc.studentDocumentId}
             className="document-view-button"
           >
-            {viewingDocId === doc.studentDocumentId ? "Cargando..." : "👁 Ver documento subido"}
+            {viewingDocId === doc.studentDocumentId ? "Cargando..." : "Ver documento subido"}
           </button>
 
           {canReuploadDocument(doc.status) ? (
@@ -631,6 +680,54 @@ function DocumentCard({
                   ? "Actualizando..."
                   : " Actualizar documento"}
               </button>
+            </div>
+          ) : doc.status === "ACCEPTED_FOR_EXAMINER_REVIEW" && doc.documentType === "MANDATORY" ? (
+            <div className="document-edit-request-section">
+              {editRequestDocId === doc.studentDocumentId ? (
+                <div className="document-edit-request-form">
+                  <p className="document-edit-request-info">
+                    Indica el motivo por el cual necesitas editar este documento. Tu solicitud será evaluada por los jurados asignados.
+                  </p>
+                  <textarea
+                    className="document-edit-request-textarea"
+                    placeholder="Describe el motivo de la edición (ej: Actualizar datos del marco teórico, corregir bibliografía...)"
+                    value={editRequestReason}
+                    onChange={(e) => setEditRequestReason(e.target.value)}
+                    rows={3}
+                    maxLength={500}
+                  />
+                  <div className="document-edit-request-actions">
+                    <button
+                      className="document-edit-request-btn cancel"
+                      onClick={() => {
+                        setEditRequestDocId(null);
+                        setEditRequestReason("");
+                      }}
+                      disabled={editRequestLoading}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      className="document-edit-request-btn submit"
+                      onClick={() => handleRequestDocumentEdit(doc.studentDocumentId, doc.documentName)}
+                      disabled={!editRequestReason.trim() || editRequestLoading}
+                    >
+                      {editRequestLoading ? "Enviando..." : "Enviar solicitud"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className="document-edit-request-trigger"
+                  onClick={() => setEditRequestDocId(doc.studentDocumentId)}
+                >
+                  Solicitar editar propuesta
+                </button>
+              )}
+            </div>
+          ) : doc.status === "EDIT_REQUESTED" ? (
+            <div className="document-edit-request-pending">
+              Tu solicitud de edición está siendo evaluada por los jurados. Serás notificado cuando haya una decisión.
             </div>
           ) : (
             <div className="document-locked-message">

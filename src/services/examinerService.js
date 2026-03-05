@@ -465,3 +465,32 @@ export const getExaminerEvaluation = async (studentModalityId) => {
   const response = await axios.get(`/modalities/${studentModalityId}/examiner-evaluation`);
   return response.data;
 };
+
+// ========================================
+// ✏️ SOLICITUDES DE EDICIÓN DE DOCUMENTO
+// ========================================
+
+/**
+ * Obtiene todas las solicitudes de edición de documentos para una modalidad.
+ * @param {number} studentModalityId
+ */
+export const getDocumentEditRequests = async (studentModalityId) => {
+  console.log("📝 Obteniendo solicitudes de edición para modalidad:", studentModalityId);
+  const response = await axios.get(`/modalities/${studentModalityId}/document-edit-requests/all`);
+  return response.data;
+};
+
+/**
+ * Vota (aprueba o rechaza) una solicitud de edición de documento.
+ * @param {number} editRequestId - ID de la solicitud de edición
+ * @param {boolean} approved - true para aprobar, false para rechazar
+ * @param {string} resolutionNotes - Notas (obligatorias si rechaza)
+ */
+export const voteDocumentEditRequest = async (editRequestId, approved, resolutionNotes = "") => {
+  console.log("🗳️ Votando solicitud de edición:", { editRequestId, approved });
+  const response = await axios.post(`/modalities/document-edit-requests/${editRequestId}/resolve`, {
+    approved,
+    resolutionNotes,
+  });
+  return response.data;
+};

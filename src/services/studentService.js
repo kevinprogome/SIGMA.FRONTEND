@@ -329,6 +329,24 @@ export const getStudentDocumentBlob = async (studentDocumentId) => {
 };
 
 // ========================================
+// ✏️ SOLICITUD DE EDICIÓN DE DOCUMENTO
+// ========================================
+
+/**
+ * Solicita edición de un documento aprobado por jurados.
+ * Solo disponible cuando el documento tiene status ACCEPTED_FOR_EXAMINER_REVIEW.
+ * @param {number} studentDocumentId - ID del documento del estudiante
+ * @param {string} reason - Motivo de la solicitud de edición
+ */
+export const requestDocumentEdit = async (studentDocumentId, reason) => {
+  console.log("📝 Solicitando edición de documento:", { studentDocumentId, reason });
+  const res = await api.post(`/modalities/documents/${studentDocumentId}/request-edit`, {
+    reason,
+  });
+  return res.data;
+};
+
+// ========================================
 // 🚫 CANCELACIÓN DE MODALIDAD
 // ========================================
 export const requestCancellation = async (studentId) => {

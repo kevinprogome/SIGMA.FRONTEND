@@ -1400,3 +1400,313 @@
   color: #666;
   line-height: 1.45;
 }
+
+/* ========================================
+   SOLICITUDES DE EDICIÓN DE DOCUMENTO
+   ======================================== */
+
+/* Alerta global en la sección de documentos */
+.examiner-edit-request-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px solid #f59e0b;
+  border-left: 5px solid #f59e0b;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  animation: examinerProfileSlideIn 0.4s ease-out;
+}
+.examiner-edit-request-alert-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.examiner-edit-request-alert-content strong {
+  display: block;
+  color: #92400e;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+.examiner-edit-request-alert-content p {
+  margin: 0;
+  color: #a16207;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Document card highlight when it has a pending edit request */
+.examiner-doc-item.has-edit-request {
+  border-color: #f59e0b;
+  border-left: 5px solid #f59e0b;
+  background: linear-gradient(135deg, #fffefb 0%, #fffbeb 50%, #fff 100%);
+}
+
+/* Status badge for edit requested */
+.examiner-doc-status.edit-requested {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 2px solid #f59e0b;
+}
+
+/* Inline edit request card inside document */
+.examiner-edit-request-inline {
+  background: linear-gradient(135deg, #f9f6e7 0%, #fff 100%);
+  border: 2px solid #D5CBA0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.examiner-edit-request-inline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.examiner-edit-request-inline-badge {
+  background: #7A1117;
+  color: #fff;
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.examiner-edit-request-inline-date {
+  font-size: 0.82rem;
+  color: #888;
+}
+.examiner-edit-request-inline-reason {
+  background: #fff;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #D5CBA0;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.93rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+.examiner-edit-request-inline-reason strong {
+  color: #374151;
+}
+.examiner-edit-request-inline-requester {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Votes summary chips */
+.examiner-edit-request-votes-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: #555;
+}
+.examiner-edit-vote-chip {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.examiner-edit-vote-chip.approved {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.examiner-edit-vote-chip.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Vote trigger button */
+.examiner-edit-vote-trigger {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background: #5d0d12;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px #7A111733;
+}
+.examiner-edit-vote-trigger:hover {
+  background: #670e13;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.25);
+}
+
+/* Vote form */
+.examiner-edit-vote-form {
+  background: #fff;
+  border: 1.5px solid #D5CBA0;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  animation: examinerProfileSlideIn 0.3s ease-out;
+}
+.examiner-edit-vote-form-title {
+  margin: 0;
+  font-size: 1rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: #7A1117;
+  font-weight: 700;
+}
+
+.examiner-edit-vote-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.examiner-edit-vote-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+.examiner-edit-vote-option:hover {
+  border-color: #D5CBA0;
+  background: #f9f6e7;
+}
+.examiner-edit-vote-option.selected.approve {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+.examiner-edit-vote-option.selected.reject {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+.examiner-edit-vote-option input[type="radio"] {
+  display: none;
+}
+.examiner-edit-vote-option-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.examiner-edit-vote-option div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.examiner-edit-vote-option div strong {
+  font-size: 0.95rem;
+  color: #333;
+}
+.examiner-edit-vote-option div span {
+  font-size: 0.82rem;
+  color: #666;
+}
+
+.examiner-edit-vote-notes label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.35rem;
+}
+.examiner-edit-vote-notes textarea {
+  width: 100%;
+  padding: 0.65rem;
+  border: 1.5px solid #D5CBA0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.examiner-edit-vote-notes textarea:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 3px rgba(122, 17, 23, 0.1);
+}
+
+.examiner-edit-vote-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+.examiner-edit-vote-btn {
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.2s;
+}
+.examiner-edit-vote-btn.cancel {
+  background: #f3f4f6;
+  color: #555;
+  border-color: #d1d5db;
+}
+.examiner-edit-vote-btn.cancel:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+.examiner-edit-vote-btn.submit {
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
+  border-color: #7A1117;
+  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.12);
+}
+.examiner-edit-vote-btn.submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5d0d12 0%, #c2b68a 100%);
+}
+.examiner-edit-vote-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Resolved edit requests */
+.examiner-edit-request-resolved {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.examiner-edit-resolved-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.examiner-edit-resolved-item.approved {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+}
+.examiner-edit-resolved-item.rejected {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+}
+.examiner-edit-resolved-badge {
+  font-weight: 700;
+}
+.examiner-edit-resolved-reason {
+  color: #555;
+}
+.examiner-edit-resolved-date {
+  color: #888;
+  font-size: 0.8rem;
+  margin-left: auto;
+}

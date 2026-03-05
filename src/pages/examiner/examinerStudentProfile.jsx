@@ -37,6 +37,12 @@ const translateDocumentStatus = (status) => {
       return "Rechazado por jurado";
     case "CORRECTIONS_REQUESTED_BY_EXAMINER":
       return "Correcciones solicitadas por jurado";
+    case "EDIT_REQUESTED":
+      return "Edición solicitada por estudiante";
+    case "EDIT_REQUEST_APPROVED":
+      return "Edición aprobada — Puede resubir";
+    case "EDIT_REQUEST_REJECTED":
+      return "Solicitud de edición rechazada";
     default:
       return status;
   }
@@ -52,7 +58,9 @@ import {
   getErrorMessage,
   EXAMINER_DOCUMENT_STATUS,
   getExaminerTypeForModality,
-  getExaminerEvaluation
+  getExaminerEvaluation,
+  getDocumentEditRequests,
+  voteDocumentEditRequest,
 } from "../../services/examinerService";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/examiners/examinerstudentprofile.css";
@@ -102,11 +110,20 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
 
   const [registeredEvaluation, setRegisteredEvaluation] = useState(null);
 
+  // ── Solicitudes de edición de documento ──
+  const [editRequests, setEditRequests] = useState([]);
+  const [editRequestsSummary, setEditRequestsSummary] = useState(null);
+  const [loadingEditRequests, setLoadingEditRequests] = useState(false);
+  const [votingEditRequestId, setVotingEditRequestId] = useState(null);
+  const [voteData, setVoteData] = useState({ approved: null, resolutionNotes: "" });
+  const [submittingVote, setSubmittingVote] = useState(false);
+
   useEffect(() => {
   if (!studentModalityId) return;
 
   fetchProfile();
   fetchExaminerRole();
+  fetchEditRequests();
 }, [studentModalityId]);
 
 const fetchExaminerRole = async () => {
@@ -129,6 +146,44 @@ const fetchExaminerRole = async () => {
     setLoadingExaminerRole(false);
   }
 };
+
+  const fetchEditRequests = async () => {
+    try {
+      setLoadingEditRequests(true);
+      const data = await getDocumentEditRequests(studentModalityId);
+      if (data?.success) {
+        setEditRequests(data.editRequests || []);
+        setEditRequestsSummary(data.summary || null);
+      }
+    } catch (err) {
+      console.error("Error obteniendo solicitudes de edición:", err);
+    } finally {
+      setLoadingEditRequests(false);
+    }
+  };
+
+  const handleVoteEditRequest = async (editRequestId) => {
+    if (voteData.approved === null) return;
+    if (voteData.approved === false && !voteData.resolutionNotes.trim()) return;
+
+    try {
+      setSubmittingVote(true);
+      const res = await voteDocumentEditRequest(editRequestId, voteData.approved, voteData.resolutionNotes.trim());
+      setMessage(res.message || "Voto registrado correctamente");
+      setMessageType("success");
+      setVotingEditRequestId(null);
+      setVoteData({ approved: null, resolutionNotes: "" });
+      await fetchEditRequests();
+      await fetchProfile();
+    } catch (err) {
+      console.error("Error al votar solicitud:", err);
+      const errorMsg = err.response?.data?.message || "Error al registrar el voto";
+      setMessage(errorMsg);
+      setMessageType("error");
+    } finally {
+      setSubmittingVote(false);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -791,18 +846,180 @@ const fetchExaminerRole = async () => {
             <h3 className="examiner-doc-title"> Documentos para Revisión</h3>
           </div>
 
-          {profile.documents.filter(d => d.uploaded).map((doc) => (
+          {/* Alerta de solicitudes de edición pendientes */}
+          {editRequests.filter(r => r.authenticatedExaminerCanVote).length > 0 && (
+            <div className="examiner-edit-request-alert">
+              <div className="examiner-edit-request-alert-icon">⚠️</div>
+              <div className="examiner-edit-request-alert-content">
+                <strong>Solicitudes de edición pendientes</strong>
+                <p>
+                  {editRequests.filter(r => r.authenticatedExaminerCanVote).length === 1
+                    ? "Un estudiante ha solicitado editar un documento aprobado. Requiere tu voto."
+                    : `${editRequests.filter(r => r.authenticatedExaminerCanVote).length} solicitudes de edición requieren tu voto.`}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {profile.documents.filter(d => d.uploaded).map((doc) => {
+            // Buscar solicitudes de edición asociadas a este documento
+            const docEditRequests = editRequests.filter(r => r.documentId === doc.studentDocumentId);
+            const pendingEditRequest = docEditRequests.find(r => r.authenticatedExaminerCanVote);
+
+            return (
             <div
               key={doc.studentDocumentId || Math.random()}
-              className={`examiner-doc-item ${doc.status?.includes("ACCEPTED") ? "accepted" : "pending"}`}
+              className={`examiner-doc-item ${doc.status?.includes("ACCEPTED") ? "accepted" : "pending"} ${pendingEditRequest ? "has-edit-request" : ""}`}
             >
               <div className="examiner-doc-header">
                 <div>
                   <div className="examiner-doc-name">{doc.documentName}</div>
                   <div className="examiner-doc-type">Tipo de documento: {translateDocumentType(doc.documentType)}</div>
                 </div>
-                <span className={`examiner-doc-status ${doc.status?.includes("ACCEPTED") ? "approved" : "pending"}`}> {translateDocumentStatus(doc.status)} </span>
+                <span className={`examiner-doc-status ${doc.status?.includes("ACCEPTED") ? "approved" : doc.status === "EDIT_REQUESTED" ? "edit-requested" : "pending"}`}> {translateDocumentStatus(doc.status)} </span>
               </div>
+
+              {/* Alerta inline de solicitud de edición para este documento */}
+              {pendingEditRequest && (
+                <div className="examiner-edit-request-inline">
+                  <div className="examiner-edit-request-inline-header">
+                    <span className="examiner-edit-request-inline-badge">Solicitud de edición</span>
+                    <span className="examiner-edit-request-inline-date">
+                      {pendingEditRequest.createdAt ? new Date(pendingEditRequest.createdAt).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" }) : ""}
+                    </span>
+                  </div>
+                  <div className="examiner-edit-request-inline-reason">
+                    <strong>Motivo del estudiante:</strong> {pendingEditRequest.reason}
+                  </div>
+                  <div className="examiner-edit-request-inline-requester">
+                    Solicitado por: <strong>{pendingEditRequest.requesterName}</strong> ({pendingEditRequest.requesterEmail})
+                  </div>
+
+                  {/* Votos existentes */}
+                  {pendingEditRequest.votes && pendingEditRequest.votes.length > 0 && (
+                    <div className="examiner-edit-request-votes-summary">
+                      <strong>Votos registrados:</strong>
+                      {pendingEditRequest.votes.map((v, i) => (
+                        <div key={i} className={`examiner-edit-vote-chip ${v.decision === "APPROVED" ? "approved" : "rejected"}`}>
+                          {v.examinerTypeLabel}: {v.decisionLabel}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Formulario de voto */}
+                  {votingEditRequestId === pendingEditRequest.editRequestId ? (
+                    <div className="examiner-edit-vote-form">
+                      <h5 className="examiner-edit-vote-form-title">Tu decisión sobre esta solicitud</h5>
+                      <div className="examiner-edit-vote-options">
+                        <label className={`examiner-edit-vote-option ${voteData.approved === true ? "selected approve" : ""}`}>
+                          <input
+                            type="radio"
+                            name={`vote-${pendingEditRequest.editRequestId}`}
+                            checked={voteData.approved === true}
+                            onChange={() => setVoteData(prev => ({ ...prev, approved: true }))}
+                            disabled={submittingVote}
+                          />
+                          <span className="examiner-edit-vote-option-icon">✅</span>
+                          <div>
+                            <strong>Aprobar edición</strong>
+                            <span>Permitir al estudiante resubir el documento con cambios.</span>
+                          </div>
+                        </label>
+                        <label className={`examiner-edit-vote-option ${voteData.approved === false ? "selected reject" : ""}`}>
+                          <input
+                            type="radio"
+                            name={`vote-${pendingEditRequest.editRequestId}`}
+                            checked={voteData.approved === false}
+                            onChange={() => setVoteData(prev => ({ ...prev, approved: false }))}
+                            disabled={submittingVote}
+                          />
+                          <span className="examiner-edit-vote-option-icon">❌</span>
+                          <div>
+                            <strong>Rechazar edición</strong>
+                            <span>El documento permanece como está.</span>
+                          </div>
+                        </label>
+                      </div>
+
+                      {voteData.approved === false && (
+                        <div className="examiner-edit-vote-notes">
+                          <label>Notas de rechazo *</label>
+                          <textarea
+                            value={voteData.resolutionNotes}
+                            onChange={(e) => setVoteData(prev => ({ ...prev, resolutionNotes: e.target.value }))}
+                            placeholder="Indica el motivo del rechazo..."
+                            rows={3}
+                            disabled={submittingVote}
+                          />
+                        </div>
+                      )}
+
+                      {voteData.approved === true && (
+                        <div className="examiner-edit-vote-notes">
+                          <label>Notas (opcional)</label>
+                          <textarea
+                            value={voteData.resolutionNotes}
+                            onChange={(e) => setVoteData(prev => ({ ...prev, resolutionNotes: e.target.value }))}
+                            placeholder="Observaciones opcionales..."
+                            rows={2}
+                            disabled={submittingVote}
+                          />
+                        </div>
+                      )}
+
+                      <div className="examiner-edit-vote-actions">
+                        <button
+                          className="examiner-edit-vote-btn cancel"
+                          onClick={() => {
+                            setVotingEditRequestId(null);
+                            setVoteData({ approved: null, resolutionNotes: "" });
+                          }}
+                          disabled={submittingVote}
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          className="examiner-edit-vote-btn submit"
+                          onClick={() => handleVoteEditRequest(pendingEditRequest.editRequestId)}
+                          disabled={submittingVote || voteData.approved === null || (voteData.approved === false && !voteData.resolutionNotes.trim())}
+                        >
+                          {submittingVote ? "Enviando..." : "Registrar voto"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      className="examiner-edit-vote-trigger"
+                      onClick={() => {
+                        setVotingEditRequestId(pendingEditRequest.editRequestId);
+                        setVoteData({ approved: null, resolutionNotes: "" });
+                      }}
+                    >
+                      Votar sobre esta solicitud
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Solicitudes ya resueltas para este documento */}
+              {docEditRequests.filter(r => !r.authenticatedExaminerCanVote && (r.status === "APPROVED" || r.status === "REJECTED")).length > 0 && (
+                <div className="examiner-edit-request-resolved">
+                  {docEditRequests.filter(r => !r.authenticatedExaminerCanVote && (r.status === "APPROVED" || r.status === "REJECTED")).map(req => (
+                    <div key={req.editRequestId} className={`examiner-edit-resolved-item ${req.status === "APPROVED" ? "approved" : "rejected"}`}>
+                      <span className="examiner-edit-resolved-badge">
+                        {req.status === "APPROVED" ? "✅ Edición aprobada" : "❌ Edición rechazada"}
+                      </span>
+                      <span className="examiner-edit-resolved-reason">Motivo: {req.reason}</span>
+                      {req.resolvedAt && (
+                        <span className="examiner-edit-resolved-date">
+                          Resuelto: {new Date(req.resolvedAt).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {doc.notes && (
                 <div className="examiner-doc-notes">
@@ -974,7 +1191,8 @@ const fetchExaminerRole = async () => {
                 </div>
               )}
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
 
