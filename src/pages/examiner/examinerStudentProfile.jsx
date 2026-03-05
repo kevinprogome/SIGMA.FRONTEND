@@ -51,9 +51,6 @@ import {
   formatDate,
   getErrorMessage,
   EXAMINER_DOCUMENT_STATUS,
-  EXAMINER_DECISIONS,
-  isGradeConsistentWithDecision,
-  getSuggestedDecision,
   getExaminerTypeForModality,
   getExaminerEvaluation
 } from "../../services/examinerService";
@@ -89,8 +86,15 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
   const [showEvaluationForm, setShowEvaluationForm] = useState(false);
   const [evaluationData, setEvaluationData] = useState({
     grade: "",
-    decision: "",
-    observations: ""
+    observations: "",
+    defenseCriteria: {
+      domainAndClarity: "",
+      synthesisAndCommunication: "",
+      argumentationAndResponse: "",
+      innovationAndImpact: "",
+      professionalPresentation: "",
+    },
+    proposedMention: "",
   });
   const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
@@ -176,6 +180,35 @@ const fetchExaminerRole = async () => {
     DEFICIENT: "Deficiente",
   };
 
+  // ── Rúbrica de evaluación de sustentación (imagen oficial) ──
+  const DEFENSE_GRADE_SCALE = [
+    { value: "INSUFFICIENT", label: "Insuficiente", shortLabel: "I" },
+    { value: "ACCEPTABLE", label: "Aceptable", shortLabel: "A" },
+    { value: "GOOD", label: "Bueno", shortLabel: "B" },
+    { value: "EXCELLENT", label: "Excelente", shortLabel: "E" },
+  ];
+
+  const DEFENSE_CRITERIA = [
+    { key: "domainAndClarity", label: "Dominio del tema y claridad conceptual", description: "El estudiante demuestra comprensión integral del problema abordado, los fundamentos teóricos y la metodología empleada. Explica con claridad los conceptos técnicos y la coherencia del proceso desarrollado. Expone de manera clara las conclusiones y recomendaciones, evidenciando su relación con los objetivos del proyecto y los resultados obtenidos." },
+    { key: "synthesisAndCommunication", label: "Capacidad de síntesis y comunicación oral", description: "Expone la información de forma ordenada, coherente y ajustada al tiempo asignado. Utiliza un lenguaje técnico apropiado y mantiene el interés de la audiencia." },
+    { key: "argumentationAndResponse", label: "Argumentación y capacidad de respuesta", description: "Responde de manera clara, fundamentada y segura a las preguntas del jurado. Justifica las decisiones tomadas durante el desarrollo del proyecto y demuestra pensamiento crítico." },
+    { key: "innovationAndImpact", label: "Innovación, impacto y aplicación del trabajo", description: "Explica los aportes del proyecto en términos de innovación, pertinencia y posible impacto en el sector agropecuario o tecnológico. Evidencia comprensión de la aplicabilidad de sus resultados." },
+    { key: "professionalPresentation", label: "Presentación profesional y manejo del material de apoyo", description: "Emplea adecuadamente recursos audiovisuales, con presentaciones claras y bien estructuradas. Mantiene una actitud profesional, dominio escénico y uso correcto del lenguaje." },
+  ];
+
+  const DEFENSE_GRADE_LABEL_MAP = {
+    INSUFFICIENT: "Insuficiente (I)",
+    ACCEPTABLE: "Aceptable (A)",
+    GOOD: "Bueno (B)",
+    EXCELLENT: "Excelente (E)",
+  };
+
+  const MENTION_OPTIONS = [
+    { value: "", label: "Sin mención" },
+    { value: "MERITORIOUS", label: "Meritorio" },
+    { value: "LAUREATE", label: "Laureado" },
+  ];
+
   const PROPOSAL_ASPECTS = [
     { key: "summary", label: "Resumen", description: "El resumen presenta una explicación clara de las principales características del trabajo a realizar y los resultados esperados." },
     { key: "backgroundJustification", label: "Antecedentes y Justificación", description: "La propuesta se encuentra correctamente referenciada, se basa en una revisión bibliográfica actual y pertinente, incluyendo análisis y descripción de la problemática estudiada." },
@@ -191,6 +224,16 @@ const fetchExaminerRole = async () => {
       ...prev,
       proposalEvaluation: {
         ...prev.proposalEvaluation,
+        [key]: value,
+      },
+    }));
+  };
+
+  const handleDefenseCriteriaChange = (key, value) => {
+    setEvaluationData(prev => ({
+      ...prev,
+      defenseCriteria: {
+        ...prev.defenseCriteria,
         [key]: value,
       },
     }));
@@ -276,19 +319,39 @@ const fetchExaminerRole = async () => {
     }
   };
 
-  const handleGradeChange = (grade) => {
-    setEvaluationData({
-      ...evaluationData,
-      grade,
-      decision: getSuggestedDecision(grade),
-    });
+  const handleGradeChange = (value) => {
+    // Allow empty, or valid numbers 0-5 with up to 1 decimal
+    if (value === "" || /^\d*\.?\d{0,1}$/.test(value)) {
+      const num = parseFloat(value);
+      if (value === "" || (num >= 0 && num <= 5)) {
+        setEvaluationData({ ...evaluationData, grade: value });
+      }
+    }
+  };
+
+  const getGradeDecisionLabel = () => {
+    const gradeNum = parseFloat(evaluationData.grade);
+    if (isNaN(gradeNum)) return null;
+    return gradeNum >= 3.0
+      ? { label: "APROBADO", color: "#166534", bg: "#dcfce7" }
+      : { label: "REPROBADO", color: "#991b1b", bg: "#fee2e2" };
   };
 
   const handleSubmitEvaluation = async (e) => {
     e.preventDefault();
 
-    if (!evaluationData.grade || !evaluationData.decision) {
-      setMessage("Debes proporcionar calificación y decisión");
+    const gradeNum = parseFloat(evaluationData.grade);
+    if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 5) {
+      setMessage("La calificación debe estar entre 0.0 y 5.0");
+      setMessageType("error");
+      return;
+    }
+
+    // Validate all defense criteria
+    const crit = evaluationData.defenseCriteria;
+    const allFilled = DEFENSE_CRITERIA.every(c => crit[c.key] && crit[c.key] !== "");
+    if (!allFilled) {
+      setMessage("Debes calificar todos los criterios de la rúbrica de sustentación");
       setMessageType("error");
       return;
     }
@@ -299,26 +362,36 @@ const fetchExaminerRole = async () => {
       return;
     }
 
-    if (!isGradeConsistentWithDecision(evaluationData.grade, evaluationData.decision)) {
-      setMessage("La calificación no es consistente con la decisión");
-      setMessageType("error");
-      return;
-    }
-
     setSubmittingEvaluation(true);
 
     try {
-      const response = await registerEvaluation(studentModalityId, {
-        grade: parseFloat(evaluationData.grade),
-        decision: evaluationData.decision,
+      const payload = {
+        grade: gradeNum,
         observations: evaluationData.observations,
-      });
+        evaluationCriteria: {
+          ...evaluationData.defenseCriteria,
+          proposedMention: evaluationData.proposedMention || "NONE",
+        },
+      };
+
+      const response = await registerEvaluation(studentModalityId, payload);
 
       setMessage(response.message || "Evaluación registrada correctamente");
       setMessageType("success");
 
       setShowEvaluationForm(false);
-      setEvaluationData({ grade: "", decision: "", observations: "" });
+      setEvaluationData({
+        grade: "",
+        observations: "",
+        defenseCriteria: {
+          domainAndClarity: "",
+          synthesisAndCommunication: "",
+          argumentationAndResponse: "",
+          innovationAndImpact: "",
+          professionalPresentation: "",
+        },
+        proposedMention: "",
+      });
 
       await fetchProfile();
 
@@ -874,7 +947,7 @@ const fetchExaminerRole = async () => {
         </div>
       )}
 
-      {/* Evaluation Section */}
+      {/* Evaluation Section — Rúbrica de Sustentación */}
       {canEvaluate() && (
         <div className="examiner-eval-section">
           <h3 className="examiner-profile-card-title">Evaluación de la Sustentación</h3>
@@ -886,8 +959,8 @@ const fetchExaminerRole = async () => {
                 <div className="examiner-eval-message">
                   <span className="examiner-eval-alert">Todos los documentos han sido aprobados.</span><br/>
                   Una vez realizada la sustentación, debes registrar en este apartado la calificación que fue otorgada al estudiante durante la sesión.<br/>
-                  <span style={{color:'#7A1117',fontWeight:600}}>Recuerda:</span> Asegúrate de consignar exactamente la nota definida y comunicada en el momento de la evaluación, junto con las observaciones correspondientes.<br/>
-                  <span style={{color:'#B7A873'}}>La información registrada debe reflejar fielmente la decisión adoptada y el desempeño evidenciado por el estudiante durante la sustentación.</span>
+                  <span style={{color:'#7A1117',fontWeight:600}}>Recuerda:</span> Evalúe cada criterio utilizando la valoración cualitativa: <strong>I</strong>= Insuficiente, <strong>A</strong>= Aceptable, <strong>B</strong>= Bueno, y <strong>E</strong>= Excelente, <strong>utilice la rúbrica de evaluación.</strong><br/>
+                  <span style={{color:'#B7A873'}}>La calificación final será <strong>APROBADO</strong> o <strong>REPROBADO</strong>, utilice la regla de aprobación.</span>
                 </div>
                 <button
                   onClick={() => setShowEvaluationForm(true)}
@@ -898,63 +971,163 @@ const fetchExaminerRole = async () => {
               </div>
             ) : (
               <form onSubmit={handleSubmitEvaluation} className="examiner-eval-form">
-                <div className="examiner-form-group">
-                  <label className="examiner-form-label">Calificación (0.0 - 5.0) *</label>
-                  <select
-                    value={evaluationData.grade}
-                    onChange={(e) => handleGradeChange(e.target.value)}
-                    className="examiner-form-select"
-                    disabled={submittingEvaluation}
-                    required
-                  >
-                    <option value="">Seleccionar calificación...</option>
-                    <option value="0.0">0.0</option>
-                    <option value="0.5">0.5</option>
-                    <option value="1.0">1.0</option>
-                    <option value="1.5">1.5</option>
-                    <option value="2.0">2.0</option>
-                    <option value="2.5">2.5</option>
-                    <option value="3.0">3.0</option>
-                    <option value="3.5">3.5</option>
-                    <option value="4.0">4.0</option>
-                    <option value="4.5">4.5</option>
-                    <option value="5.0">5.0</option>
-                  </select>
+
+                {/* Rúbrica de criterios de sustentación */}
+                <div className="examiner-rubric-section">
+                  <h5 className="examiner-rubric-title">Rúbrica de Evaluación de Sustentación</h5>
+                  <p className="examiner-rubric-subtitle">
+                    Evalúe cada criterio utilizando la valoración cualitativa: <strong>I</strong>= Insuficiente, <strong>A</strong>= Aceptable, <strong>B</strong>= Bueno, y <strong>E</strong>= Excelente.
+                  </p>
+
+                  <div className="examiner-rubric-table">
+                    <div className="examiner-rubric-header">
+                      <div className="examiner-rubric-col-aspect">Criterio</div>
+                      {DEFENSE_GRADE_SCALE.map(g => (
+                        <div key={g.value} className="examiner-rubric-col-grade">{g.shortLabel}</div>
+                      ))}
+                    </div>
+
+                    {DEFENSE_CRITERIA.map((criterion, idx) => (
+                      <div key={criterion.key} className="examiner-rubric-row">
+                        <div className="examiner-rubric-col-aspect">
+                          <div className="examiner-rubric-aspect-label">{idx + 1}. {criterion.label}</div>
+                          <div className="examiner-rubric-aspect-desc">{criterion.description}</div>
+                        </div>
+                        {DEFENSE_GRADE_SCALE.map(g => (
+                          <div key={g.value} className="examiner-rubric-col-grade">
+                            <label className="examiner-rubric-radio-label">
+                              <input
+                                type="radio"
+                                name={`defense-rubric-${criterion.key}`}
+                                value={g.value}
+                                checked={evaluationData.defenseCriteria[criterion.key] === g.value}
+                                onChange={() => handleDefenseCriteriaChange(criterion.key, g.value)}
+                                disabled={submittingEvaluation}
+                                className="examiner-rubric-radio"
+                              />
+                              <span className="examiner-rubric-radio-custom"></span>
+                              <span className="examiner-rubric-grade-mobile">{g.label}</span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="examiner-form-group">
-                  <label className="examiner-form-label">Decisión *</label>
-                  <select
-                    value={evaluationData.decision}
-                    onChange={(e) => setEvaluationData({ ...evaluationData, decision: e.target.value })}
-                    className="examiner-form-select"
-                    disabled={submittingEvaluation}
-                    required
-                  >
-                    <option value="">Seleccionar...</option>
-                    <option value={EXAMINER_DECISIONS.REJECTED}> Reprobado (0.0 - 2.9)</option>
-                    <option value={EXAMINER_DECISIONS.APPROVED_NO_DISTINCTION}> Aprobado (3.0 - 3.9)</option>
-                    <option value={EXAMINER_DECISIONS.APPROVED_MERITORIOUS}> Meritorio (4.0 - 4.4)</option>
-                    <option value={EXAMINER_DECISIONS.APPROVED_LAUREATE}> Laureado (4.5 - 5.0)</option>
-                  </select>
+
+                {/* Calificación Final Cuantitativa */}
+                <div className="examiner-form-group" style={{ marginTop: '1.5rem' }}>
+                  <label className="examiner-form-label">Calificación Final Cuantitativa (0.0 - 5.0) *</label>
+                  <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 0.5rem 0' }}>
+                    Pondere la calificación obtenida de acuerdo a la rúbrica y registre la Nota.
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={evaluationData.grade}
+                      onChange={(e) => handleGradeChange(e.target.value)}
+                      placeholder="Nota final"
+                      className="examiner-form-select"
+                      style={{ maxWidth: '160px', fontSize: '1.1rem', fontWeight: 700, textAlign: 'center' }}
+                      disabled={submittingEvaluation}
+                      required
+                    />
+                    {(() => {
+                      const decision = getGradeDecisionLabel();
+                      if (!decision) return null;
+                      return (
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '0.4rem 1.2rem',
+                          borderRadius: '8px',
+                          fontWeight: 700,
+                          fontSize: '1rem',
+                          color: decision.color,
+                          background: decision.bg,
+                          border: `2px solid ${decision.color}`,
+                          letterSpacing: '0.5px',
+                        }}>
+                          {decision.label}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </div>
-                <div className="examiner-form-group">
+
+                {/* Mención (Meritorio / Laureado) — opcional */}
+                <div className="examiner-form-group" style={{ marginTop: '1.5rem' }}>
+                  <label className="examiner-form-label">Mención (opcional)</label>
+                  <div style={{
+                    background: '#fffbea', border: '1.5px solid #D5CBA0', borderRadius: '10px',
+                    padding: '1rem 1.25rem', marginBottom: '0.75rem'
+                  }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.88rem', color: '#7A1117', lineHeight: 1.6 }}>
+                      <strong>Acuerdo 071 de 2023, Artículo 10. Menciones de las Modalidades de Grado:</strong><br/>
+                      <strong>a) Meritorio:</strong> Una modalidad de grado podrá recibir mención de Meritorio si a juicio unánime de los evaluadores se tiene un impacto positivo evidenciado en al menos una de las dimensiones: académica, social, económica y/o tecnológica.<br/>
+                      <strong>b) Laureado:</strong> Una modalidad de grado podrá recibir mención de Laureado si además de cumplir con las condiciones de un producto meritorio, cumple con evidenciar el carácter innovador del producto o el aporte nuevo al estado del arte.
+                    </p>
+                  </div>
+                  <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 0.5rem 0' }}>
+                    Si considera que el trabajo puede tener una mención, seleccione la que corresponda. Si deja vacío se registra como "Sin mención".
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    {MENTION_OPTIONS.map(opt => (
+                      <label
+                        key={opt.value}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '0.5rem',
+                          padding: '0.6rem 1.2rem', borderRadius: '10px', cursor: 'pointer',
+                          border: evaluationData.proposedMention === opt.value
+                            ? '2px solid #7A1117' : '2px solid #e5e7eb',
+                          background: evaluationData.proposedMention === opt.value
+                            ? '#fef2f2' : '#fff',
+                          fontWeight: evaluationData.proposedMention === opt.value ? 700 : 500,
+                          fontSize: '0.95rem', color: '#374151',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="proposedMention"
+                          value={opt.value}
+                          checked={evaluationData.proposedMention === opt.value}
+                          onChange={() => setEvaluationData({ ...evaluationData, proposedMention: opt.value })}
+                          disabled={submittingEvaluation}
+                          style={{ accentColor: '#7A1117' }}
+                        />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Observaciones */}
+                <div className="examiner-form-group" style={{ marginTop: '1.5rem' }}>
                   <label className="examiner-form-label">Observaciones *</label>
                   <textarea
                     value={evaluationData.observations}
                     onChange={(e) => setEvaluationData({ ...evaluationData, observations: e.target.value })}
                     rows="6"
-                    placeholder="Observaciones detalladas..."
+                    placeholder="Registre aquí sus observaciones sobre el desempeño del estudiante durante la sustentación..."
                     className="examiner-form-textarea"
                     disabled={submittingEvaluation}
                     required
                   />
                 </div>
+
                 <div className="examiner-form-actions">
                   <button
                     type="button"
                     onClick={() => {
                       setShowEvaluationForm(false);
-                      setEvaluationData({ grade: "", decision: "", observations: "" });
+                      setEvaluationData({
+                        grade: "", observations: "",
+                        defenseCriteria: { domainAndClarity: "", synthesisAndCommunication: "", argumentationAndResponse: "", innovationAndImpact: "", professionalPresentation: "" },
+                        proposedMention: "",
+                      });
                     }}
                     className="examiner-doc-btn cancel"
                     disabled={submittingEvaluation}
@@ -979,49 +1152,93 @@ const fetchExaminerRole = async () => {
 
       {/* Already Evaluated */}
       {hasEvaluated() && registeredEvaluation && (() => {
-        let decisionLabel = '';
-        switch (registeredEvaluation.decision) {
-          case 'REJECTED':
-            decisionLabel = ' Reprobado';
-            break;
-          case 'APPROVED_NO_DISTINCTION':
-            decisionLabel = ' Aprobado';
-            break;
-          case 'APPROVED_MERITORIOUS':
-            decisionLabel = ' Meritorio';
-            break;
-          case 'APPROVED_LAUREATE':
-            decisionLabel = ' Laureado';
-            break;
-          default:
-            decisionLabel = registeredEvaluation.decision;
-        }
+        const gradeNum = parseFloat(registeredEvaluation.grade);
+        const isApproved = gradeNum >= 3.0;
+        const decisionLabel = isApproved ? 'Aprobado' : 'Reprobado';
+        const decisionColor = isApproved ? '#166534' : '#991b1b';
+        const decisionBg = isApproved ? '#dcfce7' : '#fee2e2';
+
+        let mentionLabel = '';
+        if (registeredEvaluation.proposedMention === 'MERITORIOUS') mentionLabel = 'Meritorio';
+        else if (registeredEvaluation.proposedMention === 'LAUREATE') mentionLabel = 'Laureado';
+
         let examinerTypeLabel = '';
         switch (registeredEvaluation.examinerType) {
-          case 'PRIMARY_EXAMINER_1':
-            examinerTypeLabel = 'Jurado Principal 1';
-            break;
-          case 'PRIMARY_EXAMINER_2':
-            examinerTypeLabel = 'Jurado Principal 2';
-            break;
-          case 'TIEBREAKER_EXAMINER':
-            examinerTypeLabel = 'Jurado de Desempate';
-            break;
-          default:
-            examinerTypeLabel = registeredEvaluation.examinerType;
+          case 'PRIMARY_EXAMINER_1': examinerTypeLabel = 'Jurado Principal 1'; break;
+          case 'PRIMARY_EXAMINER_2': examinerTypeLabel = 'Jurado Principal 2'; break;
+          case 'TIEBREAKER_EXAMINER': examinerTypeLabel = 'Jurado de Desempate'; break;
+          default: examinerTypeLabel = registeredEvaluation.examinerType;
         }
+
+        // Map criteria values for display
+        const criteriaLabelMap = {
+          INSUFFICIENT: 'Insuficiente (I)',
+          ACCEPTABLE: 'Aceptable (A)',
+          GOOD: 'Bueno (B)',
+          EXCELLENT: 'Excelente (E)',
+        };
+
+        const hasCriteria = registeredEvaluation.domainAndClarity || registeredEvaluation.evaluationCriteria;
+        const criteria = registeredEvaluation.evaluationCriteria || registeredEvaluation;
+
         return (
           <section className="examiner-eval-completed-block">
             <h3 className="examiner-eval-completed-title">Evaluación Final Registrada</h3>
+
+            {/* Rubric criteria display */}
+            {hasCriteria && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4 style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.75rem' }}>Rúbrica de Sustentación</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {DEFENSE_CRITERIA.map((c, idx) => {
+                    const val = criteria[c.key];
+                    return val ? (
+                      <div key={c.key} style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '0.5rem 1rem', borderRadius: '8px', background: '#f9fafb', border: '1px solid #e5e7eb'
+                      }}>
+                        <span style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem' }}>{idx + 1}. {c.label}</span>
+                        <span style={{
+                          fontWeight: 700, fontSize: '0.9rem', padding: '0.2rem 0.75rem', borderRadius: '6px',
+                          background: val === 'EXCELLENT' ? '#dcfce7' : val === 'GOOD' ? '#dbeafe' : val === 'ACCEPTABLE' ? '#fef9c3' : '#fee2e2',
+                          color: val === 'EXCELLENT' ? '#166534' : val === 'GOOD' ? '#1e40af' : val === 'ACCEPTABLE' ? '#854d0e' : '#991b1b',
+                        }}>
+                          {criteriaLabelMap[val] || val}
+                        </span>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="examiner-eval-completed-grid">
               <div className="eval-row">
-                <span className="eval-label">Calificación:</span>
-                <span className="eval-value examiner-eval-date">{registeredEvaluation.grade}</span>
+                <span className="eval-label">Calificación Final:</span>
+                <span className="eval-value" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{registeredEvaluation.grade}</span>
               </div>
               <div className="eval-row">
-                <span className="eval-label">Decisión:</span>
-                <span className="eval-value examiner-eval-date">{decisionLabel}</span>
+                <span className="eval-label">Calificación Cualitativa:</span>
+                <span style={{
+                  display: 'inline-block', padding: '0.3rem 1rem', borderRadius: '8px',
+                  fontWeight: 700, color: decisionColor, background: decisionBg,
+                  border: `1.5px solid ${decisionColor}`
+                }}>
+                  {decisionLabel}
+                </span>
               </div>
+              {mentionLabel && (
+                <div className="eval-row">
+                  <span className="eval-label">Mención Propuesta:</span>
+                  <span style={{
+                    display: 'inline-block', padding: '0.3rem 1rem', borderRadius: '8px',
+                    fontWeight: 700, color: '#7A1117', background: '#fef2f2',
+                    border: '1.5px solid #7A1117'
+                  }}>
+                    🏅 {mentionLabel}
+                  </span>
+                </div>
+              )}
               <div className="eval-row">
                 <span className="eval-label">Observaciones:</span>
                 <span className="eval-value examiner-eval-date">{registeredEvaluation.observations}</span>
@@ -1034,7 +1251,6 @@ const fetchExaminerRole = async () => {
                 <span className="eval-label">Tipo de Jurado:</span>
                 <span className="eval-value examiner-eval-date">{examinerTypeLabel}</span>
               </div>
-              
             </div>
           </section>
         );
