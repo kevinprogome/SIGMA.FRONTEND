@@ -335,11 +335,26 @@ const fetchExaminerRole = async () => {
     }
   };
 
-  const canReviewDocuments = () => {
-    return profile?.currentStatus === "EXAMINERS_ASSIGNED" || 
-           profile?.currentStatus === "READY_FOR_EXAMINERS" ||
-           profile?.currentStatus === "CORRECTIONS_REQUESTED_EXAMINERS" ||
-           profile?.currentStatus === "CORRECTIONS_SUBMITTED_TO_EXAMINERS";
+  const canReviewDocuments = (docType) => {
+    const baseStatuses = [
+      "EXAMINERS_ASSIGNED",
+      "READY_FOR_EXAMINERS",
+      "CORRECTIONS_REQUESTED_EXAMINERS",
+      "CORRECTIONS_SUBMITTED_TO_EXAMINERS"
+    ];
+
+    if (docType === "SECONDARY") {
+      return [
+        ...baseStatuses,
+        "DOCUMENTS_APPROVED_BY_EXAMINERS",
+        "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS",
+        "DEFENSE_SCHEDULED",
+        "READY_FOR_DEFENSE",
+        "FINAL_REVIEW_COMPLETED"
+      ].includes(profile?.currentStatus);
+    }
+
+    return baseStatuses.includes(profile?.currentStatus);
   };
 
   const executeConfirmAction = async () => {
@@ -701,7 +716,7 @@ const fetchExaminerRole = async () => {
                   {loadingDocId === doc.studentDocumentId ? "Cargando..." : " Ver Documento"}
                 </button>
 
-                {canReviewDocuments() && !doc.status?.includes("ACCEPTED_FOR_EXAMINER") && (
+                {canReviewDocuments(doc.documentType) && !doc.status?.includes("ACCEPTED_FOR_EXAMINER") && (
                   <button
                     onClick={() => {
                       if (reviewingDocId === doc.studentDocumentId) {
@@ -780,8 +795,8 @@ const fetchExaminerRole = async () => {
                         />
                         <span className="examiner-decision-icon"></span>
                         <div className="examiner-decision-text">
-                          <strong>Avalar propuesta sin modificaciones</strong>
-                          <span>Apruebo la propuesta tal como está presentada.</span>
+                          <strong>{doc.documentType === "SECONDARY" ? "Aprobar documento" : "Avalar propuesta sin modificaciones"}</strong>
+                          <span>{doc.documentType === "SECONDARY" ? "Apruebo el documento tal como está presentado." : "Apruebo la propuesta tal como está presentada."}</span>
                         </div>
                       </label>
                       <label className={`examiner-decision-option ${reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS ? "selected corrections" : ""}`}>
@@ -795,8 +810,8 @@ const fetchExaminerRole = async () => {
                         />
                         <span className="examiner-decision-icon"></span>
                         <div className="examiner-decision-text">
-                          <strong>Apruebo con modificaciones</strong>
-                          <span>Apruebo la propuesta siempre y cuando se realicen las modificaciones. Se requiere el concepto del director sobre las modificaciones propuestas dentro de los treinta (30) días calendario siguientes.</span>
+                          <strong>{doc.documentType === "SECONDARY" ? "Solicitar correcciones al documento" : "Apruebo con modificaciones"}</strong>
+                          <span>{doc.documentType === "SECONDARY" ? "El documento requiere correcciones. Se solicitan ajustes antes de su aprobación." : "Apruebo la propuesta siempre y cuando se realicen las modificaciones. Se requiere el concepto del director sobre las modificaciones propuestas dentro de los treinta (30) días calendario siguientes."}</span>
                         </div>
                       </label>
                       <label className={`examiner-decision-option ${reviewData.status === EXAMINER_DOCUMENT_STATUS.REJECTED ? "selected rejected" : ""}`}>
@@ -810,8 +825,8 @@ const fetchExaminerRole = async () => {
                         />
                         <span className="examiner-decision-icon"></span>
                         <div className="examiner-decision-text">
-                          <strong>No apruebo la propuesta</strong>
-                          <span>Se requieren cambios sustanciales. Es necesario un replanteamiento de la propuesta e iniciar un nuevo proceso de evaluación. El documento ajustado debe entregarse máximo 30 días calendario.</span>
+                          <strong>{doc.documentType === "SECONDARY" ? "Rechazar documento" : "No apruebo la propuesta"}</strong>
+                          <span>{doc.documentType === "SECONDARY" ? "El documento no cumple con los requisitos establecidos y debe ser replanteado." : "Se requieren cambios sustanciales. Es necesario un replanteamiento de la propuesta e iniciar un nuevo proceso de evaluación. El documento ajustado debe entregarse máximo 30 días calendario."}</span>
                         </div>
                       </label>
                     </div>
