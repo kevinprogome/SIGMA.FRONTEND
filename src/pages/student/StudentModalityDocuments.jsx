@@ -263,6 +263,7 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
       "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD",
       "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE",
       "CORRECTIONS_REQUESTED_BY_EXAMINER",
+      "EDIT_REQUEST_APPROVED",
     ];
     return reuploadableStatuses.includes(status);
   };
