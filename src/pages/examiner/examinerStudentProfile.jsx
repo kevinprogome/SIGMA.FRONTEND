@@ -97,6 +97,7 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
     proposedMention: "",
   });
   const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
+  const [evalValidationErrors, setEvalValidationErrors] = useState({});
   const [confirmAction, setConfirmAction] = useState(null);
 
   const [registeredEvaluation, setRegisteredEvaluation] = useState(null);
@@ -182,10 +183,10 @@ const fetchExaminerRole = async () => {
 
   // ── Rúbrica de evaluación de sustentación (imagen oficial) ──
   const DEFENSE_GRADE_SCALE = [
-    { value: "INSUFFICIENT", label: "Insuficiente", shortLabel: "I" },
-    { value: "ACCEPTABLE", label: "Aceptable", shortLabel: "A" },
-    { value: "GOOD", label: "Bueno", shortLabel: "B" },
-    { value: "EXCELLENT", label: "Excelente", shortLabel: "E" },
+    { value: "Insufficient", label: "Insuficiente", shortLabel: "I" },
+    { value: "Acceptable", label: "Aceptable", shortLabel: "A" },
+    { value: "Good", label: "Bueno", shortLabel: "B" },
+    { value: "Excellent", label: "Excelente", shortLabel: "E" },
   ];
 
   const DEFENSE_CRITERIA = [
@@ -197,10 +198,10 @@ const fetchExaminerRole = async () => {
   ];
 
   const DEFENSE_GRADE_LABEL_MAP = {
-    INSUFFICIENT: "Insuficiente (I)",
-    ACCEPTABLE: "Aceptable (A)",
-    GOOD: "Bueno (B)",
-    EXCELLENT: "Excelente (E)",
+    Insufficient: "Insuficiente (I)",
+    Acceptable: "Aceptable (A)",
+    Good: "Bueno (B)",
+    Excellent: "Excelente (E)",
   };
 
   const MENTION_OPTIONS = [
@@ -237,6 +238,10 @@ const fetchExaminerRole = async () => {
         [key]: value,
       },
     }));
+    // Clear rubric error when user fills a criterion
+    if (evalValidationErrors.rubric) {
+      setEvalValidationErrors(prev => { const n = {...prev}; delete n.rubric; return n; });
+    }
   };
 
   const resetReviewData = () => {
@@ -325,6 +330,9 @@ const fetchExaminerRole = async () => {
       const num = parseFloat(value);
       if (value === "" || (num >= 0 && num <= 5)) {
         setEvaluationData({ ...evaluationData, grade: value });
+        if (evalValidationErrors.grade) {
+          setEvalValidationErrors(prev => { const n = {...prev}; delete n.grade; return n; });
+        }
       }
     }
   };
@@ -337,27 +345,47 @@ const fetchExaminerRole = async () => {
       : { label: "REPROBADO", color: "#991b1b", bg: "#fee2e2" };
   };
 
+  const scrollToSection = (sectionId) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.transition = 'box-shadow 0.3s';
+      el.style.boxShadow = '0 0 0 3px #7A1117, 0 0 16px rgba(122,17,23,0.18)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 2500);
+    }
+  };
+
   const handleSubmitEvaluation = async (e) => {
     e.preventDefault();
+    const errors = {};
 
-    const gradeNum = parseFloat(evaluationData.grade);
-    if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 5) {
-      setMessage("La calificación debe estar entre 0.0 y 5.0");
-      setMessageType("error");
-      return;
-    }
-
-    // Validate all defense criteria
+    // 1. Validate rubric criteria
     const crit = evaluationData.defenseCriteria;
-    const allFilled = DEFENSE_CRITERIA.every(c => crit[c.key] && crit[c.key] !== "");
-    if (!allFilled) {
-      setMessage("Debes calificar todos los criterios de la rúbrica de sustentación");
-      setMessageType("error");
-      return;
+    const missingCriteria = DEFENSE_CRITERIA.filter(c => !crit[c.key] || crit[c.key] === "");
+    if (missingCriteria.length > 0) {
+      errors.rubric = `Falta calificar: ${missingCriteria.map((c, i) => `${i + 1}. ${c.label}`).join(", ")}`;
     }
 
+    // 2. Validate grade
+    const gradeNum = parseFloat(evaluationData.grade);
+    if (!evaluationData.grade || isNaN(gradeNum) || gradeNum < 0 || gradeNum > 5) {
+      errors.grade = "Debes ingresar una calificación válida entre 0.0 y 5.0";
+    }
+
+    // 3. Validate observations
     if (!evaluationData.observations.trim()) {
-      setMessage("Debes proporcionar observaciones");
+      errors.observations = "Debes proporcionar observaciones sobre la sustentación";
+    }
+
+    setEvalValidationErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      // Scroll to first error section
+      if (errors.rubric) scrollToSection('eval-rubric-section');
+      else if (errors.grade) scrollToSection('eval-grade-section');
+      else if (errors.observations) scrollToSection('eval-observations-section');
+
+      setMessage(`⚠️ Hay ${Object.keys(errors).length} sección(es) incompleta(s). Revisa los campos marcados en rojo.`);
       setMessageType("error");
       return;
     }
@@ -374,12 +402,15 @@ const fetchExaminerRole = async () => {
         },
       };
 
+      console.log("📤 Payload evaluación sustentación:", JSON.stringify(payload, null, 2));
+
       const response = await registerEvaluation(studentModalityId, payload);
 
       setMessage(response.message || "Evaluación registrada correctamente");
       setMessageType("success");
 
       setShowEvaluationForm(false);
+      setEvalValidationErrors({});
       setEvaluationData({
         grade: "",
         observations: "",
@@ -973,7 +1004,7 @@ const fetchExaminerRole = async () => {
               <form onSubmit={handleSubmitEvaluation} className="examiner-eval-form">
 
                 {/* Rúbrica de criterios de sustentación */}
-                <div className="examiner-rubric-section">
+                <div id="eval-rubric-section" className="examiner-rubric-section" style={evalValidationErrors.rubric ? { border: '2px solid #dc2626', borderRadius: '12px', padding: '1rem' } : {}}>
                   <h5 className="examiner-rubric-title">Rúbrica de Evaluación de Sustentación</h5>
                   <p className="examiner-rubric-subtitle">
                     Evalúe cada criterio utilizando la valoración cualitativa: <strong>I</strong>= Insuficiente, <strong>A</strong>= Aceptable, <strong>B</strong>= Bueno, y <strong>E</strong>= Excelente.
@@ -1013,10 +1044,15 @@ const fetchExaminerRole = async () => {
                       </div>
                     ))}
                   </div>
+                  {evalValidationErrors.rubric && (
+                    <div style={{ marginTop: '0.75rem', padding: '0.6rem 1rem', borderRadius: '8px', background: '#fee2e2', border: '1px solid #fca5a5', color: '#991b1b', fontSize: '0.9rem', fontWeight: 600 }}>
+                      ⚠️ {evalValidationErrors.rubric}
+                    </div>
+                  )}
                 </div>
 
                 {/* Calificación Final Cuantitativa */}
-                <div className="examiner-form-group" style={{ marginTop: '1.5rem' }}>
+                <div id="eval-grade-section" className="examiner-form-group" style={{ marginTop: '1.5rem', ...(evalValidationErrors.grade ? { border: '2px solid #dc2626', borderRadius: '12px', padding: '1rem' } : {}) }}>
                   <label className="examiner-form-label">Calificación Final Cuantitativa (0.0 - 5.0) *</label>
                   <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 0.5rem 0' }}>
                     Pondere la calificación obtenida de acuerdo a la rúbrica y registre la Nota.
@@ -1055,6 +1091,11 @@ const fetchExaminerRole = async () => {
                       );
                     })()}
                   </div>
+                  {evalValidationErrors.grade && (
+                    <div style={{ marginTop: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: '8px', background: '#fee2e2', border: '1px solid #fca5a5', color: '#991b1b', fontSize: '0.88rem', fontWeight: 600 }}>
+                      ⚠️ {evalValidationErrors.grade}
+                    </div>
+                  )}
                 </div>
 
                 {/* Mención (Meritorio / Laureado) — opcional */}
@@ -1105,17 +1146,27 @@ const fetchExaminerRole = async () => {
                 </div>
 
                 {/* Observaciones */}
-                <div className="examiner-form-group" style={{ marginTop: '1.5rem' }}>
+                <div id="eval-observations-section" className="examiner-form-group" style={{ marginTop: '1.5rem', ...(evalValidationErrors.observations ? { border: '2px solid #dc2626', borderRadius: '12px', padding: '1rem' } : {}) }}>
                   <label className="examiner-form-label">Observaciones *</label>
                   <textarea
                     value={evaluationData.observations}
-                    onChange={(e) => setEvaluationData({ ...evaluationData, observations: e.target.value })}
+                    onChange={(e) => {
+                      setEvaluationData({ ...evaluationData, observations: e.target.value });
+                      if (evalValidationErrors.observations) {
+                        setEvalValidationErrors(prev => { const n = {...prev}; delete n.observations; return n; });
+                      }
+                    }}
                     rows="6"
                     placeholder="Registre aquí sus observaciones sobre el desempeño del estudiante durante la sustentación..."
                     className="examiner-form-textarea"
                     disabled={submittingEvaluation}
                     required
                   />
+                  {evalValidationErrors.observations && (
+                    <div style={{ marginTop: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: '8px', background: '#fee2e2', border: '1px solid #fca5a5', color: '#991b1b', fontSize: '0.88rem', fontWeight: 600 }}>
+                      ⚠️ {evalValidationErrors.observations}
+                    </div>
+                  )}
                 </div>
 
                 <div className="examiner-form-actions">
@@ -1123,6 +1174,7 @@ const fetchExaminerRole = async () => {
                     type="button"
                     onClick={() => {
                       setShowEvaluationForm(false);
+                      setEvalValidationErrors({});
                       setEvaluationData({
                         grade: "", observations: "",
                         defenseCriteria: { domainAndClarity: "", synthesisAndCommunication: "", argumentationAndResponse: "", innovationAndImpact: "", professionalPresentation: "" },
@@ -1172,6 +1224,10 @@ const fetchExaminerRole = async () => {
 
         // Map criteria values for display
         const criteriaLabelMap = {
+          Insufficient: 'Insuficiente (I)',
+          Acceptable: 'Aceptable (A)',
+          Good: 'Bueno (B)',
+          Excellent: 'Excelente (E)',
           INSUFFICIENT: 'Insuficiente (I)',
           ACCEPTABLE: 'Aceptable (A)',
           GOOD: 'Bueno (B)',
@@ -1200,8 +1256,8 @@ const fetchExaminerRole = async () => {
                         <span style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem' }}>{idx + 1}. {c.label}</span>
                         <span style={{
                           fontWeight: 700, fontSize: '0.9rem', padding: '0.2rem 0.75rem', borderRadius: '6px',
-                          background: val === 'EXCELLENT' ? '#dcfce7' : val === 'GOOD' ? '#dbeafe' : val === 'ACCEPTABLE' ? '#fef9c3' : '#fee2e2',
-                          color: val === 'EXCELLENT' ? '#166534' : val === 'GOOD' ? '#1e40af' : val === 'ACCEPTABLE' ? '#854d0e' : '#991b1b',
+                          background: (val === 'EXCELLENT' || val === 'Excellent') ? '#dcfce7' : (val === 'GOOD' || val === 'Good') ? '#dbeafe' : (val === 'ACCEPTABLE' || val === 'Acceptable') ? '#fef9c3' : '#fee2e2',
+                          color: (val === 'EXCELLENT' || val === 'Excellent') ? '#166534' : (val === 'GOOD' || val === 'Good') ? '#1e40af' : (val === 'ACCEPTABLE' || val === 'Acceptable') ? '#854d0e' : '#991b1b',
                         }}>
                           {criteriaLabelMap[val] || val}
                         </span>
