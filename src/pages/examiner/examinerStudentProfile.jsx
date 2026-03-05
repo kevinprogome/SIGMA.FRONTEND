@@ -985,7 +985,7 @@ const fetchExaminerRole = async () => {
           <div className="examiner-eval-block">
             {!showEvaluationForm ? (
               <div className="examiner-eval-empty">
-                <div className="examiner-eval-icon">📝</div>
+                <div className="examiner-eval-icon"></div>
                 <h3 className="examiner-eval-title">Registrar Evaluación Final</h3>
                 <div className="examiner-eval-message">
                   <span className="examiner-eval-alert">Todos los documentos han sido aprobados.</span><br/>
@@ -1207,8 +1207,6 @@ const fetchExaminerRole = async () => {
         const gradeNum = parseFloat(registeredEvaluation.grade);
         const isApproved = gradeNum >= 3.0;
         const decisionLabel = isApproved ? 'Aprobado' : 'Reprobado';
-        const decisionColor = isApproved ? '#166534' : '#991b1b';
-        const decisionBg = isApproved ? '#dcfce7' : '#fee2e2';
 
         let mentionLabel = '';
         if (registeredEvaluation.proposedMention === 'MERITORIOUS') mentionLabel = 'Meritorio';
@@ -1234,31 +1232,37 @@ const fetchExaminerRole = async () => {
           EXCELLENT: 'Excelente (E)',
         };
 
+        const getBadgeClass = (val) => {
+          if (val === 'EXCELLENT' || val === 'Excellent') return 'badge-excellent';
+          if (val === 'GOOD' || val === 'Good') return 'badge-good';
+          if (val === 'ACCEPTABLE' || val === 'Acceptable') return 'badge-acceptable';
+          return 'badge-insufficient';
+        };
+
         const hasCriteria = registeredEvaluation.domainAndClarity || registeredEvaluation.evaluationCriteria;
         const criteria = registeredEvaluation.evaluationCriteria || registeredEvaluation;
 
         return (
-          <section className="examiner-eval-completed-block">
-            <h3 className="examiner-eval-completed-title">Evaluación Final Registrada</h3>
+          <section className="eval-summary-card">
+            {/* Header */}
+            <div className="eval-summary-header">
+              <span className="eval-summary-header-icon"></span>
+              <h3>Evaluación Final Registrada</h3>
+            </div>
 
             {/* Rubric criteria display */}
             {hasCriteria && (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.75rem' }}>Rúbrica de Sustentación</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div>
+                <div className="eval-summary-rubric-title">
+                  <span></span> Rúbrica de Sustentación
+                </div>
+                <div className="eval-summary-rubric-list">
                   {DEFENSE_CRITERIA.map((c, idx) => {
                     const val = criteria[c.key];
                     return val ? (
-                      <div key={c.key} style={{
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '0.5rem 1rem', borderRadius: '8px', background: '#f9fafb', border: '1px solid #e5e7eb'
-                      }}>
-                        <span style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem' }}>{idx + 1}. {c.label}</span>
-                        <span style={{
-                          fontWeight: 700, fontSize: '0.9rem', padding: '0.2rem 0.75rem', borderRadius: '6px',
-                          background: (val === 'EXCELLENT' || val === 'Excellent') ? '#dcfce7' : (val === 'GOOD' || val === 'Good') ? '#dbeafe' : (val === 'ACCEPTABLE' || val === 'Acceptable') ? '#fef9c3' : '#fee2e2',
-                          color: (val === 'EXCELLENT' || val === 'Excellent') ? '#166534' : (val === 'GOOD' || val === 'Good') ? '#1e40af' : (val === 'ACCEPTABLE' || val === 'Acceptable') ? '#854d0e' : '#991b1b',
-                        }}>
+                      <div key={c.key} className="eval-summary-criteria-row">
+                        <span className="eval-summary-criteria-label">{idx + 1}. {c.label}</span>
+                        <span className={`eval-summary-criteria-badge ${getBadgeClass(val)}`}>
                           {criteriaLabelMap[val] || val}
                         </span>
                       </div>
@@ -1268,44 +1272,51 @@ const fetchExaminerRole = async () => {
               </div>
             )}
 
-            <div className="examiner-eval-completed-grid">
-              <div className="eval-row">
-                <span className="eval-label">Calificación Final:</span>
-                <span className="eval-value" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{registeredEvaluation.grade}</span>
+            {/* Grade + Decision + Mention */}
+            <div className="eval-summary-details">
+              <div className="eval-summary-detail-item">
+                <span className="eval-summary-detail-label">Calificación Final</span>
+                <span className={`eval-summary-grade-value ${isApproved ? 'approved' : 'failed'}`}>
+                  {registeredEvaluation.grade} / 5.0
+                </span>
               </div>
-              <div className="eval-row">
-                <span className="eval-label">Calificación Cualitativa:</span>
-                <span style={{
-                  display: 'inline-block', padding: '0.3rem 1rem', borderRadius: '8px',
-                  fontWeight: 700, color: decisionColor, background: decisionBg,
-                  border: `1.5px solid ${decisionColor}`
-                }}>
-                  {decisionLabel}
+              <div className="eval-summary-detail-item">
+                <span className="eval-summary-detail-label">Calificación Cualitativa</span>
+                <span className={`eval-summary-badge ${isApproved ? 'badge-approved' : 'badge-failed'}`}>
+                  {isApproved ? '✅' : '❌'} {decisionLabel}
                 </span>
               </div>
               {mentionLabel && (
-                <div className="eval-row">
-                  <span className="eval-label">Mención Propuesta:</span>
-                  <span style={{
-                    display: 'inline-block', padding: '0.3rem 1rem', borderRadius: '8px',
-                    fontWeight: 700, color: '#7A1117', background: '#fef2f2',
-                    border: '1.5px solid #7A1117'
-                  }}>
+                <div className="eval-summary-detail-item">
+                  <span className="eval-summary-detail-label">Mención Propuesta</span>
+                  <span className="eval-summary-badge badge-mention">
                     🏅 {mentionLabel}
                   </span>
                 </div>
               )}
-              <div className="eval-row">
-                <span className="eval-label">Observaciones:</span>
-                <span className="eval-value examiner-eval-date">{registeredEvaluation.observations}</span>
+              <div className={`eval-summary-detail-item ${!mentionLabel ? 'full-width' : ''}`}>
+                <span className="eval-summary-detail-label">Observaciones</span>
+                <div className="eval-summary-observations">
+                  {registeredEvaluation.observations || '—'}
+                </div>
               </div>
-              <div className="eval-row">
-                <span className="eval-label">Fecha de Evaluación:</span>
-                <span className="eval-value examiner-eval-date">{registeredEvaluation.evaluationDate ? new Date(registeredEvaluation.evaluationDate).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" }) : "-"}</span>
+            </div>
+
+            {/* Footer metadata */}
+            <div className="eval-summary-footer">
+              <div className="eval-summary-footer-item">
+                <span className="footer-icon"></span>
+                <span>Fecha:</span>
+                <strong>
+                  {registeredEvaluation.evaluationDate
+                    ? new Date(registeredEvaluation.evaluationDate).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })
+                    : "—"}
+                </strong>
               </div>
-              <div className="eval-row">
-                <span className="eval-label">Tipo de Jurado:</span>
-                <span className="eval-value examiner-eval-date">{examinerTypeLabel}</span>
+              <div className="eval-summary-footer-item">
+                <span className="footer-icon"></span>
+                <span>Tipo de Jurado:</span>
+                <strong>{examinerTypeLabel}</strong>
               </div>
             </div>
           </section>

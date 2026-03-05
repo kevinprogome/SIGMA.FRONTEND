@@ -47,17 +47,7 @@ export default function CouncilLayout() {
           >
             <span className="nav-icon"></span>
             Estudiantes Pendientes
-          </NavLink>
-
-          <NavLink
-            to="/comite/proposals"
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-          >
-            <span className="nav-icon"></span>
-            Solicitudes de Sustentación
-          </NavLink>      
+          </NavLink>   
 
           <NavLink
             to="/comite/cancellations"

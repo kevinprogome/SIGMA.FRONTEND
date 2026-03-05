@@ -1,72 +1,221 @@
-/* Bloque institucional de evaluación final registrada */
-.examiner-eval-completed-block {
-  background: linear-gradient(135deg, #fffdfa 0%, #f8f6ef 60%, #f9e7c2 100%);
-  border: 2.5px solid #B7A873;
+/* =====================================================
+   Bloque institucional: Evaluación Final Registrada
+   ===================================================== */
+.eval-summary-card {
+  background: linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%);
+  border: 2.5px solid #7A1117;
   border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(183, 168, 115, 0.13);
-  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
+  padding: 2.5rem 2rem 2rem 2rem;
   margin: 2.5rem 0 1.5rem 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1.2rem;
   animation: examinerProfileSlideIn 0.5s;
 }
-.examiner-eval-completed-title {
-  font-size: 1.35rem;
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-weight: 700;
-  color: #7A1117;
-  margin-bottom: 1.2rem;
+
+.eval-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #D5CBA0;
 }
-.examiner-eval-completed-grid {
+.eval-summary-header-icon {
+  font-size: 1.6rem;
+}
+.eval-summary-header h3 {
+  color: #7A1117;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 8px #7A111722;
+}
+
+/* Rubric Section */
+.eval-summary-rubric-title {
+  color: #7A1117;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.eval-summary-rubric-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+.eval-summary-criteria-row {
+  background: #fff;
+  border-radius: 10px;
+  border: 1.5px solid #D5CBA0;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 6px rgba(122, 17, 23, 0.06);
+  transition: box-shadow 0.2s;
+}
+.eval-summary-criteria-row:hover {
+  box-shadow: 0 4px 14px rgba(122, 17, 23, 0.12);
+}
+.eval-summary-criteria-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.93rem;
+  flex: 1;
+}
+.eval-summary-criteria-badge {
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.9rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.eval-summary-criteria-badge.badge-excellent {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+  border: 1.5px solid #86efac;
+}
+.eval-summary-criteria-badge.badge-good {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 1.5px solid #93c5fd;
+}
+.eval-summary-criteria-badge.badge-acceptable {
+  background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
+  color: #854d0e;
+  border: 1.5px solid #fde047;
+}
+.eval-summary-criteria-badge.badge-insufficient {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 1.5px solid #fca5a5;
+}
+
+/* Datos grid */
+.eval-summary-details {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 1.1rem 2.5rem;
-  width: 100%;
-  background: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
-.eval-row {
-  display: contents;
+.eval-summary-detail-item {
+  background: #fff;
+  border-radius: 12px;
+  border: 1.5px solid #D5CBA0;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.05);
 }
-.eval-label {
-  font-weight: 900;
-  color: #5d0d12;
+.eval-summary-detail-item.full-width {
+  grid-column: 1 / -1;
+}
+.eval-summary-detail-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #7A1117;
+  font-family: "Georgia", "Times New Roman", serif;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.eval-summary-detail-value {
   font-size: 1.05rem;
-  font-family: 'Georgia', 'Times New Roman', serif;
-  text-align: right;
-  align-self: center;
-}
-.eval-value {
   color: #222;
-  font-size: 1.08rem;
-  font-family: 'Arial', 'Helvetica', sans-serif;
-  padding-left: 0.5rem;
-  align-self: center;
+  font-weight: 500;
 }
-.examiner-eval-grade {
-  color: #1d4ed8;
+.eval-summary-grade-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+.eval-summary-grade-value.approved {
+  color: #166534;
+}
+.eval-summary-grade-value.failed {
+  color: #991b1b;
+}
+
+/* Badges */
+.eval-summary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
   font-weight: 700;
-  font-size: 1.13rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
 }
-.examiner-eval-decision {
-  font-weight: 700;
-  font-size: 1.13rem;
+.eval-summary-badge.badge-approved {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+  border: 1.5px solid #86efac;
 }
-.examiner-eval-observations {
+.eval-summary-badge.badge-failed {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 1.5px solid #fca5a5;
+}
+.eval-summary-badge.badge-mention {
+  background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%);
+  color: #7A1117;
+  border: 1.5px solid #D5CBA0;
+}
+
+/* Observations */
+.eval-summary-observations {
+  background: #f9f6ee;
+  border-left: 4px solid #D5CBA0;
+  border-radius: 0 10px 10px 0;
+  padding: 0.85rem 1.25rem;
   font-style: italic;
-  color: #7A1117;
+  color: #4b5563;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
-.examiner-eval-date {
-  color: #555;
+
+/* Footer metadata */
+.eval-summary-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1.5px solid #e5e7eb;
+  margin-top: 0.5rem;
 }
-.examiner-eval-type {
-  color: #B7A873;
-  font-weight: 700;
+.eval-summary-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #6b7280;
+  font-size: 0.88rem;
 }
-.examiner-eval-final {
-  color: #7A1117;
-  font-weight: 700;
+.eval-summary-footer-item span.footer-icon {
+  font-size: 1rem;
+}
+.eval-summary-footer-item strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .eval-summary-details {
+    grid-template-columns: 1fr;
+  }
+  .eval-summary-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 /* Sección institucional: Evaluación de Sustentación */
 .examiner-eval-block {
