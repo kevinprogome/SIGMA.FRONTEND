@@ -255,8 +255,6 @@ export default function CommitteeDashboard() {
             boxShadow: '0 2px 8px rgba(122,17,23,0.08)',
             display: 'inline-block',
           }}>
-            <span style={{marginRight:'0.5rem'}}></span>
-            Panel  para gestión institucional de modalidades
           </div>
         </div>
 
