@@ -228,7 +228,7 @@ const fetchExaminerRole = async () => {
     }
   };
 
-  const EVALUATION_GRADES = ["EXCELLENT", "GOOD", "ACCEPTABLE", "DEFICIENT"];
+  const EVALUATION_GRADES = ["DEFICIENT", "ACCEPTABLE", "GOOD", "EXCELLENT"];
   const EVALUATION_GRADE_LABELS = {
     EXCELLENT: "Excelente",
     GOOD: "Bueno",
@@ -395,7 +395,7 @@ const fetchExaminerRole = async () => {
   const getGradeDecisionLabel = () => {
     const gradeNum = parseFloat(evaluationData.grade);
     if (isNaN(gradeNum)) return null;
-    return gradeNum >= 3.0
+    return gradeNum >= 3.5
       ? { label: "APROBADO", color: "#166534", bg: "#dcfce7" }
       : { label: "REPROBADO", color: "#991b1b", bg: "#fee2e2" };
   };
@@ -1423,7 +1423,7 @@ const fetchExaminerRole = async () => {
       {/* Already Evaluated */}
       {hasEvaluated() && registeredEvaluation && (() => {
         const gradeNum = parseFloat(registeredEvaluation.grade);
-        const isApproved = gradeNum >= 3.0;
+        const isApproved = gradeNum >= 3.5;
         const decisionLabel = isApproved ? 'Aprobado' : 'Reprobado';
 
         let mentionLabel = '';
