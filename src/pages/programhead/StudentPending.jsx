@@ -52,6 +52,7 @@ const AVAILABLE_STATUSES = [
   { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
   { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
   { value: "SEMINAR_CANCELED", label: "Diplomado Cancelado" },
+  { value: "EDIT_REQUESTED_BY_STUDENT", label: "Edición Solicitada por Estudiante" },
 ];
 
 export default function StudentsPending() {

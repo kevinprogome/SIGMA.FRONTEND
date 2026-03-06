@@ -21,7 +21,9 @@ const AVAILABLE_STATUSES = [
   { value: "CANCELLATION_REJECTED", label: "Cancelación Rechazada" },
   { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
   { value: "CANCELLED_WITHOUT_REPROVAL", label: "Cancelada Sin Reprobación" },
+  { value: "CANCELLED_BY_CORRECTION_TIMEOUT", label: "Cancelada por Timeout de Correcciones" },
   { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
+  { value: "EDIT_REQUESTED_BY_STUDENT", label: "Edición Solicitada por Estudiante" },
 ];
 
 export default function CommitteeDashboard() {
@@ -174,6 +176,7 @@ export default function CommitteeDashboard() {
       "CANCELLED_WITHOUT_REPROVAL": "Cancelada sin Calificación",
       "CANCELLATION_REJECTED": "Cancelación Rechazada",
       "CANCELLED_BY_CORRECTION_TIMEOUT": "Cancelada por Timeout de Correcciones",
+      "EDIT_REQUESTED_BY_STUDENT": "Edición Solicitada por Estudiante",
     };
     return statusMap[status] || status;
   };

@@ -300,6 +300,7 @@ export const DIRECTOR_STATUS_OPTIONS = [
   { value: "CANCELLED_WITHOUT_REPROVAL", label: "Cancelada sin Calificación" },
   { value: "CANCELLATION_REJECTED", label: "Cancelación Rechazada" },
   { value: "CANCELLED_BY_CORRECTION_TIMEOUT", label: "Cancelada por Timeout de Correcciones" },
+  { value: "EDIT_REQUESTED_BY_STUDENT", label: "Edición Solicitada por Estudiante" },
 ];
 
 /**

@@ -359,6 +359,7 @@ export const getStatusLabel = (status) => {
     CANCELLED_WITHOUT_REPROVAL: "Cancelada sin Calificación",
     CANCELLATION_REJECTED: "Cancelación Rechazada",
     CANCELLED_BY_CORRECTION_TIMEOUT: "Cancelada por Timeout de Correcciones",
+    EDIT_REQUESTED_BY_STUDENT: "Edición Solicitada por Estudiante",
   };
   return statusMap[status] || status;
 };
@@ -372,6 +373,9 @@ export const getDocumentStatusLabel = (status) => {
     REJECTED_FOR_EXAMINER_REVIEW: "❌ Rechazado",
     CORRECTIONS_REQUESTED_BY_EXAMINER: "⚠️ Correcciones Solicitadas",
     PENDING: "⏳ Pendiente",
+    EDIT_REQUESTED: "📝 Edición Solicitada",
+    EDIT_REQUEST_APPROVED: "✅ Edición Aprobada",
+    EDIT_REQUEST_REJECTED: "❌ Edición Rechazada",
   };
   return docStatusMap[status] || status;
 };

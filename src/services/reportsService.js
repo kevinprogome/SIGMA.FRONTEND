@@ -62,7 +62,8 @@ export const PROCESS_STATUSES = [
   { value: 'CANCELLATION_REJECTED_BY_PROJECT_DIRECTOR', label: 'Cancelación Rechazada por Director de Proyecto' },
   { value: 'CANCELLED_WITHOUT_REPROVAL', label: 'Cancelada sin Reprobación' },
   { value: 'CANCELLATION_REJECTED', label: 'Cancelación Rechazada' },
-  { value: 'CANCELLED_BY_CORRECTION_TIMEOUT', label: 'Cancelada por Tiempo de Corrección' }
+  { value: 'CANCELLED_BY_CORRECTION_TIMEOUT', label: 'Cancelada por Tiempo de Corrección' },
+  { value: 'EDIT_REQUESTED_BY_STUDENT', label: 'Edición Solicitada por Estudiante' }
 ];
 
 // Resultados de modalidades completadas

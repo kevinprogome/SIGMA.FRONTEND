@@ -213,6 +213,7 @@ export default function StudentProfileProgramHead() {
       "CANCELLED_WITHOUT_REPROVAL": "Cancelado sin reprobación",
       "CANCELLATION_REJECTED": "Cancelación rechazada",
       "CANCELLED_BY_CORRECTION_TIMEOUT": "Cancelado por tiempo de corrección",
+      "EDIT_REQUESTED_BY_STUDENT": "Edición solicitada por estudiante",
 
       // ========== ESTADOS ANTERIORES Y GENERALES ========== 
       "PENDING": "Pendiente",
@@ -226,6 +227,9 @@ export default function StudentProfileProgramHead() {
       "ACCEPTED_FOR_EXAMINER_REVIEW": "Aceptado por Jurado",
       "REJECTED_FOR_EXAMINER_REVIEW": "Rechazado por Jurado",
       "CORRECTIONS_REQUESTED_BY_EXAMINER": "Correcciones solicitadas por Jurado",
+      "EDIT_REQUESTED": "Edición solicitada por estudiante",
+      "EDIT_REQUEST_APPROVED": "Solicitud de edición aprobada",
+      "EDIT_REQUEST_REJECTED": "Solicitud de edición rechazada",
     };
     return statusLabels[status] || status;
   };
