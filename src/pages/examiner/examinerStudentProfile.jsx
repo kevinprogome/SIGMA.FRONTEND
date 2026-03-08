@@ -502,18 +502,28 @@ const fetchExaminerRole = async () => {
       "CORRECTIONS_SUBMITTED_TO_EXAMINERS"
     ];
 
+    // Añadir estado de desempate si el jurado es de desempate
+    const tiebreakerStatuses = [
+      "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED"
+    ];
+
+    let validStatuses = [...baseStatuses];
+    if (examinerRoleInfo?.examinerType === "TIEBREAKER_EXAMINER") {
+      validStatuses = [...validStatuses, ...tiebreakerStatuses];
+    }
+
     if (docType === "SECONDARY") {
-      return [
-        ...baseStatuses,
+      validStatuses = [
+        ...validStatuses,
         "DOCUMENTS_APPROVED_BY_EXAMINERS",
         "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS",
         "DEFENSE_SCHEDULED",
         "READY_FOR_DEFENSE",
         "FINAL_REVIEW_COMPLETED"
-      ].includes(profile?.currentStatus);
+      ];
     }
 
-    return baseStatuses.includes(profile?.currentStatus);
+    return validStatuses.includes(profile?.currentStatus);
   };
 
   const executeConfirmAction = async () => {
