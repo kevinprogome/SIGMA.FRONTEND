@@ -9,6 +9,21 @@ import {
 } from "../../services/adminService";
 import "../../styles/admin/Roles.css";
 
+// Traducción de nombres de roles
+const ROLE_TRANSLATIONS = {
+  ADMIN: "Administrador",
+  STUDENT: "Estudiante",
+  PROGRAM_HEAD: "Jefe de Programa",
+  PROJECT_DIRECTOR: "Director de Proyecto",
+  PROGRAM_CURRICULUM_COMMITTEE: "Comité Curricular del Programa",
+  EXAMINER: "Jurado",
+  SECRETARY: "Secretario/a",
+  COUNCIL: "Consejo",
+};
+
+const translateRole = (roleName) =>
+  ROLE_TRANSLATIONS[roleName?.toUpperCase()] || roleName;
+
 // Roles que requieren programa académico
 const ROLES_REQUIRING_PROGRAM = [
   "PROGRAM_HEAD",
@@ -40,7 +55,7 @@ export default function Users() {
     email: "",
     password: "",
     roleName: "",
-    academicProgramId: "",
+    academicProgramIds: [],
   });
 
   useEffect(() => {
@@ -114,7 +129,7 @@ export default function Users() {
       setMessage(`Usuario ${newStatus === "ACTIVE" ? "activado" : "desactivado"} exitosamente`);
       fetchData();
       
-      setTimeout(() => setMessage(""), 3000);
+      setTimeout(() => setMessage(""), 5000);
     } catch (err) {
       console.error("Error al cambiar estado:", err);
       setMessage("Error al cambiar estado del usuario: " + (err.response?.data || err.message));
@@ -134,7 +149,7 @@ export default function Users() {
       email: "",
       password: "",
       roleName: "",
-      academicProgramId: "",
+      academicProgramIds: [],
     });
     setShowCreateModal(true);
   };
@@ -181,24 +196,42 @@ export default function Users() {
       roleName: createFormData.roleName,
     };
 
-    // Solo agregar academicProgramId si el rol lo requiere
+    // Solo agregar programas si el rol lo requiere
     if (ROLES_REQUIRING_PROGRAM.includes(createFormData.roleName)) {
-      if (!createFormData.academicProgramId) {
-        setMessage(`El rol ${createFormData.roleName} requiere que se especifique un programa académico`);
+      if (!createFormData.academicProgramIds.length) {
+        setMessage(`El rol ${createFormData.roleName} requiere que se especifique al menos un programa académico`);
         return;
       }
-      userData.academicProgramId = parseInt(createFormData.academicProgramId);
+      if (createFormData.roleName === "EXAMINER") {
+        // nuevo campo lista para el backend actualizado
+        userData.academicProgramIds = createFormData.academicProgramIds;
+        // campo singular para compatibilidad con la validación actual del backend
+        userData.academicProgramId = createFormData.academicProgramIds[0];
+      } else {
+        userData.academicProgramId = createFormData.academicProgramIds[0];
+      }
     }
 
     console.log("Creando usuario:", userData);
 
     try {
-      const response = await registerUserByAdmin(userData);
-      setMessage(response || "Usuario registrado exitosamente");
+      await registerUserByAdmin(userData);
+      // Construir mensaje local mostrando todos los programas seleccionados
+      if (ROLES_REQUIRING_PROGRAM.includes(createFormData.roleName) && createFormData.academicProgramIds.length) {
+        const selectedProgramNames = programs
+          .filter((p) => createFormData.academicProgramIds.includes(p.id))
+          .map((p) => p.name)
+          .join(", ");
+        setMessage(
+          `Usuario registrado exitosamente con el rol ${translateRole(createFormData.roleName)} asignado al/los programa(s): ${selectedProgramNames}`
+        );
+      } else {
+        setMessage(`Usuario registrado exitosamente con el rol ${translateRole(createFormData.roleName)}`);
+      }
       setShowCreateModal(false);
       fetchData();
       
-      setTimeout(() => setMessage(""), 5000);
+      setTimeout(() => setMessage(""), 9000);
     } catch (err) {
       console.error("Error al crear usuario:", err);
       const errorMsg = err.response?.data || err.message;
@@ -208,6 +241,16 @@ export default function Users() {
 
   const requiresProgram = () => {
     return ROLES_REQUIRING_PROGRAM.includes(createFormData.roleName);
+  };
+
+  const handleProgramCheckboxChange = (programId) => {
+    const id = parseInt(programId);
+    setCreateFormData(prev => ({
+      ...prev,
+      academicProgramIds: prev.academicProgramIds.includes(id)
+        ? prev.academicProgramIds.filter(p => p !== id)
+        : [...prev.academicProgramIds, id],
+    }));
   };
 
   const getFullName = (user) => {
@@ -420,14 +463,14 @@ export default function Users() {
                 <label className="admin-label">Rol *</label>
                 <select
                   value={createFormData.roleName}
-                  onChange={(e) => setCreateFormData({ ...createFormData, roleName: e.target.value })}
+                  onChange={(e) => setCreateFormData({ ...createFormData, roleName: e.target.value, academicProgramIds: [] })}
                   className="admin-select"
                   required
                 >
                   <option value="">-- Selecciona un rol --</option>
                   {roles.map((role) => (
                     <option key={role.id} value={role.name}>
-                      {role.name}
+                      {translateRole(role.name)}
                     </option>
                   ))}
                 </select>
@@ -435,23 +478,53 @@ export default function Users() {
 
               {requiresProgram() && (
                 <div className="admin-form-group">
-                  <label className="admin-label">Programa Académico *</label>
-                  <select
-                    value={createFormData.academicProgramId}
-                    onChange={(e) => setCreateFormData({ ...createFormData, academicProgramId: e.target.value })}
-                    className="admin-select"
-                    required
-                  >
-                    <option value="">-- Selecciona un programa --</option>
-                    {programs.map((program) => (
-                      <option key={program.id} value={program.id}>
-                        {program.name}
-                      </option>
-                    ))}
-                  </select>
-                  <small style={{ color: "#f59e0b", marginTop: "0.5rem", display: "block" }}>
-                    ⚠️ Este rol requiere un programa académico
-                  </small>
+                  <label className="admin-label">
+                    Programa{createFormData.roleName === "EXAMINER" ? "s" : ""} Académico{createFormData.roleName === "EXAMINER" ? "s" : ""} *
+                  </label>
+                  {createFormData.roleName === "EXAMINER" ? (
+                    <>
+                      <div className="admin-checkbox-grid">
+                        {programs.map((program) => (
+                          <label key={program.id} className="admin-checkbox-label">
+                            <input
+                              type="checkbox"
+                              className="admin-checkbox"
+                              checked={createFormData.academicProgramIds.includes(program.id)}
+                              onChange={() => handleProgramCheckboxChange(program.id)}
+                            />
+                            <span>{program.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <small style={{ color: "#f59e0b", marginTop: "0.5rem", display: "block" }}>
+                        ⚠️ El rol EXAMINER puede asociarse a múltiples programas académicos
+                      </small>
+                    </>
+                  ) : (
+                    <>
+                      <select
+                        value={createFormData.academicProgramIds[0] || ""}
+                        onChange={(e) =>
+                          setCreateFormData({
+                            ...createFormData,
+                            academicProgramIds: e.target.value ? [parseInt(e.target.value)] : [],
+                          })
+                        }
+                        className="admin-select"
+                        required
+                      >
+                        <option value="">-- Selecciona un programa --</option>
+                        {programs.map((program) => (
+                          <option key={program.id} value={program.id}>
+                            {program.name}
+                          </option>
+                        ))}
+                      </select>
+                      <small style={{ color: "#f59e0b", marginTop: "0.5rem", display: "block" }}>
+                        ⚠️ Este rol requiere un programa académico
+                      </small>
+                    </>
+                  )}
                 </div>
               )}
 

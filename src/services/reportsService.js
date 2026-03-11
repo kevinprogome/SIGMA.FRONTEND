@@ -74,10 +74,17 @@ export const RESULT_TYPES = [
 
 // Tipos de distinción académica reales del enum
 export const DISTINCTION_TYPES = [
+  { value: 'NO_DISTINCTION', label: 'Sin Distinción' },
+  { value: 'AGREED_APPROVED', label: 'Aprobado (Por Acuerdo)' },
   { value: 'AGREED_MERITORIOUS', label: 'Meritorio (Por Acuerdo)' },
-  { value: 'TIEBREAKER_MERITORIOUS', label: 'Meritorio (Por Desempate)' },
   { value: 'AGREED_LAUREATE', label: 'Laureado (Por Acuerdo)' },
-  { value: 'TIEBREAKER_LAUREATE', label: 'Laureado (Por Desempate)' }
+  { value: 'AGREED_REJECTED', label: 'Rechazado (Por Acuerdo)' },
+  { value: 'DISAGREEMENT_PENDING_TIEBREAKER', label: 'Desacuerdo - Pendiente de Desempate' },
+  { value: 'TIEBREAKER_APPROVED', label: 'Aprobado (Por Desempate)' },
+  { value: 'TIEBREAKER_MERITORIOUS', label: 'Meritorio (Por Desempate)' },
+  { value: 'TIEBREAKER_LAUREATE', label: 'Laureado (Por Desempate)' },
+  { value: 'TIEBREAKER_REJECTED', label: 'Rechazado (Por Desempate)' },
+  { value: 'REJECTED_BY_COMMITTEE', label: 'Rechazado por Comité' },
 ];
 
 // Estados de línea temporal

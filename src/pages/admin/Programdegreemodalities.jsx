@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  getAllFaculties,
   getAllAcademicPrograms,
   getModalitiesAdmin,
   getProgramDegreeModalities,
@@ -10,7 +9,6 @@ import {
 import "../../styles/admin/Roles.css";
 
 export default function ProgramDegreeModalities() {
-  const [faculties, setFaculties] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [modalities, setModalities] = useState([]);
   const [configurations, setConfigurations] = useState([]);
@@ -19,15 +17,14 @@ export default function ProgramDegreeModalities() {
   const [showModal, setShowModal] = useState(false);
   const [editingConfig, setEditingConfig] = useState(null);
 
-  // Filtros
-  const [selectedFacultyId, setSelectedFacultyId] = useState("");
+  // Filtro
   const [selectedProgramId, setSelectedProgramId] = useState("");
-  const [filteredPrograms, setFilteredPrograms] = useState([]);
 
   const [formData, setFormData] = useState({
     academicProgramId: "",
     degreeModalityId: "",
     creditsRequired: 0,
+    requiresDefenseProcess: true,
   });
 
   useEffect(() => {
@@ -35,17 +32,8 @@ export default function ProgramDegreeModalities() {
   }, []);
 
   useEffect(() => {
-    if (selectedFacultyId) {
-      const filtered = programs.filter(p => p.facultyId === parseInt(selectedFacultyId));
-      setFilteredPrograms(filtered);
-    } else {
-      setFilteredPrograms(programs);
-    }
-  }, [selectedFacultyId, programs]);
-
-  useEffect(() => {
     fetchConfigurations();
-  }, [selectedFacultyId, selectedProgramId]);
+  }, [selectedProgramId]);
 
   const getErrorMessage = (error) => {
     if (typeof error === 'string') return error;
@@ -62,25 +50,20 @@ export default function ProgramDegreeModalities() {
     try {
       console.log("Fetching initial data...");
       
-      const [facultiesData, programsData, modalitiesData] = await Promise.all([
-        getAllFaculties(),
+      const [programsData, modalitiesData] = await Promise.all([
         getAllAcademicPrograms(),
         getModalitiesAdmin("ACTIVE"),
       ]);
       
-      console.log("Faculties:", facultiesData);
       console.log("Programs:", programsData);
       console.log("Modalities:", modalitiesData);
       
-      setFaculties(Array.isArray(facultiesData) ? facultiesData : []);
       setPrograms(Array.isArray(programsData) ? programsData : []);
       setModalities(Array.isArray(modalitiesData) ? modalitiesData : []);
-      setFilteredPrograms(Array.isArray(programsData) ? programsData : []);
     } catch (err) {
       console.error("Error fetching initial data:", err);
       const errorMsg = getErrorMessage(err);
       setMessage("Error al cargar datos: " + errorMsg);
-      setFaculties([]);
       setPrograms([]);
       setModalities([]);
     } finally {
@@ -91,7 +74,6 @@ export default function ProgramDegreeModalities() {
   const fetchConfigurations = async () => {
     try {
       const filters = {};
-      if (selectedFacultyId) filters.facultyId = selectedFacultyId;
       if (selectedProgramId) filters.academicProgramId = selectedProgramId;
       
       console.log("Fetching configurations with filters:", filters);
@@ -113,6 +95,7 @@ export default function ProgramDegreeModalities() {
         academicProgramId: config.academicProgramId.toString(),
         degreeModalityId: config.degreeModalityId.toString(),
         creditsRequired: config.creditsRequired,
+        requiresDefenseProcess: config.requiresDefenseProcess ?? config.requiresDefense ?? config.defenseProcess ?? true,
       });
     } else {
       // Modo creación
@@ -121,6 +104,7 @@ export default function ProgramDegreeModalities() {
         academicProgramId: selectedProgramId || "",
         degreeModalityId: "",
         creditsRequired: 0,
+        requiresDefenseProcess: true,
       });
     }
     setShowModal(true);
@@ -133,6 +117,7 @@ export default function ProgramDegreeModalities() {
         academicProgramId: parseInt(formData.academicProgramId),
         degreeModalityId: parseInt(formData.degreeModalityId),
         creditsRequired: parseInt(formData.creditsRequired),
+        requiresDefenseProcess: formData.requiresDefenseProcess,
       };
 
       if (editingConfig) {
@@ -157,20 +142,8 @@ export default function ProgramDegreeModalities() {
     }
   };
 
-  const getProgramName = (programId) => {
-    const program = programs.find(p => p.id === programId);
-    return program ? program.name : "Programa no encontrado";
-  };
-
-  const getModalityName = (modalityId) => {
-    const modality = modalities.find(m => m.id === modalityId);
-    return modality ? modality.name : "Modalidad no encontrada";
-  };
-
-  const getFacultyName = (facultyId) => {
-    const faculty = faculties.find(f => f.id === facultyId);
-    return faculty ? faculty.name : "Sin facultad";
-  };
+  const getProgramName = (config) => config.academicProgramName || "Programa no encontrado";
+  const getModalityName = (config) => config.degreeModalityName || "Modalidad no encontrada";
 
   if (loading) {
     return <div className="admin-loading">Cargando configuraciones...</div>;
@@ -196,7 +169,7 @@ export default function ProgramDegreeModalities() {
       )}
 
       {/* Debug Info */}
-      {(faculties.length === 0 || programs.length === 0 || modalities.length === 0) && (
+      {(programs.length === 0 || modalities.length === 0) && (
         <div style={{ 
           background: "#fff3cd", 
           border: "1px solid #ffc107",
@@ -206,7 +179,6 @@ export default function ProgramDegreeModalities() {
         }}>
           <strong>⚠️ Atención:</strong>
           <ul style={{ marginTop: "0.5rem", marginBottom: 0 }}>
-            {faculties.length === 0 && <li>No se cargaron facultades</li>}
             {programs.length === 0 && <li>No se cargaron programas académicos</li>}
             {modalities.length === 0 && <li>No se cargaron modalidades activas</li>}
           </ul>
@@ -216,27 +188,8 @@ export default function ProgramDegreeModalities() {
         </div>
       )}
 
-      {/* Filtros */}
+      {/* Filtro */}
       <div className="admin-filters" style={{ display: "flex", gap: "1rem", marginBottom: "2rem" }}>
-        <div className="admin-form-group" style={{ flex: 1 }}>
-          <label className="admin-label">Filtrar por Facultad</label>
-          <select
-            value={selectedFacultyId}
-            onChange={(e) => {
-              setSelectedFacultyId(e.target.value);
-              setSelectedProgramId("");
-            }}
-            className="admin-select"
-          >
-            <option value="">-- Todas las facultades --</option>
-            {faculties.map((faculty) => (
-              <option key={faculty.id} value={faculty.id}>
-                {faculty.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div className="admin-form-group" style={{ flex: 1 }}>
           <label className="admin-label">Filtrar por Programa</label>
           <select
@@ -245,7 +198,7 @@ export default function ProgramDegreeModalities() {
             className="admin-select"
           >
             <option value="">-- Todos los programas --</option>
-            {filteredPrograms.map((program) => (
+            {programs.map((program) => (
               <option key={program.id} value={program.id}>
                 {program.name}
               </option>
@@ -259,7 +212,6 @@ export default function ProgramDegreeModalities() {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Facultad</th>
               <th>Programa Académico</th>
               <th>Modalidad de Grado</th>
               <th>Créditos Requeridos</th>
@@ -270,7 +222,7 @@ export default function ProgramDegreeModalities() {
           <tbody>
             {configurations.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
+                  <td colSpan="5" style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
                   No hay configuraciones disponibles. ¡Crea una nueva!
                 </td>
               </tr>
@@ -278,12 +230,9 @@ export default function ProgramDegreeModalities() {
               configurations.map((config) => (
                 <tr key={config.id}>
                   <td>
-                    <span className="admin-tag">{getFacultyName(config.facultyId)}</span>
+                    <strong>{getProgramName(config)}</strong>
                   </td>
-                  <td>
-                    <strong>{getProgramName(config.academicProgramId)}</strong>
-                  </td>
-                  <td>{getModalityName(config.degreeModalityId)}</td>
+                  <td>{getModalityName(config)}</td>
                   <td>
                     <span className="admin-tag">{config.creditsRequired} créditos</span>
                   </td>
@@ -299,7 +248,7 @@ export default function ProgramDegreeModalities() {
                       style={{ padding: "0.5rem 1rem", fontSize: "0.9rem" }}
                       title="Editar configuración"
                     >
-                      ✏️ Editar
+                      Editar
                     </button>
                   </td>
                 </tr>
@@ -333,7 +282,7 @@ export default function ProgramDegreeModalities() {
                   <option value="">-- Selecciona un programa --</option>
                   {programs.map((program) => (
                     <option key={program.id} value={program.id}>
-                      {program.name} - {getFacultyName(program.facultyId)}
+                      {program.name}
                     </option>
                   ))}
                 </select>
@@ -381,6 +330,52 @@ export default function ProgramDegreeModalities() {
                 <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
                   Número de créditos que el estudiante debe tener aprobados para esta modalidad
                 </small>
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">¿Requiere proceso de defensa? *</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "0.5rem" }}>
+                  <label style={{
+                    display: "flex", alignItems: "flex-start", gap: "0.75rem", cursor: "pointer",
+                    padding: "0.85rem 1rem", borderRadius: "8px", border: "2px solid",
+                    borderColor: formData.requiresDefenseProcess ? "#7A1117" : "#e0e0e0",
+                    background: formData.requiresDefenseProcess ? "#fdf2f3" : "#f9f9f9",
+                  }}>
+                    <input
+                      type="radio"
+                      name="requiresDefenseProcess"
+                      checked={formData.requiresDefenseProcess === true}
+                      onChange={() => setFormData({ ...formData, requiresDefenseProcess: true })}
+                      style={{ marginTop: "3px", accentColor: "#7A1117" }}
+                    />
+                    <div>
+                      <strong>Sí — Con proceso de defensa completo</strong>
+                      <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "#555" }}>
+                        La modalidad incluye director de proyecto, jurados, sustentación y evaluación. Aplica para trabajos de grado tradicionales (proyecto de investigación, trabajo de grado, etc.).
+                      </p>
+                    </div>
+                  </label>
+                  <label style={{
+                    display: "flex", alignItems: "flex-start", gap: "0.75rem", cursor: "pointer",
+                    padding: "0.85rem 1rem", borderRadius: "8px", border: "2px solid",
+                    borderColor: formData.requiresDefenseProcess === false ? "#7A1117" : "#e0e0e0",
+                    background: formData.requiresDefenseProcess === false ? "#fdf2f3" : "#f9f9f9",
+                  }}>
+                    <input
+                      type="radio"
+                      name="requiresDefenseProcess"
+                      checked={formData.requiresDefenseProcess === false}
+                      onChange={() => setFormData({ ...formData, requiresDefenseProcess: false })}
+                      style={{ marginTop: "3px", accentColor: "#7A1117" }}
+                    />
+                    <div>
+                      <strong>No — Solo aprobación por comité</strong>
+                      <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "#555" }}>
+                        La modalidad no requiere director ni jurados. El comité curricular evalúa y aprueba directamente (posgrado, artículo académico, homologación, etc.).
+                      </p>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               <div className="admin-modal-actions">

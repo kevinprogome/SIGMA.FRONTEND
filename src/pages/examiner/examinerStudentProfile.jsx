@@ -66,6 +66,20 @@ import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/examiners/examinerstudentprofile.css";
 import "../../styles/council/studentprofile.css"
 
+const DISTINCTION_LABELS = {
+  NO_DISTINCTION: "Sin Distinción",
+  AGREED_APPROVED: "Aprobado (Por Acuerdo)",
+  AGREED_MERITORIOUS: "Meritorio (Por Acuerdo)",
+  AGREED_LAUREATE: "Laureado (Por Acuerdo)",
+  AGREED_REJECTED: "Rechazado (Por Acuerdo)",
+  DISAGREEMENT_PENDING_TIEBREAKER: "Desacuerdo - Pendiente de Desempate",
+  TIEBREAKER_APPROVED: "Aprobado (Por Desempate)",
+  TIEBREAKER_MERITORIOUS: "Meritorio (Por Desempate)",
+  TIEBREAKER_LAUREATE: "Laureado (Por Desempate)",
+  TIEBREAKER_REJECTED: "Rechazado (Por Desempate)",
+  REJECTED_BY_COMMITTEE: "Rechazado por Comité",
+};
+
 
 export default function ExaminerStudentProfile() {
   const { studentModalityId } = useParams();
@@ -803,7 +817,7 @@ const fetchExaminerRole = async () => {
           {profile.academicDistinction && (
             <div className="student-info-item">
               <span className="student-info-label">Resultado</span>
-              <span className="student-info-value distinction">{profile.academicDistinction}</span>
+              <span className="student-info-value distinction">{DISTINCTION_LABELS[profile.academicDistinction] || profile.academicDistinction}</span>
             </div>
           )}
         </div>
