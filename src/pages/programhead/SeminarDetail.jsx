@@ -319,6 +319,7 @@ export default function SeminarDetail() {
                   <th>Créditos</th>
                   <th>Promedio</th>
                   <th>Estado Modalidad</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -341,6 +342,15 @@ export default function SeminarDetail() {
                       ) : (
                         <span className="badge badge-secondary">Sin modalidad</span>
                       )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-secondary"
+                        style={{ fontSize: "0.8rem", padding: "0.3rem 0.75rem" }}
+                        onClick={() => navigate(`/jefeprograma/students/${student.studentModalityId || student.modalityInfo?.id}`)}
+                      >
+                        Ver perfil
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -378,11 +388,11 @@ export default function SeminarDetail() {
 
           {canCancel && (
             <button
-              className="btn btn-danger"
+              className="btn btn-primary"
               onClick={() => setShowCancelModal(true)}
               disabled={actionLoading}
             >
-              ❌ Cancelar Diplomado
+              Cancelar Diplomado
             </button>
           )}
 
@@ -400,23 +410,45 @@ export default function SeminarDetail() {
 
       {/* Modal de Cancelación */}
       {showCancelModal && (
-        <div className="modal-overlay" onClick={() => setShowCancelModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Cancelar Diplomado</h3>
-            <p>Por favor indica la razón de la cancelación:</p>
+        <div className="confirm-modal-overlay" onClick={() => setShowCancelModal(false)}>
+          <div className="confirm-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "520px" }}>
+            <div className="confirm-modal-header primary">
+              <span className="confirm-modal-icon">⚠️</span>
+              <h3 className="confirm-modal-title">Cancelar Diplomado</h3>
+            </div>
 
-            <textarea
-              className="form-control modal-textarea"
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-              placeholder="Ejemplo: No se alcanzó el mínimo de participantes..."
-              rows={4}
-              disabled={actionLoading}
-            />
+            <div className="confirm-modal-body">
+              <p className="confirm-modal-message">
+                Por favor indica la razón de la cancelación:
+              </p>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Ejemplo: No se alcanzó el mínimo de participantes..."
+                rows={4}
+                disabled={actionLoading}
+                style={{
+                  width: "100%",
+                  padding: "0.85rem 1rem",
+                  border: "2px solid #D5CBA0",
+                  borderRadius: "10px",
+                  fontSize: "0.95rem",
+                  fontFamily: "inherit",
+                  resize: "vertical",
+                  marginTop: "0.75rem",
+                  color: "#1a1a2e",
+                  background: "#fafbfc",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
+                onFocus={(e) => { e.target.style.borderColor = "#7A1117"; e.target.style.boxShadow = "0 0 0 3px rgba(122,17,23,0.12)"; }}
+                onBlur={(e) => { e.target.style.borderColor = "#D5CBA0"; e.target.style.boxShadow = "none"; }}
+              />
+            </div>
 
-            <div className="modal-actions">
+            <div className="confirm-modal-actions">
               <button
-                className="btn btn-secondary"
+                className="confirm-modal-btn cancel"
                 onClick={() => {
                   setShowCancelModal(false);
                   setCancelReason("");
@@ -425,9 +457,8 @@ export default function SeminarDetail() {
               >
                 Cerrar
               </button>
-
               <button
-                className="btn btn-danger"
+                className="confirm-modal-btn confirm primary"
                 onClick={handleCancelSeminar}
                 disabled={actionLoading || !cancelReason.trim()}
               >

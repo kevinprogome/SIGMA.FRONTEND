@@ -570,26 +570,29 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: 1rem;
   animation: fadeIn 0.3s ease;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
 }
 
 .modal-content {
-  background: white;
+  background: #ffffff;
   border-radius: 20px;
   padding: 2.8rem;
   max-width: 600px;
   width: 100%;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid var(--border-color);
+  border: 2px solid #D5CBA0;
   position: relative;
+  z-index: 10000;
+  color: #1a1a2e;
+  isolation: isolate;
 }
 
 @keyframes slideUp {
@@ -609,19 +612,19 @@
 }
 
 .modal-content h3 {
-  font-size: 1.8rem;
-  color: var(--primary-color);
-  margin: 0 0 1.2rem;
+  font-size: 1.5rem;
+  color: #7A1117;
+  margin: 0 0 0.8rem;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
   font-family: 'Georgia', 'Times New Roman', serif;
 }
 
 .modal-content p {
-  color: var(--text-light);
-  margin: 0 0 2rem;
-  line-height: 1.8;
-  font-weight: 500;
+  color: #333;
+  margin: 0 0 1.5rem;
+  line-height: 1.6;
+  font-weight: 600;
   font-size: 1rem;
 }
 
@@ -664,6 +667,9 @@
   gap: 1.2rem;
   justify-content: flex-end;
   flex-wrap: wrap;
+  padding-top: 1.5rem;
+  border-top: 1px solid #D5CBA0;
+  margin-top: 0.5rem;
 }
 
 .modal-actions .btn {

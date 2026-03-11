@@ -31,6 +31,7 @@ export default function Documents() {
     documentType: "MANDATORY",
     description: "",
     active: true,
+    requiresProposalEvaluation: false,
   });
 
   useEffect(() => {
@@ -88,6 +89,7 @@ export default function Documents() {
       documentType: "MANDATORY",
       description: "",
       active: true,
+      requiresProposalEvaluation: false,
     });
     setShowModal(true);
   };
@@ -102,6 +104,7 @@ export default function Documents() {
       documentType: document.documentType || "MANDATORY",
       description: document.description,
       active: document.active,
+      requiresProposalEvaluation: document.requiresProposalEvaluation ?? false,
     });
     setShowModal(true);
   };
@@ -387,6 +390,52 @@ export default function Documents() {
                   </label>
                 </div>
               )}
+
+              <div className="admin-form-group">
+                <label className="admin-label">¿Requiere evaluación de propuesta por jurado?</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "0.5rem" }}>
+                  <label style={{
+                    display: "flex", alignItems: "flex-start", gap: "0.75rem", cursor: "pointer",
+                    padding: "0.85rem 1rem", borderRadius: "8px", border: "2px solid",
+                    borderColor: formData.requiresProposalEvaluation ? "#7A1117" : "#e0e0e0",
+                    background: formData.requiresProposalEvaluation ? "#fdf2f3" : "#f9f9f9",
+                  }}>
+                    <input
+                      type="radio"
+                      name="requiresProposalEvaluation"
+                      checked={formData.requiresProposalEvaluation === true}
+                      onChange={() => setFormData({ ...formData, requiresProposalEvaluation: true })}
+                      style={{ marginTop: "3px", accentColor: "#7A1117" }}
+                    />
+                    <div>
+                      <strong>Sí — Los jurados deben revisar este documento</strong>
+                      <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "#555" }}>
+                        El documento forma parte del proceso de evaluación formal. Los jurados asignados deben aprobarlo o solicitar correcciones antes de que el proceso avance.
+                      </p>
+                    </div>
+                  </label>
+                  <label style={{
+                    display: "flex", alignItems: "flex-start", gap: "0.75rem", cursor: "pointer",
+                    padding: "0.85rem 1rem", borderRadius: "8px", border: "2px solid",
+                    borderColor: formData.requiresProposalEvaluation === false ? "#7A1117" : "#e0e0e0",
+                    background: formData.requiresProposalEvaluation === false ? "#fdf2f3" : "#f9f9f9",
+                  }}>
+                    <input
+                      type="radio"
+                      name="requiresProposalEvaluation"
+                      checked={formData.requiresProposalEvaluation === false}
+                      onChange={() => setFormData({ ...formData, requiresProposalEvaluation: false })}
+                      style={{ marginTop: "3px", accentColor: "#7A1117" }}
+                    />
+                    <div>
+                      <strong>No — Solo es un documento de soporte</strong>
+                      <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "#555" }}>
+                        El documento se sube como requisito administrativo o de soporte, pero no requiere revisión ni aprobación por parte de los jurados.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
 
               <div className="admin-modal-actions">
                 <button type="button" onClick={() => setShowModal(false)} className="admin-btn-secondary">
