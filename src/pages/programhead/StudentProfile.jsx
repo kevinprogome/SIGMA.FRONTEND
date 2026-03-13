@@ -567,29 +567,6 @@ export default function StudentProfileProgramHead() {
         </div>
       </div>
 
-      {/* Documents Statistics */}
-      <div className="documents-stats-card">
-        <h3 className="card-section-title"> Estadísticas de Documentos</h3>
-        <div className="stats-grid">
-          <div className="stat-item total">
-            <div className="stat-number">{profile.totalDocuments || 0}</div>
-            <div className="stat-label">Total</div>
-          </div>
-          <div className="stat-item approved">
-            <div className="stat-number">{profile.approvedDocuments || 0}</div>
-            <div className="stat-label">Aprobados</div>
-          </div>
-          <div className="stat-item pending">
-            <div className="stat-number">{profile.pendingDocuments || 0}</div>
-            <div className="stat-label">Pendientes</div>
-          </div>
-          <div className="stat-item rejected">
-            <div className="stat-number">{profile.rejectedDocuments || 0}</div>
-            <div className="stat-label">Rechazados</div>
-          </div>
-        </div>
-      </div>
-
       {/* Documents Section - SOLO DOCUMENTOS CARGADOS */}
       <div className="documents-section">
         <h3 className="documents-section-title"> Documentos</h3>

@@ -538,29 +538,6 @@ export default function CommitteeStudentProfile() {
         )}
       </div>
 
-      {/* Documents Stats */}
-      <div className="documents-stats-card">
-        <h3 className="card-section-title"> Estadísticas de Documentos</h3>
-        <div className="stats-grid">
-          <div className="stat-item total" style={{ background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
-            <div className="stat-number">{profile.totalDocuments || 0}</div>
-            <div className="stat-label">Total</div>
-          </div>
-          <div className="stat-item approved" style={{ background: 'linear-gradient(135deg, #28a745 0%, #1e7e34 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
-            <div className="stat-number">{profile.approvedDocuments || 0}</div>
-            <div className="stat-label">Aprobados</div>
-          </div>
-          <div className="stat-item pending" style={{ background: 'linear-gradient(135deg, #ff9800 0%, #e68900 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
-            <div className="stat-number">{profile.pendingDocuments || 0}</div>
-            <div className="stat-label">Pendientes</div>
-          </div>
-          <div className="stat-item rejected" style={{ background: 'linear-gradient(135deg, #dc3545 0%, #b02a37 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
-            <div className="stat-number">{profile.rejectedDocuments || 0}</div>
-            <div className="stat-label">Rechazados</div>
-          </div>
-        </div>
-      </div>
-
       {/* Documents */}
 <div className="documents-card">
   <div className="documents-card-header">

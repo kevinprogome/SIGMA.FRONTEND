@@ -167,29 +167,6 @@ export default function ModalityStatus() {
         </li>
       </ul>
 
-      {/* Estadísticas de Documentos */}
-      <div className="status-section">
-        <h3 className="status-section-title"> Resumen de Documentos</h3>
-        <div className="status-documents-stats">
-          <div className="status-stat-card">
-            <div className="status-stat-number">{data.totalDocuments || 0}</div>
-            <div className="status-stat-label">Total</div>
-          </div>
-          <div className="status-stat-card success">
-            <div className="status-stat-number">{data.approvedDocuments || 0}</div>
-            <div className="status-stat-label">Aprobados</div>
-          </div>
-          <div className="status-stat-card warning">
-            <div className="status-stat-number">{data.pendingDocuments || 0}</div>
-            <div className="status-stat-label">Pendientes</div>
-          </div>
-          <div className="status-stat-card error">
-            <div className="status-stat-number">{data.rejectedDocuments || 0}</div>
-            <div className="status-stat-label">Rechazados</div>
-          </div>
-        </div>
-      </div>
-
       {/* Historial */}
       <div className="status-history-section">
         <h3 className="status-history-title">Historial de Estados</h3>
