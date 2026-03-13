@@ -73,6 +73,14 @@ export const approveProgramhead = async (studentModalityId) => {
 };
 
 // ========================================
+export const approveFinalAndNotifyExaminers = async (studentModalityId) => {
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/program-head/approve-final-and-notify-examiners`
+  );
+  return response.data;
+};
+
+// ========================================
 // Traducciones de Estados de Modalidades
 // ========================================
 
@@ -91,11 +99,14 @@ export const MODALITY_STATUS_OPTIONS = [
   { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones Solicitadas por Comité" },
   { value: "READY_FOR_DIRECTOR_ASSIGNMENT", label: "Listo para Asignación de Director" },
   { value: "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para Aprobación por Comité de Currículo" },
+  { value: "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Aprobado por Comité de Currículo" },
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
   { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
   { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "PENDING_PROGRAM_HEAD_FINAL_REVIEW", label: "Pendiente de Revisión Final por Jefatura" },
+  { value: "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW", label: "Aprobado por Revisión Final de Jefatura" },
   { value: "DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Aprobados por Jurado" },
   { value: "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Secundarios Aprobados por Jurado" },
   { value: "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED", label: "Revisión de Documento Requiere Desempate" },
@@ -107,6 +118,7 @@ export const MODALITY_STATUS_OPTIONS = [
   { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Jurado" },
   { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Jurado" },
   { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
+  { value: "PENDING_DISTINCTION_COMMITTEE_REVIEW", label: "Pendiente de Revisión de Distinción por Comité" },
   { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
   { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
@@ -152,11 +164,14 @@ export const getStatusBadgeClass = (status) => {
     CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE: "error",
     READY_FOR_DIRECTOR_ASSIGNMENT: "warning",
     READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE: "warning",
+    APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE: "success",
     PROPOSAL_APPROVED: "success",
     DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR: "info",
     DEFENSE_SCHEDULED: "success",
     EXAMINERS_ASSIGNED: "info",
     READY_FOR_EXAMINERS: "info",
+    PENDING_PROGRAM_HEAD_FINAL_REVIEW: "warning",
+    APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW: "success",
     DOCUMENTS_APPROVED_BY_EXAMINERS: "success",
     SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS: "success",
     DOCUMENT_REVIEW_TIEBREAKER_REQUIRED: "warning",
@@ -168,6 +183,7 @@ export const getStatusBadgeClass = (status) => {
     DISAGREEMENT_REQUIRES_TIEBREAKER: "warning",
     UNDER_EVALUATION_TIEBREAKER: "warning",
     EVALUATION_COMPLETED: "success",
+    PENDING_DISTINCTION_COMMITTEE_REVIEW: "warning",
     GRADED_APPROVED: "success",
     GRADED_FAILED: "error",
     MODALITY_CLOSED: "info",

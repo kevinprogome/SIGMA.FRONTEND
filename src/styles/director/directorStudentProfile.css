@@ -543,6 +543,61 @@
   cursor: not-allowed;
 }
 
+.director-doc-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  min-width: 180px;
+}
+
+.director-doc-file-input {
+  width: 100%;
+  font-size: 0.75rem;
+  color: #5d0d12;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.35rem;
+}
+
+.director-doc-upload-btn {
+  padding: 0.55rem 0.85rem;
+  background: #B7A873;
+  color: #5d0d12;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.director-doc-upload-btn:hover:not(:disabled) {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.director-doc-upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.director-pending-upload-row {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.director-doc-upload-hint {
+  color: #92400e;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  text-align: left;
+}
+
 .director-pending-docs {
   margin-top: 1.5rem;
 }
@@ -962,6 +1017,15 @@
     padding: 0.5rem 0.8rem;
     font-size: 0.75rem;
     min-height: 32px;
+  }
+
+  .director-doc-actions {
+    min-width: 150px;
+  }
+
+  .director-pending-upload-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .director-modal {

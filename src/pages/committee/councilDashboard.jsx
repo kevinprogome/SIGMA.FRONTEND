@@ -9,12 +9,16 @@ const AVAILABLE_STATUSES = [
   { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones Solicitadas - Comité de currículo de programa" },
   { value: "READY_FOR_DIRECTOR_ASSIGNMENT", label: "Listo para Asignación de Director" },
   { value: "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para Aprobación por Comité de Currículo" },
+  { value: "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Aprobado por Comité de Currículo" },
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
+  { value: "PENDING_PROGRAM_HEAD_FINAL_REVIEW", label: "Pendiente de Revisión Final por Jefatura" },
+  { value: "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW", label: "Aprobado por Revisión Final de Jefatura" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
   { value: "DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Aprobados por Jurado" },
   { value: "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Secundarios Aprobados por Jurado" },
   { value: "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED", label: "Revisión de Documento Requiere Desempate" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
+  { value: "PENDING_DISTINCTION_COMMITTEE_REVIEW", label: "Pendiente de Revisión de Distinción por Comité" },
   { value: "GRADED_APPROVED", label: "Calificado - Aprobado" },
   { value: "GRADED_FAILED", label: "Calificado - Reprobado" },
   { value: "CANCELLATION_REQUESTED", label: "Cancelación Solicitada" },
@@ -98,9 +102,15 @@ export default function CommitteeDashboard() {
   const getStatusClass = (status) => {
     switch (status) {
       case "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE":
+      case "PENDING_DISTINCTION_COMMITTEE_REVIEW":
         return "ready";
+
+      case "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE":
+      case "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW":
+        return "approved";
       
       case "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE":
+      case "PENDING_PROGRAM_HEAD_FINAL_REVIEW":
         return "in-review";
       
       case "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE":
@@ -149,11 +159,14 @@ export default function CommitteeDashboard() {
       "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones Solicitadas por Comité",
       "READY_FOR_DIRECTOR_ASSIGNMENT": "Listo para Asignación de Director",
       "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Listo para Aprobación por Comité de Currículo",
+      "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Aprobado por Comité de Currículo",
       "PROPOSAL_APPROVED": "Propuesta Aprobada",
       "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR": "Sustentación Propuesta por Director",
       "DEFENSE_SCHEDULED": "Sustentación Programada",
       "EXAMINERS_ASSIGNED": "Jurado Asignado",
       "READY_FOR_EXAMINERS": "Listo para Jurado",
+      "PENDING_PROGRAM_HEAD_FINAL_REVIEW": "Pendiente de Revisión Final por Jefatura",
+      "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW": "Aprobado por Revisión Final de Jefatura",
       "DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos Aprobados por Jurado",
       "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos Secundarios Aprobados por Jurado",
       "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED": "Revisión de Documento Requiere Desempate",
@@ -165,6 +178,7 @@ export default function CommitteeDashboard() {
       "DISAGREEMENT_REQUIRES_TIEBREAKER": "Desacuerdo - Requiere Tercer Jurado",
       "UNDER_EVALUATION_TIEBREAKER": "En Evaluación por Tercer Jurado",
       "EVALUATION_COMPLETED": "Evaluación Completada",
+      "PENDING_DISTINCTION_COMMITTEE_REVIEW": "Pendiente de Revisión de Distinción por Comité",
       "GRADED_APPROVED": "Aprobado",
       "GRADED_FAILED": "Reprobado",
       "MODALITY_CLOSED": "Modalidad Cancelada",

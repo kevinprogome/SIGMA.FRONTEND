@@ -67,7 +67,72 @@ export const getDirectorStudentDetail = async (studentModalityId) => {
   const response = await axios.get(
     `/modalities/students/${studentModalityId}/director`
   );
+
+  console.log("📥 Respuesta detalle director:", response.data);
   
+  return response.data;
+};
+
+/**
+ * Obtener documentos requeridos de una modalidad.
+ * Se usa como fallback cuando el detalle del director no expone requiredDocumentId.
+ * @param {number} modalityId
+ * @returns {Promise<Array>}
+ */
+export const getRequiredDocumentsForModality = async (modalityId) => {
+  console.log("📚 Obteniendo documentos requeridos para modalidad:", modalityId);
+  const response = await axios.get(`/required-documents/modality/${modalityId}`);
+  console.log("📥 Documentos requeridos de modalidad:", response.data);
+  return extractData(response.data);
+};
+
+/**
+ * Obtener modalidades disponibles para resolver el ID a partir del nombre.
+ * @returns {Promise<Array>}
+ */
+export const getAvailableModalities = async () => {
+  console.log("🎓 Obteniendo modalidades disponibles para fallback de carga");
+  const response = await axios.get("/modalities");
+  console.log("📥 Modalidades disponibles:", response.data);
+  return extractData(response.data);
+};
+
+/**
+ * Subir o resubir un documento asociado a una modalidad desde el perfil del director.
+ * Reutiliza el mismo endpoint de carga usado por estudiante.
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @param {number} requiredDocumentId - ID del documento requerido
+ * @param {File} file - Archivo a subir
+ * @returns {Promise<Object>} Respuesta del backend
+ */
+export const uploadDirectorDocument = async (
+  studentModalityId,
+  requiredDocumentId,
+  file
+) => {
+  console.log("📤 [DIRECTOR] Subiendo documento:", {
+    studentModalityId,
+    requiredDocumentId,
+    fileName: file?.name,
+    fileType: file?.type,
+    fileSize: file?.size,
+  });
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/documents/${requiredDocumentId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  console.log("✅ [DIRECTOR] Respuesta carga documento:", response.data);
+
   return response.data;
 };
 
@@ -220,13 +285,14 @@ export const rejectModalityCancellationByDirector = async (studentModalityId, re
 };
 
 /**
- * Marcar modalidad como lista para defensa y notificar al jurado
+ * Marcar modalidad como lista para defensa y notificar a jefatura/coordinación
+ * (paso intermedio antes de notificar al jurado).
  * POST /modalities/{studentModalityId}/ready-for-defense
  * @param {number} studentModalityId
  * @returns {Promise<Object>}
  */
 export const notifyReadyForDefense = async (studentModalityId) => {
-  console.log("📣 Notificando jurado - READY_FOR_DEFENSE:", studentModalityId);
+  console.log("📣 Notificando a jefatura para revisión final:", studentModalityId);
   const response = await axios.post(`/modalities/${studentModalityId}/ready-for-defense`);
   return response.data;
 };
@@ -273,11 +339,14 @@ export const DIRECTOR_STATUS_OPTIONS = [
   { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones Solicitadas por Comité" },
   { value: "READY_FOR_DIRECTOR_ASSIGNMENT", label: "Listo para Asignación de Director" },
   { value: "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para Aprobación por Comité de Currículo" },
+  { value: "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Aprobado por Comité de Currículo" },
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
   { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
   { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "PENDING_PROGRAM_HEAD_FINAL_REVIEW", label: "Pendiente de Revisión Final por Jefatura" },
+  { value: "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW", label: "Aprobado por Revisión Final de Jefatura" },
   { value: "DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Aprobados por Jurado" },
   { value: "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Secundarios Aprobados por Jurado" },
   { value: "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED", label: "Revisión de Documento Requiere Desempate" },
@@ -289,6 +358,7 @@ export const DIRECTOR_STATUS_OPTIONS = [
   { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Jurado" },
   { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Jurado" },
   { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
+  { value: "PENDING_DISTINCTION_COMMITTEE_REVIEW", label: "Pendiente de Revisión de Distinción por Comité" },
   { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
   { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
@@ -324,11 +394,14 @@ export const getStatusBadgeClass = (status) => {
     CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE: "error",
     READY_FOR_DIRECTOR_ASSIGNMENT: "warning",
     READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE: "warning",
+    APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE: "success",
     PROPOSAL_APPROVED: "success",
     DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR: "info",
     DEFENSE_SCHEDULED: "success",
     EXAMINERS_ASSIGNED: "info",
     READY_FOR_EXAMINERS: "info",
+    PENDING_PROGRAM_HEAD_FINAL_REVIEW: "warning",
+    APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW: "success",
     DOCUMENTS_APPROVED_BY_EXAMINERS: "success",
     SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS: "success",
     DOCUMENT_REVIEW_TIEBREAKER_REQUIRED: "warning",
@@ -340,6 +413,7 @@ export const getStatusBadgeClass = (status) => {
     DISAGREEMENT_REQUIRES_TIEBREAKER: "warning",
     UNDER_EVALUATION_TIEBREAKER: "warning",
     EVALUATION_COMPLETED: "success",
+    PENDING_DISTINCTION_COMMITTEE_REVIEW: "warning",
     GRADED_APPROVED: "success",
     GRADED_FAILED: "error",
     MODALITY_CLOSED: "info",

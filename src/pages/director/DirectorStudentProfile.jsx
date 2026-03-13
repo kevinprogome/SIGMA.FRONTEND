@@ -6,6 +6,7 @@ import {
   notifyReadyForDefense,
   approveModalityCancellationByDirector,
   rejectModalityCancellationByDirector,
+  uploadDirectorDocument,
   getDocumentBlobUrl,
   viewCancellationDocument,
   canProposeDefense,
@@ -42,8 +43,10 @@ export default function DirectorStudentProfile() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [loadingDoc, setLoadingDoc] = useState(null);
+  const [uploadingDocId, setUploadingDocId] = useState(null);
   const [loadingCancellationDoc, setLoadingCancellationDoc] = useState(false);
   const [notifyingExaminers, setNotifyingExaminers] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState({});
  
   // Modals
   const [showDefenseModal, setShowDefenseModal] = useState(false);
@@ -85,8 +88,8 @@ export default function DirectorStudentProfile() {
   const handleNotifyExaminers = async () => {
     setConfirmAction({
       type: "notifyExaminers",
-      title: "Notificar al Jurado",
-      message: "¿Confirmas que el estudiante ha entregado todos los documentos y quieres notificar al jurado?",
+      title: "Notificar a Jefatura de Programa",
+      message: "¿Confirmas que el estudiante ha entregado todos los documentos y quieres notificar a jefatura/coordinación para revisión final? Después de aprobar, jefatura notificará al jurado.",
       variant: "primary",
     });
   };
@@ -208,11 +211,11 @@ export default function DirectorStudentProfile() {
       setNotifyingExaminers(true);
       try {
         const response = await notifyReadyForDefense(studentModalityId);
-        setMessage(response.message || "✅ Jurado notificado. Modalidad marcada como lista para defensa.");
+        setMessage(response.message || "✅ Jefatura de programa notificada para revisión final. Una vez aprobada, jefatura notificará al jurado.");
         fetchStudentDetail();
         setTimeout(() => setMessage(""), 8000);
       } catch (err) {
-        console.error("Error al notificar jurado:", err);
+        console.error("Error al notificar a jefatura de programa:", err);
         const data = err.response?.data;
         const msg =
           (typeof data === "string" && data) ||
@@ -261,6 +264,90 @@ export default function DirectorStudentProfile() {
       setCancellationMsgType("error");
     } finally {
       setRejectingCancellation(false);
+    }
+  };
+
+  const getRequiredDocumentId = (doc) => {
+    const candidates = [
+      doc?.requiredDocumentId,
+      doc?.requiredDocId,
+      doc?.documentId,
+      doc?.requiredDocument?.requiredDocumentId,
+      doc?.requiredDocument?.id,
+      doc?.requiredDocument?.documentId,
+      doc?.documentRequirementId,
+      doc?.required_document_id,
+    ];
+
+    const resolvedId = candidates.find((value) => value !== undefined && value !== null && value !== "") || null;
+    console.log("🆔 requiredDocumentId resuelto para documento:", {
+      documentName: doc?.documentName,
+      candidates,
+      resolvedId,
+      rawDocument: doc,
+    });
+    return resolvedId;
+  };
+
+  const getUploadControlState = (doc) => {
+    const requiredDocumentId = getRequiredDocumentId(doc);
+    return {
+      requiredDocumentId,
+      canUpload: !!requiredDocumentId,
+    };
+  };
+
+  const handleDirectorFileChange = (requiredDocumentId, file) => {
+    console.log("📎 Archivo seleccionado por director:", {
+      requiredDocumentId,
+      fileName: file?.name,
+      fileType: file?.type,
+      fileSize: file?.size,
+    });
+    setSelectedFiles((prev) => ({
+      ...prev,
+      [requiredDocumentId]: file,
+    }));
+  };
+
+  const handleDirectorUpload = async (doc) => {
+    const requiredDocumentId = getRequiredDocumentId(doc);
+    console.log("🚀 Intentando subir documento desde director:", {
+      studentModalityId,
+      documentName: doc?.documentName,
+      requiredDocumentId,
+      selectedFile: selectedFiles[requiredDocumentId],
+      document: doc,
+    });
+
+    if (!requiredDocumentId) {
+      console.warn("⛔ No se pudo subir porque no existe requiredDocumentId para:", doc);
+      setMessage("No se encontró el identificador del documento requerido.");
+      setTimeout(() => setMessage(""), 6000);
+      return;
+    }
+
+    const file = selectedFiles[requiredDocumentId];
+    if (!file) {
+      console.warn("⛔ No se pudo subir porque no hay archivo seleccionado para requiredDocumentId:", requiredDocumentId);
+      setMessage("Debes seleccionar un archivo antes de subirlo.");
+      setTimeout(() => setMessage(""), 4000);
+      return;
+    }
+
+    setUploadingDocId(requiredDocumentId);
+    try {
+      const response = await uploadDirectorDocument(studentModalityId, requiredDocumentId, file);
+      setMessage(response.message || `Documento \"${doc.documentName}\" cargado correctamente.`);
+      setSelectedFiles((prev) => ({ ...prev, [requiredDocumentId]: null }));
+      await fetchStudentDetail();
+      setTimeout(() => setMessage(""), 8000);
+    } catch (err) {
+      console.error("Error uploading document as director:", err);
+      setMessage(`Error al subir \"${doc.documentName}\": ${getErrorMessage(err)}`);
+      setTimeout(() => setMessage(""), 8000);
+    } finally {
+      setUploadingDocId(null);
     }
   };
 
@@ -330,12 +417,20 @@ export default function DirectorStudentProfile() {
       {/* Header */}
       <div className="director-profile-header">
         <div className="director-profile-header-content">
-          
           <h1 className="director-profile-title">Perfil del Estudiante</h1>
           <p className="director-profile-subtitle">Información completa sobre el estudiante, su progreso académico, modalidad de grado y estado de sus documentos.</p>
+          <div className="director-profile-actions">
+            <button
+              onClick={() => navigate('/project-director')}
+              className="director-btn-cancel"
+            >
+              ← Volver al Dashboard
+            </button>
+            <span className={`director-doc-status-badge ${getStatusBadgeClass(student.currentStatus)}`}>
+              {getStatusLabel(student.currentStatus)}
+            </span>
+          </div>
         </div>
-       
-       
       </div>
 
       {message && (
@@ -346,7 +441,11 @@ export default function DirectorStudentProfile() {
       )}
 
       {/* Alerta de Cancelación */}
-    
+      {hasCancellationRequest(student.currentStatus) && (
+        <div className="director-profile-message" style={{ background: '#fffbe6', borderLeft: '5px solid #B7A873', color: '#92400e' }}>
+          ⚠️ Este estudiante tiene una solicitud de cancelación pendiente. Revisa la sección de cancelación más abajo.
+        </div>
+      )}
 
       {/* Información del Estudiante */}
       <div className="student-info-card">
@@ -577,7 +676,7 @@ export default function DirectorStudentProfile() {
                     </thead>
                     <tbody>
                       {uploadedDocs.map((doc, index) => (
-                        <tr key={doc.studentDocumentId || index}>
+                        <tr key={doc.studentDocumentId || getRequiredDocumentId(doc) || index}>
                           <td>
                             <strong className="director-doc-name" style={{ color: '#5d0d12' }}>{doc.documentName}</strong>
                             {doc.description && (
@@ -615,15 +714,48 @@ export default function DirectorStudentProfile() {
                             </span>
                           </td>
                           <td style={{ textAlign: "center" }}>
-                            <button
-                              onClick={() => handleViewDocument(doc.studentDocumentId, doc.documentName)}
-                              disabled={loadingDoc === doc.studentDocumentId}
-                              className="director-doc-btn"
-                            >
-                              {loadingDoc === doc.studentDocumentId 
-                                ? "⏳ Cargando..." 
-                                : "Ver Documento"}
-                            </button>
+                            {(() => {
+                              const uploadState = getUploadControlState(doc);
+                              return (
+                            <div className="director-doc-actions">
+                              <button
+                                onClick={() => handleViewDocument(doc.studentDocumentId, doc.documentName)}
+                                disabled={loadingDoc === doc.studentDocumentId}
+                                className="director-doc-btn"
+                              >
+                                {loadingDoc === doc.studentDocumentId
+                                  ? "⏳ Cargando..."
+                                  : "Ver Documento"}
+                              </button>
+
+                              <input
+                                type="file"
+                                accept=".pdf,.doc,.docx"
+                                className="director-doc-file-input"
+                                onChange={(e) => handleDirectorFileChange(uploadState.requiredDocumentId, e.target.files?.[0] || null)}
+                                disabled={!uploadState.canUpload}
+                              />
+                              <button
+                                onClick={() => handleDirectorUpload(doc)}
+                                disabled={
+                                  !uploadState.canUpload ||
+                                  (uploadState.canUpload && uploadingDocId === uploadState.requiredDocumentId) ||
+                                  !selectedFiles[uploadState.requiredDocumentId]
+                                }
+                                className="director-doc-upload-btn"
+                              >
+                                {uploadState.canUpload && uploadingDocId === uploadState.requiredDocumentId
+                                  ? "⏳ Subiendo..."
+                                  : "Subir/Actualizar"}
+                              </button>
+                              {!uploadState.canUpload && (
+                                <small className="director-doc-upload-hint">
+                                  Falta requiredDocumentId en la respuesta del backend para este documento.
+                                </small>
+                              )}
+                            </div>
+                              );
+                            })()}
                           </td>
                         </tr>
                       ))}
@@ -648,7 +780,7 @@ export default function DirectorStudentProfile() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                   {notUploadedDocs.map((doc, index) => (
                     <div
-                      key={index}
+                      key={getRequiredDocumentId(doc) || doc.documentName || index}
                       style={{
                         padding: "1rem",
                         background: '#f8f6ef',
@@ -691,17 +823,50 @@ export default function DirectorStudentProfile() {
                           Sin subir
                         </span>
                       </div>
+
+                      {(() => {
+                        const uploadState = getUploadControlState(doc);
+                        return (
+                          <div className="director-pending-upload-row">
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx"
+                              className="director-doc-file-input"
+                              onChange={(e) => handleDirectorFileChange(uploadState.requiredDocumentId, e.target.files?.[0] || null)}
+                              disabled={!uploadState.canUpload}
+                            />
+                            <button
+                              onClick={() => handleDirectorUpload(doc)}
+                              disabled={
+                                !uploadState.canUpload ||
+                                (uploadState.canUpload && uploadingDocId === uploadState.requiredDocumentId) ||
+                                !selectedFiles[uploadState.requiredDocumentId]
+                              }
+                              className="director-doc-upload-btn"
+                            >
+                              {uploadState.canUpload && uploadingDocId === uploadState.requiredDocumentId
+                                ? "⏳ Subiendo..."
+                                : "Subir Documento"}
+                            </button>
+                            {!uploadState.canUpload && (
+                              <small className="director-doc-upload-hint">
+                                Falta requiredDocumentId en la respuesta del backend para este documento.
+                              </small>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   ))}
                 </div>
               </>
             )}
-            {/* Botón y mensaje de notificación al jurado */}
+            {/* Botón y mensaje de notificación a jefatura/coordinación */}
             {canNotifyExaminers(student.currentStatus) && (
               <div className="director-notify-section" style={{marginTop: '2rem'}}>
                 <div className="director-notify-info-box" style={{background:'#f8f6ef',borderLeft:'4px solid #1d4ed8',borderRadius:'8px',padding:'0.8rem 1.2rem',marginBottom:'0.7rem'}}>
                   <span style={{color:'#5d0d12',fontWeight:'600',fontSize:'0.9rem'}}>
-                    <strong>Nota:</strong>Es indispensable notificar formalmente a el jurado designado para que realice la revisión integral de todos los documentos asociados a la modalidad de grado. El concepto y aval emitido por el jurado constituyen un requisito obligatorio para poder autorizar y programar la sustentación académica.
+                    <strong>Nota:</strong>Al notificar en este paso, la modalidad pasa primero a revisión final de jefatura/coordinación. Cuando jefatura valide y apruebe los documentos finales, notificará formalmente al jurado para continuar con el proceso hacia la sustentación.
                   </span>
                 </div>
                 <button
@@ -710,11 +875,11 @@ export default function DirectorStudentProfile() {
                   className={`director-btn-submit director-notify-btn ${notifyingExaminers ? "loading" : ""} ${!allRequiredDocsUploaded() ? "disabled" : ""}`}
                   title={
                     !allRequiredDocsUploaded()
-                      ? "El estudiante debe subir todos los documentos obligatorios antes de notificar al jurado"
-                      : "Notificar al jurado que la modalidad está lista para defensa"
+                      ? "El estudiante debe subir todos los documentos obligatorios antes de notificar a jefatura/coordinación"
+                      : "Notificar a jefatura/coordinación para revisión final previa a la notificación al jurado"
                   }
                 >
-                  {notifyingExaminers ? "⏳ Notificando..." : "Notificar al Jurado"}
+                  {notifyingExaminers ? "⏳ Notificando..." : "Notificar a Jefatura/Coordinador"}
                 </button>
                 {!allRequiredDocsUploaded() && (
                   <small className="director-notify-warning">

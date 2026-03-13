@@ -22,11 +22,14 @@ const AVAILABLE_STATUSES = [
 
   { value: "READY_FOR_DIRECTOR_ASSIGNMENT", label: "Listo para Asignación de Director" },
   { value: "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para Aprobación por Comité de Currículo" },
+  { value: "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Aprobado por Comité de Currículo" },
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
   { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
   { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "PENDING_PROGRAM_HEAD_FINAL_REVIEW", label: "Pendiente de Revisión Final por Jefatura" },
+  { value: "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW", label: "Aprobado por Revisión Final de Jefatura" },
   { value: "DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Aprobados por Jurado" },
   { value: "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Secundarios Aprobados por Jurado" },
   { value: "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED", label: "Revisión de Documento Requiere Desempate" },
@@ -39,6 +42,7 @@ const AVAILABLE_STATUSES = [
   { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Jurado" },
   { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Jurado" },
   { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
+  { value: "PENDING_DISTINCTION_COMMITTEE_REVIEW", label: "Pendiente de Revisión de Distinción por Comité" },
   { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
 
@@ -172,7 +176,11 @@ export default function StudentsPending() {
       case "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE":
       case "READY_FOR_DIRECTOR_ASSIGNMENT":
       case "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE":
+      case "PENDING_DISTINCTION_COMMITTEE_REVIEW":
         return "ready";
+      case "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE":
+      case "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW":
+        return "approved";
       case "PROPOSAL_APPROVED":
         return "approved";
 
@@ -187,6 +195,7 @@ export default function StudentsPending() {
       // Jurado
       case "EXAMINERS_ASSIGNED":
       case "READY_FOR_EXAMINERS":
+      case "PENDING_PROGRAM_HEAD_FINAL_REVIEW":
         return "in-review";
       case "DOCUMENTS_APPROVED_BY_EXAMINERS":
       case "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS":

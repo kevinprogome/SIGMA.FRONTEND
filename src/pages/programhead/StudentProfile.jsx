@@ -4,6 +4,7 @@ import {
   getStudentModalityProfile,
   reviewDocument,
   approveProgramhead,
+  approveFinalAndNotifyExaminers,
   getDocumentBlobUrl,
   getStatusLabel,
   getStatusBadgeClass,
@@ -39,6 +40,8 @@ export default function StudentProfileProgramHead() {
   const [submitting, setSubmitting] = useState(false);
   const [loadingDoc, setLoadingDoc] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showNotifyExaminersModal, setShowNotifyExaminersModal] = useState(false);
+  const [notifyingExaminers, setNotifyingExaminers] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -158,6 +161,24 @@ export default function StudentProfileProgramHead() {
     }
   };
 
+
+  const executeNotifyExaminers = async () => {
+    setShowNotifyExaminersModal(false);
+    setNotifyingExaminers(true);
+    try {
+      await approveFinalAndNotifyExaminers(studentModalityId);
+      setSuccessMessage("? Jurado notificado exitosamente. La modalidad avanza al proceso de revisi�n final por el jurado.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => setSuccessMessage(""), 8000);
+      await fetchProfile();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Error al notificar al jurado");
+      setTimeout(() => setError(""), 5000);
+    } finally {
+      setNotifyingExaminers(false);
+    }
+  };
   // Helper para determinar si un documento puede ser editado
   const canEditDocument = (doc) => {
     return doc.status !== "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW";
@@ -200,6 +221,7 @@ export default function StudentProfileProgramHead() {
       // ========== ASIGNACIÓN DE JURADO (NUEVO) ========== 
       "EXAMINERS_ASSIGNED": "Jurado asignado",
       "READY_FOR_EXAMINERS": "Listo para jurado",
+      "PENDING_PROGRAM_HEAD_FINAL_REVIEW": "Pendiente de revisión final por jefatura",
       "DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos aprobados por jurado",
       "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos secundarios aprobados por jurado",
       "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED": "Revisión de documento requiere desempate",
@@ -282,6 +304,15 @@ export default function StudentProfileProgramHead() {
   const allMandatoryAccepted = uploadedMandatory.every(
     (d) => d.status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW"
   );
+  const COMMITTEE_SEND_ALLOWED_STATUSES = [
+    "MODALITY_SELECTED",
+    "UNDER_REVIEW_PROGRAM_HEAD",
+    "CORRECTIONS_REQUESTED_PROGRAM_HEAD",
+    "CORRECTIONS_SUBMITTED",
+    "CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD",
+    "CORRECTIONS_APPROVED",
+  ];
+  const canShowSendToCommitteeButton = COMMITTEE_SEND_ALLOWED_STATUSES.includes(profile.currentStatus);
 
   return (
     <div className="student-profile-container">
@@ -748,49 +779,91 @@ export default function StudentProfileProgramHead() {
             </div>
 
             {/* Approve All Section */}
-            <div className="approve-all-section">
-              <div className="approve-all-content">
-                <button
-                  onClick={handleApproveAll}
-                  disabled={!allMandatoryAccepted || submitting || uploadedMandatory.length < mandatoryDocs.length}
-                  className={`approve-all-btn ${
-                    allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length ? "enabled" : "disabled"
-                  }`}
-                  style={
-                    allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length
-                      ? {
-                          background: 'linear-gradient(135deg, #7A1117 0%, #5d0d12 100%)',
-                          color: '#fff',
-                          fontWeight: 900,
-                          fontSize: '1.15rem',
-                          border: 'none',
-                          boxShadow: '0 4px 12px rgba(122,17,23,0.15)',
-                          letterSpacing: '0.5px',
-                        }
-                      : {}
-                  }
-                >
-                  {submitting
-                    ? "Procesando..."
-                    : "Enviar al Comité de Currículo de Programa"}
-                </button>
+            {canShowSendToCommitteeButton && (
+              <div className="approve-all-section">
+                <div className="approve-all-content">
+                  <button
+                    onClick={handleApproveAll}
+                    disabled={!allMandatoryAccepted || submitting || uploadedMandatory.length < mandatoryDocs.length}
+                    className={`approve-all-btn ${
+                      allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length ? "enabled" : "disabled"
+                    }`}
+                    style={
+                      allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length
+                        ? {
+                            background: 'linear-gradient(135deg, #7A1117 0%, #5d0d12 100%)',
+                            color: '#fff',
+                            fontWeight: 900,
+                            fontSize: '1.15rem',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(122,17,23,0.15)',
+                            letterSpacing: '0.5px',
+                          }
+                        : {}
+                    }
+                  >
+                    {submitting
+                      ? "Procesando..."
+                      : "Enviar al Comité de Currículo de Programa"}
+                  </button>
 
-                {uploadedMandatory.length < mandatoryDocs.length && (
-                  <div className="approve-warning">
-                    ⚠️ El estudiante debe cargar todos los documentos obligatorios ({uploadedMandatory.length}/{mandatoryDocs.length})
-                  </div>
-                )}
+                  {uploadedMandatory.length < mandatoryDocs.length && (
+                    <div className="approve-warning">
+                      ⚠️ El estudiante debe cargar todos los documentos obligatorios ({uploadedMandatory.length}/{mandatoryDocs.length})
+                    </div>
+                  )}
 
-                {uploadedMandatory.length === mandatoryDocs.length && !allMandatoryAccepted && (
-                  <div className="approve-warning">
-                    ⚠️ Debes aceptar todos los documentos obligatorios antes de enviar al comité
-                  </div>
-                )}
+                  {uploadedMandatory.length === mandatoryDocs.length && !allMandatoryAccepted && (
+                    <div className="approve-warning">
+                      ⚠️ Debes aceptar todos los documentos obligatorios antes de enviar al comité
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </div>
+
+
+      {/* Sección: Notificar al Jurado (revisión final por jefatura) */}
+      {profile.currentStatus === "PENDING_PROGRAM_HEAD_FINAL_REVIEW" && (
+        <div style={{
+          background: '#f8f6ef',
+          border: '2px solid #B7A873',
+          borderRadius: '16px',
+          padding: '2rem',
+          marginBottom: '2rem',
+          boxShadow: '0 4px 16px rgba(122,17,23,0.10)',
+        }}>
+          <h3 style={{ color: '#5d0d12', fontWeight: 700, marginBottom: '0.75rem', fontSize: '1.2rem' }}>
+            Revisión Final — Notificar al Jurado
+          </h3>
+          <p style={{ color: '#7A1117', fontSize: '0.95rem', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+            El director de proyecto ha verificado que los documentos finales del estudiante están completos.
+            Como jefatura de programa, debes revisar y aprobar antes de notificar formalmente al jurado para
+            continuar con el proceso hacia la sustentación.
+          </p>
+          <button
+            onClick={() => setShowNotifyExaminersModal(true)}
+            disabled={notifyingExaminers}
+            style={{
+              background: notifyingExaminers ? '#D5CBA0' : '#7A1117',
+              color: notifyingExaminers ? '#5d0d12' : '#fff',
+              fontWeight: 900,
+              fontSize: '1.1rem',
+              padding: '0.9rem 2.2rem',
+              borderRadius: '12px',
+              border: '2px solid #B7A873',
+              boxShadow: '0 4px 12px rgba(122,17,23,0.20)',
+              cursor: notifyingExaminers ? 'not-allowed' : 'pointer',
+              letterSpacing: '0.03em',
+            }}
+          >
+            {notifyingExaminers ? '⏳ Notificando al jurado...' : 'Aprobar y Notificar al Jurado'}
+          </button>
+        </div>
+      )}
 
       {/* Back Button */}
       <div className="back-button-section">
@@ -808,6 +881,17 @@ export default function StudentProfileProgramHead() {
         variant="primary"
         onConfirm={executeApproveAll}
         onCancel={() => setShowConfirmModal(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showNotifyExaminersModal}
+        title="Aprobar y Notificar al Jurado"
+        message="¿Confirmas que has revisado los documentos finales y deseas notificar formalmente al jurado para que continúe con el proceso de revisión hacia la sustentación?"
+        confirmText="Sí, notificar al jurado"
+        cancelText="Cancelar"
+        variant="primary"
+        onConfirm={executeNotifyExaminers}
+        onCancel={() => setShowNotifyExaminersModal(false)}
       />
     </div>
   );
