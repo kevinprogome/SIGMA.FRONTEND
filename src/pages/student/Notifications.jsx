@@ -6,6 +6,7 @@ import {
   markAllAsRead,
   getNotificationIcon,
   getRelativeTime,
+  emitNotificationsUpdated,
 } from "../../services/notificationService";
 import {
   acceptInvitation,
@@ -46,6 +47,7 @@ export default function Notifications() {
     try {
       console.log("🔄 Intentando marcar notificación como leída:", notificationId);
       await markNotificationAsRead(notificationId);
+      emitNotificationsUpdated();
       await fetchNotifications();
       
       setMessage(" Marcada como leída");
@@ -71,6 +73,7 @@ export default function Notifications() {
 
     try {
       await markAllAsRead(unreadIds);
+      emitNotificationsUpdated();
       await fetchNotifications();
       
       setMessage(` ${unreadIds.length} marcadas como leídas`);
@@ -132,6 +135,7 @@ export default function Notifications() {
         await acceptInvitation(action.invitationId);
         setMessage(" Invitación aceptada. ¡Bienvenido al grupo!");
         await markNotificationAsRead(action.notification.id);
+        emitNotificationsUpdated();
         await fetchNotifications();
         setTimeout(() => {
           setMessage("");
@@ -150,6 +154,7 @@ export default function Notifications() {
         await rejectInvitation(action.invitationId);
         setMessage("Invitación rechazada");
         await markNotificationAsRead(action.notification.id);
+        emitNotificationsUpdated();
         await fetchNotifications();
         setTimeout(() => setMessage(""), 3000);
       } catch (err) {

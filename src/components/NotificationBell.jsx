@@ -6,6 +6,8 @@ import {
   markNotificationAsRead,
   getNotificationIcon,
   getRelativeTime,
+  NOTIFICATIONS_UPDATED_EVENT,
+  emitNotificationsUpdated,
 } from "../services/notificationService";
 import "../styles/navbar.css";
 
@@ -35,6 +37,18 @@ export default function NotificationBell({
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const handleNotificationsUpdated = () => {
+      fetchUnreadCount();
+      if (showDropdown) fetchNotifications();
+    };
+
+    window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handleNotificationsUpdated);
+    return () => {
+      window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleNotificationsUpdated);
+    };
+  }, [showDropdown]);
 
   useEffect(() => {
     if (navigateOnly) return;
@@ -91,6 +105,7 @@ export default function NotificationBell({
     try {
       if (!notification.read) {
         await markNotificationAsRead(notification.id);
+        emitNotificationsUpdated();
         await fetchUnreadCount();
         await fetchNotifications();
       }

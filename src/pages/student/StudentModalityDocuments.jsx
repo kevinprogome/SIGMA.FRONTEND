@@ -21,6 +21,31 @@ const MODALITY_TEMPLATES = {
     { id: 2, name: "Lista de Chequeo (Director de proyecto)" },
     { id: 4, name: "Formato del Documento Final" },
   ],
+
+  "pasantia": [
+    { id: 8, name: "Lista de Chequeo" },
+    { id: 9, name: "Propuesta de la Pasantia" },
+    { id: 10, name: "Formato del Informe Final" },
+  ],
+  "pasantia supervisada": [
+    { id: 8, name: "Lista de Chequeo" },
+    { id: 9, name: "Propuesta de la Pasantia" },
+    { id: 10, name: "Formato del Informe Final" },
+  ],
+
+  "emprendimiento": [
+    { id: 14, name: "Guia Metodologica para Crear Empresa" },
+    { id: 9, name: "Formato de Propuesta (Referencia)" },
+  ],
+  "fortalecimiento de empresa": [
+    { id: 15, name: "Guia Metodologica para Fortalecimiento de Empresa" },
+    { id: 9, name: "Formato de Propuesta (Referencia)" },
+  ],
+  "emprendimiento y fortalecimiento de empresa": [
+    { id: 14, name: "Guia Metodologica para Crear Empresa" },
+    { id: 15, name: "Guia Metodologica para Fortalecimiento de Empresa" },
+    { id: 9, name: "Formato de Propuesta (Referencia)" },
+  ],
 };
 
 /**
@@ -29,7 +54,11 @@ const MODALITY_TEMPLATES = {
  */
 function getTemplatesForModality(modalityName) {
   if (!modalityName) return [];
-  const normalized = modalityName.trim().toLowerCase();
+  const normalized = modalityName
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
   return MODALITY_TEMPLATES[normalized] || [];
 }
 

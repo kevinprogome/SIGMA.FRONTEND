@@ -5,6 +5,7 @@ import {
   markAllAsRead,
   getNotificationIcon,
   getRelativeTime,
+  emitNotificationsUpdated,
 } from "../../services/notificationService";
 import "../../styles/student/notifications.css";
 
@@ -38,6 +39,7 @@ export default function NotificationsPage() {
   const handleMarkAsRead = async (notificationId) => {
     try {
       await markNotificationAsRead(notificationId);
+      emitNotificationsUpdated();
       await fetchNotifications();
       setMessage("✅ Marcada como leída");
       setTimeout(() => setMessage(""), 2000);
@@ -57,6 +59,7 @@ export default function NotificationsPage() {
     }
     try {
       await markAllAsRead(unreadIds);
+      emitNotificationsUpdated();
       await fetchNotifications();
       setMessage(`✅ ${unreadIds.length} marcadas como leídas`);
       setTimeout(() => setMessage(""), 2000);
