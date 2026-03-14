@@ -271,7 +271,7 @@ export default function CommitteeStudentProfile() {
   const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
   const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
-  const allMandatoryAccepted = mandatoryDocs.length > 0 && uploadedMandatory.length === mandatoryDocs.length && uploadedMandatory.every(
+  const allMandatoryAcceptedForApproval = mandatoryDocs.length > 0 && uploadedMandatory.length === mandatoryDocs.length && uploadedMandatory.every(
     (d) => d.status === "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW"
   );
   const isModalityClosed = profile.currentStatus === "MODALITY_CLOSED";
@@ -287,15 +287,6 @@ export default function CommitteeStudentProfile() {
     "APPROVED_BY_COMMITTEE", "REJECTED_BY_COMMITTEE",
   ];
   const isFinalDecisionDone = finalDecisionStatuses.includes(profile.currentStatus);
-
-  // Checklist: pasos para aprobar la modalidad
-  const step1Ok = allMandatoryAccepted;
-  const step2Ok = !!profile.projectDirectorName;
-  
-  // Jurado: solo marcar como completado si hay datos reales de jurado asignado
-  const hasExaminersData = assignedExaminers.length > 0 || (profile && Array.isArray(profile.examiners) && profile.examiners.length > 0);
-  const examinersToDisplay = assignedExaminers.length > 0 ? assignedExaminers : (profile?.examiners || []);
-  const step3Ok_examiners = hasExaminersData;
 
   // Detectar si la modalidad ya fue aprobada por comité (solo estados posteriores a la aprobación explícita)
   const postApprovalStatuses = [
@@ -316,6 +307,47 @@ export default function CommitteeStudentProfile() {
   ];
   const isModalityApprovedByCommittee = postApprovalStatuses.includes(profile.currentStatus);
 
+  // Checklist: pasos para aprobar la modalidad
+  // Si la modalidad ya avanzó a revisión de jurados o estados finales, los documentos obligatorios
+  // deben considerarse completados en el checklist aunque su estado ya no sea el de comité.
+  const acceptedMandatoryStatusesForChecklist = [
+    "ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW",
+    "ACCEPTED_FOR_EXAMINER_REVIEW",
+  ];
+  const allMandatoryAcceptedForChecklist = mandatoryDocs.length > 0 && uploadedMandatory.length === mandatoryDocs.length && uploadedMandatory.every(
+    (d) => acceptedMandatoryStatusesForChecklist.includes(d.status)
+  );
+
+  const step1Ok = isModalityApprovedByCommittee ? allMandatoryAcceptedForChecklist : allMandatoryAcceptedForApproval;
+  const step2Ok = !!profile.projectDirectorName;
+
+  // Jurado: usar datos explícitos y también inferencia por avance de flujo
+  // para casos donde el backend no retorna la lista de jurados en el perfil.
+  const hasExplicitExaminersData = assignedExaminers.length > 0 || (profile && Array.isArray(profile.examiners) && profile.examiners.length > 0);
+  const hasExaminerReviewedDocs = uploadedDocs.some((d) => [
+    "ACCEPTED_FOR_EXAMINER_REVIEW",
+    "REJECTED_FOR_EXAMINER_REVIEW",
+    "CORRECTIONS_REQUESTED_BY_EXAMINER",
+  ].includes(d.status));
+  const examinerWorkflowStatuses = [
+    "EXAMINERS_ASSIGNED",
+    "READY_FOR_EXAMINERS",
+    "DOCUMENTS_APPROVED_BY_EXAMINERS",
+    "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS",
+    "DEFENSE_SCHEDULED",
+    "DEFENSE_COMPLETED",
+    "GRADED_APPROVED",
+    "GRADED_FAILED",
+    "MODALITY_APPROVED_BY_COMMITTEE",
+    "MODALITY_FAILED_BY_COMMITTEE",
+    "APPROVED_BY_COMMITTEE",
+    "REJECTED_BY_COMMITTEE",
+  ];
+  const hasExaminerWorkflowProgress = examinerWorkflowStatuses.includes(profile.currentStatus);
+  const hasExaminersData = hasExplicitExaminersData || hasExaminerReviewedDocs || hasExaminerWorkflowProgress;
+  const examinersToDisplay = assignedExaminers.length > 0 ? assignedExaminers : (profile?.examiners || []);
+  const step3Ok_examiners = hasExaminersData;
+
   // Solo se puede aprobar si los docs están OK, director asignado, y el estado es válido para el backend
   const validStatusesForApproval = [
     "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE",
@@ -324,7 +356,7 @@ export default function CommitteeStudentProfile() {
     "CORRECTIONS_SUBMITTED_TO_COMMITTEE",
   ];
   const isInValidStatusForApproval = validStatusesForApproval.includes(profile.currentStatus);
-  const canApproveModality = step1Ok && step2Ok && !isModalityApprovedByCommittee && isInValidStatusForApproval;
+  const canApproveModality = allMandatoryAcceptedForApproval && step2Ok && !isModalityApprovedByCommittee && isInValidStatusForApproval;
 
   return (
     <div className="student-profile-container">
