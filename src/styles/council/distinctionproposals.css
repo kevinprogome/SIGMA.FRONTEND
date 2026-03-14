@@ -1,0 +1,613 @@
+/* ========================================
+   DISTINCTION PROPOSALS - COMMITTEE VIEW
+   ======================================== */
+
+.distinction-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.distinction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: #5d0d12;
+  color: white;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(93, 13, 18, 0.3);
+  gap: 2rem;
+}
+
+.distinction-header-text h1 {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.9rem;
+  margin: 0 0 0.4rem 0;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.distinction-header-text p {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.distinction-counter-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* ========================================
+   MESSAGES
+   ======================================== */
+
+.distinction-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.distinction-message.success {
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #5d0d12;
+  border-left: 4px solid #D5CBA0;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.08);
+}
+
+.distinction-message.error {
+  background: #fde1e1;
+  color: #5d0d12;
+  border-left: 4px solid #7A1117;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.08);
+}
+
+.distinction-message button {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 0.25rem;
+  font-weight: 700;
+}
+
+/* ========================================
+   LOADING
+   ======================================== */
+
+.distinction-loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  font-size: 1.1rem;
+  color: #666;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ========================================
+   EMPTY STATE
+   ======================================== */
+
+.distinction-empty {
+  background: white;
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 2px solid #D5CBA0;
+}
+
+.distinction-empty-icon {
+  font-size: 3.5rem;
+  color: #D5CBA0;
+  margin-bottom: 1rem;
+}
+
+.distinction-empty h3 {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.3rem;
+  color: #5d0d12;
+  margin: 0 0 0.5rem 0;
+}
+
+.distinction-empty p {
+  color: #777;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ========================================
+   CARDS GRID
+   ======================================== */
+
+.distinction-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(680px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 800px) {
+  .distinction-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   PROPOSAL CARD
+   ======================================== */
+
+.distinction-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.distinction-card:hover {
+  box-shadow: 0 8px 24px rgba(93, 13, 18, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Card top accent bar - color indicates distinction type */
+.distinction-card.meritoria {
+  border-top: 4px solid #c8a415;
+}
+
+.distinction-card.laureada {
+  border-top: 4px solid #7A1117;
+}
+
+/* ========================================
+   CARD HEADER
+   ======================================== */
+
+.distinction-card-header {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #5d0d12 0%, #7A1117 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.distinction-card-student h3 {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.1rem;
+  margin: 0 0 0.2rem 0;
+  font-weight: 700;
+}
+
+.distinction-card-student p {
+  font-size: 0.85rem;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.distinction-badge {
+  padding: 0.4rem 0.9rem;
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.distinction-badge.meritoria {
+  background: #c8a415;
+  color: #fff;
+  border: 2px solid #e6bc18;
+}
+
+.distinction-badge.laureada {
+  background: #fff;
+  color: #5d0d12;
+  border: 2px solid #D5CBA0;
+}
+
+/* ========================================
+   CARD BODY
+   ======================================== */
+
+.distinction-card-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.distinction-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.distinction-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.distinction-info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.distinction-info-value {
+  font-size: 0.92rem;
+  color: #222;
+  font-weight: 500;
+}
+
+.distinction-grade-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #5d0d12;
+}
+
+/* ========================================
+   EXAMINER EVALUATIONS SECTION
+   ======================================== */
+
+.distinction-evaluations-toggle {
+  width: 100%;
+  background: #f8f4f4;
+  border: 1px solid #e0d5d5;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  color: #5d0d12;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.distinction-evaluations-toggle:hover {
+  background: #f0e8e8;
+}
+
+.toggle-arrow {
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+}
+
+.toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.distinction-evaluations-panel {
+  background: #fafafa;
+  border: 1px solid #e8e0e0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.distinction-examiner-item {
+  border-bottom: 1px solid #ede8e8;
+  padding-bottom: 0.65rem;
+}
+
+.distinction-examiner-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.distinction-examiner-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.distinction-examiner-type {
+  font-size: 0.78rem;
+  color: #888;
+  margin-bottom: 0.3rem;
+}
+
+.distinction-examiner-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.distinction-examiner-row span strong {
+  color: #5d0d12;
+}
+
+.distinction-observations {
+  font-size: 0.82rem;
+  color: #666;
+  margin-top: 0.3rem;
+  font-style: italic;
+  border-left: 3px solid #D5CBA0;
+  padding-left: 0.5rem;
+}
+
+/* ========================================
+   CARD ACTIONS
+   ======================================== */
+
+.distinction-card-actions {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f0e8e8;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  background: #fdfaf9;
+}
+
+.btn-accept-distinction {
+  padding: 0.65rem 1.4rem;
+  background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
+}
+
+.btn-accept-distinction:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
+}
+
+.btn-reject-distinction {
+  padding: 0.65rem 1.4rem;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(93, 13, 18, 0.3);
+}
+
+.btn-reject-distinction:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5d0d12 0%, #3d080c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(93, 13, 18, 0.4);
+}
+
+.btn-accept-distinction:disabled,
+.btn-reject-distinction:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========================================
+   MODAL OVERLAY
+   ======================================== */
+
+.distinction-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.distinction-modal {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  animation: slideDown 0.25s ease-out;
+}
+
+.distinction-modal-header {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.distinction-modal-header.accept {
+  background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+  color: white;
+}
+
+.distinction-modal-header.reject {
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+}
+
+.distinction-modal-header h2 {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.distinction-modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+
+.distinction-modal-close:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.distinction-modal-body {
+  padding: 1.5rem;
+}
+
+.distinction-modal-info {
+  background: #f8f4f4;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.distinction-modal-info strong {
+  color: #5d0d12;
+}
+
+.distinction-modal-body label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.4rem;
+}
+
+.distinction-modal-body textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1.5px solid #d0c0c0;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.distinction-modal-body textarea:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 3px rgba(122, 17, 23, 0.1);
+}
+
+.distinction-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f0e8e8;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btn-modal-cancel {
+  padding: 0.6rem 1.2rem;
+  background: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-modal-cancel:hover {
+  background: #e0e0e0;
+}
+
+.btn-modal-confirm-accept {
+  padding: 0.6rem 1.4rem;
+  background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-modal-confirm-accept:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+}
+
+.btn-modal-confirm-reject {
+  padding: 0.6rem 1.4rem;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-modal-confirm-reject:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5d0d12 0%, #3d080c 100%);
+}
+
+.btn-modal-confirm-accept:disabled,
+.btn-modal-confirm-reject:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}

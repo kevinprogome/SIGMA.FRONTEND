@@ -41,6 +41,7 @@ import CouncilStudentProfile from "../pages/committee/councilStudentProfile";
 import CancellationRequests from "../pages/committee/CancellationRequests";
 import CommitteeDefenseProposals from "../pages/committee/defenseProposals";
 import CommitteeReports from "../pages/committee/committeeReports";
+import DistinctionProposals from "../pages/committee/DistinctionProposals";
 
 
 // DIRECTOR
@@ -118,6 +119,7 @@ function AppRoutes() {
           />
           <Route path="cancellations" element={<CancellationRequests />} />
           <Route path="proposals" element={<CommitteeDefenseProposals />} />
+          <Route path="distinction-proposals" element={<DistinctionProposals />} />
           <Route path="reports" element={<CommitteeReports />} />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>

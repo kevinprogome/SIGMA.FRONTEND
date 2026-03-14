@@ -258,6 +258,44 @@ export const getPendingDefenseProposals = async () => {
   return response.data;
 };
 
+// ==========================================
+// DISTINCIONES HONORÍFICAS (COMITÉ)
+// ==========================================
+
+/**
+ * Obtener modalidades con propuestas de distinción pendientes de revisión
+ */
+export const getPendingDistinctionProposals = async () => {
+  const response = await axios.get("/modalities/committee/pending-distinction-proposals");
+  return response.data;
+};
+
+/**
+ * Aceptar propuesta de distinción honorífica
+ * @param {number} studentModalityId
+ * @param {string} notes - Observaciones opcionales
+ */
+export const acceptDistinctionProposal = async (studentModalityId, notes = null) => {
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/committee/accept-distinction`,
+    notes ? { notes } : {}
+  );
+  return response.data;
+};
+
+/**
+ * Rechazar propuesta de distinción honorífica
+ * @param {number} studentModalityId
+ * @param {string} reason - Razón obligatoria
+ */
+export const rejectDistinctionProposal = async (studentModalityId, reason) => {
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/committee/reject-distinction`,
+    { reason }
+  );
+  return response.data;
+};
+
 /**
  * Aprobar propuesta de defensa del director
  * @param {number} studentModalityId - ID de la modalidad del estudiante

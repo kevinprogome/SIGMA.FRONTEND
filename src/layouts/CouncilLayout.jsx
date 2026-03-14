@@ -60,6 +60,16 @@ export default function CouncilLayout() {
           </NavLink>
 
           <NavLink
+            to="/comite/distinction-proposals"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            <span className="nav-icon"></span>
+            Propuestas de Distinción
+          </NavLink>
+
+          <NavLink
             to="/comite/reports"
             className={({ isActive }) =>
               isActive ? "nav-link active" : "nav-link"
