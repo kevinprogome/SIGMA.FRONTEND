@@ -202,7 +202,7 @@ export default function StudentProfile() {
             {!canInferSemesterFromEmail && (
               <p className="profile-email-warning">
                 Advertencia: no se detecta codigo estudiantil en tu correo institucional ({userInfo.email || "sin correo"}).
-                El backend no podra inferir semestre hasta que este dato sea corregido por soporte.
+                
               </p>
             )}
           </div>

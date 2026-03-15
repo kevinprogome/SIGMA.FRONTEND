@@ -171,7 +171,7 @@ export default function StudentProfileProgramHead() {
     setNotifyingExaminers(true);
     try {
       await approveFinalAndNotifyExaminers(studentModalityId);
-      setSuccessMessage("? Jurado notificado exitosamente. La modalidad avanza al proceso de revisi�n final por el jurado.");
+      setSuccessMessage("Jurado notificado exitosamente. La modalidad avanza al proceso de revisión final por el jurado.");
       scrollToTopNotification();
       setTimeout(() => setSuccessMessage(""), 8000);
       await fetchProfile();
