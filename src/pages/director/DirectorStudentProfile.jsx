@@ -85,6 +85,10 @@ export default function DirectorStudentProfile() {
     }
   };
 
+  const scrollToTopNotification = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleNotifyExaminers = async () => {
     setConfirmAction({
       type: "notifyExaminers",
@@ -212,6 +216,7 @@ export default function DirectorStudentProfile() {
       try {
         const response = await notifyReadyForDefense(studentModalityId);
         setMessage(response.message || "✅ Jefatura de programa notificada para revisión final. Una vez aprobada, jefatura notificará al jurado.");
+        scrollToTopNotification();
         fetchStudentDetail();
         setTimeout(() => setMessage(""), 8000);
       } catch (err) {
@@ -225,6 +230,7 @@ export default function DirectorStudentProfile() {
           err.message ||
           "Error desconocido";
         setMessage("❌ " + msg);
+        scrollToTopNotification();
         setTimeout(() => setMessage(""), 8000);
       } finally {
         setNotifyingExaminers(false);
@@ -349,14 +355,6 @@ export default function DirectorStudentProfile() {
     } finally {
       setUploadingDocId(null);
     }
-  };
-
-  // Helper: verifica si los documentos MANDATORY y SECONDARY han sido subidos (igual que el backend)
-  const allRequiredDocsUploaded = () => {
-    if (!student?.documents || student.documents.length === 0) return false;
-    const required = student.documents.filter(d => d.documentType === "MANDATORY" || d.documentType === "SECONDARY");
-    if (required.length === 0) return true;
-    return required.every(d => d.uploaded);
   };
 
   // Helper para obtener clase de badge de documento
@@ -871,21 +869,12 @@ export default function DirectorStudentProfile() {
                 </div>
                 <button
                   onClick={handleNotifyExaminers}
-                  disabled={notifyingExaminers || !allRequiredDocsUploaded()}
-                  className={`director-btn-submit director-notify-btn ${notifyingExaminers ? "loading" : ""} ${!allRequiredDocsUploaded() ? "disabled" : ""}`}
-                  title={
-                    !allRequiredDocsUploaded()
-                      ? "El estudiante debe subir todos los documentos obligatorios antes de notificar a jefatura/coordinación"
-                      : "Notificar a jefatura/coordinación para revisión final previa a la notificación al jurado"
-                  }
+                  disabled={notifyingExaminers}
+                  className={`director-btn-submit director-notify-btn ${notifyingExaminers ? "loading" : ""}`}
+                  title="Notificar a jefatura/coordinación para revisión final previa a la notificación al jurado"
                 >
                   {notifyingExaminers ? "⏳ Notificando..." : "Notificar a Jefatura/Coordinador"}
                 </button>
-                {!allRequiredDocsUploaded() && (
-                  <small className="director-notify-warning">
-                    ⚠️ Faltan documentos obligatorios
-                  </small>
-                )}
               </div>
             )}
           </div>

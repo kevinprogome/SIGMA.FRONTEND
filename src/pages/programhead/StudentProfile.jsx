@@ -63,6 +63,10 @@ export default function StudentProfileProgramHead() {
     }
   };
 
+  const scrollToTopNotification = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleViewDocument = async (studentDocumentId) => {
     console.log("📄 Intentando ver documento:", studentDocumentId);
     setLoadingDoc(studentDocumentId);
@@ -168,12 +172,13 @@ export default function StudentProfileProgramHead() {
     try {
       await approveFinalAndNotifyExaminers(studentModalityId);
       setSuccessMessage("? Jurado notificado exitosamente. La modalidad avanza al proceso de revisi�n final por el jurado.");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollToTopNotification();
       setTimeout(() => setSuccessMessage(""), 8000);
       await fetchProfile();
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Error al notificar al jurado");
+      scrollToTopNotification();
       setTimeout(() => setError(""), 5000);
     } finally {
       setNotifyingExaminers(false);

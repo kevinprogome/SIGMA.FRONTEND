@@ -143,6 +143,13 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
       innovationAndImpact: "",
       professionalPresentation: "",
     },
+    entrepreneurshipCriteria: {
+      entrepreneurshipPresentationSupportMaterial: "",
+      entrepreneurshipCoherentBusinessObjectives: "",
+      entrepreneurshipMethodologyTechnicalApproach: "",
+      entrepreneurshipAnalyticalCreativeCapacity: "",
+      entrepreneurshipDefenseSustentation: "",
+    },
     proposedMention: "",
   });
   const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
@@ -295,6 +302,14 @@ const fetchExaminerRole = async () => {
     { key: "professionalPresentation", label: "Presentación profesional y manejo del material de apoyo", description: "Emplea adecuadamente recursos audiovisuales, con presentaciones claras y bien estructuradas. Mantiene una actitud profesional, dominio escénico y uso correcto del lenguaje." },
   ];
 
+  const ENTREPRENEURSHIP_DEFENSE_CRITERIA = [
+    { key: "entrepreneurshipPresentationSupportMaterial", label: "Presentación y material de apoyo", description: "Valore la claridad, organización y calidad profesional de la exposición, así como el uso pertinente de diapositivas, prototipos, modelos, demostraciones u otros apoyos utilizados durante la sustentación." },
+    { key: "entrepreneurshipCoherentBusinessObjectives", label: "Coherencia de los objetivos del negocio", description: "Evalúe si los objetivos planteados para el emprendimiento son claros, consistentes y viables en relación con la problemática, la propuesta de valor y los resultados esperados." },
+    { key: "entrepreneurshipMethodologyTechnicalApproach", label: "Metodología y enfoque técnico", description: "Determine si el estudiante sustenta adecuadamente la metodología empleada, el enfoque técnico adoptado y la forma en que estos respaldan el desarrollo y validación de la propuesta de emprendimiento." },
+    { key: "entrepreneurshipAnalyticalCreativeCapacity", label: "Capacidad analítica y creativa", description: "Valore la capacidad para analizar el contexto, identificar oportunidades, justificar decisiones y proponer soluciones creativas e innovadoras dentro del modelo de negocio presentado." },
+    { key: "entrepreneurshipDefenseSustentation", label: "Sustentación y respuesta ante el jurado", description: "Evalúe la solidez de la argumentación, la seguridad al exponer, la capacidad de respuesta frente a las preguntas del jurado y la apropiación integral de la propuesta presentada." },
+  ];
+
   const DEFENSE_GRADE_LABEL_MAP = {
     Insufficient: "Insuficiente (I)",
     Acceptable: "Aceptable (A)",
@@ -370,6 +385,38 @@ const fetchExaminerRole = async () => {
       return finalEvaluation.prototypeSoftware || finalEvaluation.prototypeDeviceSoftware || null;
     }
     return finalEvaluation[key] || null;
+  };
+
+  const normalizeModalityName = (value) =>
+    (value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+
+  const isEntrepreneurshipModality = () => {
+    const normalizedName = normalizeModalityName(profile?.modalityName);
+    return normalizedName.includes("emprendimiento") || normalizedName.includes("fortalecimiento de empresa");
+  };
+
+  const getActiveDefenseCriteria = () =>
+    isEntrepreneurshipModality() ? ENTREPRENEURSHIP_DEFENSE_CRITERIA : DEFENSE_CRITERIA;
+
+  const getRegisteredDefenseCriteriaValue = (criteria, key) => {
+    if (!criteria) return null;
+    const directValue = criteria[key];
+    if (directValue) return directValue;
+
+    const fallbackMap = {
+      entrepreneurshipPresentationSupportMaterial: "professionalPresentation",
+      entrepreneurshipCoherentBusinessObjectives: "domainAndClarity",
+      entrepreneurshipMethodologyTechnicalApproach: "innovationAndImpact",
+      entrepreneurshipAnalyticalCreativeCapacity: "synthesisAndCommunication",
+      entrepreneurshipDefenseSustentation: "argumentationAndResponse",
+    };
+
+    const fallbackKey = fallbackMap[key];
+    return fallbackKey ? criteria[fallbackKey] || null : null;
   };
 
   useEffect(() => {
@@ -456,6 +503,19 @@ const fetchExaminerRole = async () => {
       },
     }));
     // Clear rubric error when user fills a criterion
+    if (evalValidationErrors.rubric) {
+      setEvalValidationErrors(prev => { const n = {...prev}; delete n.rubric; return n; });
+    }
+  };
+
+  const handleEntrepreneurshipCriteriaChange = (key, value) => {
+    setEvaluationData(prev => ({
+      ...prev,
+      entrepreneurshipCriteria: {
+        ...prev.entrepreneurshipCriteria,
+        [key]: value,
+      },
+    }));
     if (evalValidationErrors.rubric) {
       setEvalValidationErrors(prev => { const n = {...prev}; delete n.rubric; return n; });
     }
@@ -611,10 +671,14 @@ const fetchExaminerRole = async () => {
   const handleSubmitEvaluation = async (e) => {
     e.preventDefault();
     const errors = {};
+    const isEntrepreneurship = isEntrepreneurshipModality();
+    const activeCriteria = getActiveDefenseCriteria();
+    const criteriaValues = isEntrepreneurship
+      ? evaluationData.entrepreneurshipCriteria
+      : evaluationData.defenseCriteria;
 
     // 1. Validate rubric criteria
-    const crit = evaluationData.defenseCriteria;
-    const missingCriteria = DEFENSE_CRITERIA.filter(c => !crit[c.key] || crit[c.key] === "");
+    const missingCriteria = activeCriteria.filter(c => !criteriaValues[c.key] || criteriaValues[c.key] === "");
     if (missingCriteria.length > 0) {
       errors.rubric = `Falta calificar: ${missingCriteria.map((c, i) => `${i + 1}. ${c.label}`).join(", ")}`;
     }
@@ -649,8 +713,9 @@ const fetchExaminerRole = async () => {
       const payload = {
         grade: gradeNum,
         observations: evaluationData.observations,
+        rubricType: isEntrepreneurship ? "ENTREPRENEURSHIP" : "STANDARD",
         evaluationCriteria: {
-          ...evaluationData.defenseCriteria,
+          ...criteriaValues,
           proposedMention: evaluationData.proposedMention || "NONE",
         },
       };
@@ -673,6 +738,13 @@ const fetchExaminerRole = async () => {
           argumentationAndResponse: "",
           innovationAndImpact: "",
           professionalPresentation: "",
+        },
+        entrepreneurshipCriteria: {
+          entrepreneurshipPresentationSupportMaterial: "",
+          entrepreneurshipCoherentBusinessObjectives: "",
+          entrepreneurshipMethodologyTechnicalApproach: "",
+          entrepreneurshipAnalyticalCreativeCapacity: "",
+          entrepreneurshipDefenseSustentation: "",
         },
         proposedMention: "",
       });
@@ -1546,55 +1618,65 @@ const fetchExaminerRole = async () => {
             ) : (
               <form onSubmit={handleSubmitEvaluation} className="examiner-eval-form">
 
-                {/* Rúbrica de criterios de sustentación */}
-                <div id="eval-rubric-section" className="examiner-rubric-section" style={evalValidationErrors.rubric ? { border: '2px solid #dc2626', borderRadius: '12px', padding: '1rem' } : {}}>
-                  <h5 className="examiner-rubric-title">Rúbrica de Evaluación de Sustentación</h5>
-                  <p className="examiner-rubric-subtitle">
-                    Evalúe cada criterio utilizando la valoración cualitativa: <strong>I</strong>= Insuficiente, <strong>A</strong>= Aceptable, <strong>B</strong>= Bueno, y <strong>E</strong>= Excelente.
-                  </p>
+                {(() => {
+                  const isEntrepreneurship = isEntrepreneurshipModality();
+                  const activeCriteria = getActiveDefenseCriteria();
+                  const activeValues = isEntrepreneurship
+                    ? evaluationData.entrepreneurshipCriteria
+                    : evaluationData.defenseCriteria;
 
-                  <div className="examiner-rubric-table">
-                    <div className="examiner-rubric-header">
-                      <div className="examiner-rubric-col-aspect">Criterio</div>
-                      {DEFENSE_GRADE_SCALE.map(g => (
-                        <div key={g.value} className="examiner-rubric-col-grade">{g.shortLabel}</div>
-                      ))}
-                    </div>
+                  return (
+                    <>
+                      <div id="eval-rubric-section" className="examiner-rubric-section" style={evalValidationErrors.rubric ? { border: '2px solid #dc2626', borderRadius: '12px', padding: '1rem' } : {}}>
+                        <h5 className="examiner-rubric-title">
+                          {isEntrepreneurship ? 'Rúbrica de Evaluación de Sustentación de Emprendimiento' : 'Rúbrica de Evaluación de Sustentación'}
+                        </h5>
+                        <p className="examiner-rubric-subtitle">
+                          Evalúe cada criterio utilizando la valoración cualitativa: <strong>I</strong>= Insuficiente, <strong>A</strong>= Aceptable, <strong>B</strong>= Bueno, y <strong>E</strong>= Excelente.
+                        </p>
 
-                    {DEFENSE_CRITERIA.map((criterion, idx) => (
-                      <div key={criterion.key} className="examiner-rubric-row">
-                        <div className="examiner-rubric-col-aspect">
-                          <div className="examiner-rubric-aspect-label">{idx + 1}. {criterion.label}</div>
-                          <div className="examiner-rubric-aspect-desc">{criterion.description}</div>
-                        </div>
-                        {DEFENSE_GRADE_SCALE.map(g => (
-                          <div key={g.value} className="examiner-rubric-col-grade">
-                            <label className="examiner-rubric-radio-label">
-                              <input
-                                type="radio"
-                                name={`defense-rubric-${criterion.key}`}
-                                value={g.value}
-                                checked={evaluationData.defenseCriteria[criterion.key] === g.value}
-                                onChange={() => handleDefenseCriteriaChange(criterion.key, g.value)}
-                                disabled={submittingEvaluation}
-                                className="examiner-rubric-radio"
-                              />
-                              <span className="examiner-rubric-radio-custom"></span>
-                              <span className="examiner-rubric-grade-mobile">{g.label}</span>
-                            </label>
+                        <div className="examiner-rubric-table">
+                          <div className="examiner-rubric-header">
+                            <div className="examiner-rubric-col-aspect">Criterio</div>
+                            {DEFENSE_GRADE_SCALE.map(g => (
+                              <div key={g.value} className="examiner-rubric-col-grade">{g.shortLabel}</div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                  {evalValidationErrors.rubric && (
-                    <div style={{ marginTop: '0.75rem', padding: '0.6rem 1rem', borderRadius: '8px', background: '#fee2e2', border: '1px solid #fca5a5', color: '#991b1b', fontSize: '0.9rem', fontWeight: 600 }}>
-                      ⚠️ {evalValidationErrors.rubric}
-                    </div>
-                  )}
-                </div>
 
-                {/* Calificación Final Cuantitativa */}
+                          {activeCriteria.map((criterion, idx) => (
+                            <div key={criterion.key} className="examiner-rubric-row">
+                              <div className="examiner-rubric-col-aspect">
+                                <div className="examiner-rubric-aspect-label">{idx + 1}. {criterion.label}</div>
+                                <div className="examiner-rubric-aspect-desc">{criterion.description}</div>
+                              </div>
+                              {DEFENSE_GRADE_SCALE.map(g => (
+                                <div key={g.value} className="examiner-rubric-col-grade">
+                                  <label className="examiner-rubric-radio-label">
+                                    <input
+                                      type="radio"
+                                      name={`defense-rubric-${criterion.key}`}
+                                      value={g.value}
+                                      checked={activeValues[criterion.key] === g.value}
+                                      onChange={() => isEntrepreneurship ? handleEntrepreneurshipCriteriaChange(criterion.key, g.value) : handleDefenseCriteriaChange(criterion.key, g.value)}
+                                      disabled={submittingEvaluation}
+                                      className="examiner-rubric-radio"
+                                    />
+                                    <span className="examiner-rubric-radio-custom"></span>
+                                    <span className="examiner-rubric-grade-mobile">{g.label}</span>
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                        {evalValidationErrors.rubric && (
+                          <div style={{ marginTop: '0.75rem', padding: '0.6rem 1rem', borderRadius: '8px', background: '#fee2e2', border: '1px solid #fca5a5', color: '#991b1b', fontSize: '0.9rem', fontWeight: 600 }}>
+                            ⚠️ {evalValidationErrors.rubric}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Calificación Final Cuantitativa */}
                 <div id="eval-grade-section" className="examiner-form-group" style={{ marginTop: '1.5rem', ...(evalValidationErrors.grade ? { border: '2px solid #dc2626', borderRadius: '12px', padding: '1rem' } : {}) }}>
                   <label className="examiner-form-label">Calificación Final Cuantitativa (0.0 - 5.0) *</label>
                   <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 0.5rem 0' }}>
@@ -1721,6 +1803,13 @@ const fetchExaminerRole = async () => {
                       setEvaluationData({
                         grade: "", observations: "",
                         defenseCriteria: { domainAndClarity: "", synthesisAndCommunication: "", argumentationAndResponse: "", innovationAndImpact: "", professionalPresentation: "" },
+                        entrepreneurshipCriteria: {
+                          entrepreneurshipPresentationSupportMaterial: "",
+                          entrepreneurshipCoherentBusinessObjectives: "",
+                          entrepreneurshipMethodologyTechnicalApproach: "",
+                          entrepreneurshipAnalyticalCreativeCapacity: "",
+                          entrepreneurshipDefenseSustentation: "",
+                        },
                         proposedMention: "",
                       });
                     }}
@@ -1739,6 +1828,9 @@ const fetchExaminerRole = async () => {
                     {submittingEvaluation ? "Registrando..." : "Registrar Evaluación"}
                   </button>
                 </div>
+                    </>
+                  );
+                })()}
               </form>
             )}
           </div>
@@ -1784,6 +1876,8 @@ const fetchExaminerRole = async () => {
 
         const hasCriteria = registeredEvaluation.domainAndClarity || registeredEvaluation.evaluationCriteria;
         const criteria = registeredEvaluation.evaluationCriteria || registeredEvaluation;
+        const isEntrepreneurship = isEntrepreneurshipModality();
+        const summaryCriteria = isEntrepreneurship ? ENTREPRENEURSHIP_DEFENSE_CRITERIA : DEFENSE_CRITERIA;
 
         return (
           <section className="eval-summary-card">
@@ -1800,8 +1894,8 @@ const fetchExaminerRole = async () => {
                   <span></span> Rúbrica de Sustentación
                 </div>
                 <div className="eval-summary-rubric-list">
-                  {DEFENSE_CRITERIA.map((c, idx) => {
-                    const val = criteria[c.key];
+                  {summaryCriteria.map((c, idx) => {
+                    const val = getRegisteredDefenseCriteriaValue(criteria, c.key);
                     return val ? (
                       <div key={c.key} className="eval-summary-criteria-row">
                         <span className="eval-summary-criteria-label">{idx + 1}. {c.label}</span>
