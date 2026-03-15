@@ -220,6 +220,23 @@ export const saveStudentProfile = async (profile) => {
   return res.data;
 };
 
+export const updateStudentProfileFromAcademicHistory = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await api.post(
+    "/students/profile/from-academic-history",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};
+
 // ========================================
 // 📄 DOCUMENTOS - MY DOCUMENTS 2.0
 // ========================================

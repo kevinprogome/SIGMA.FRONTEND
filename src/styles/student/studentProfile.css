@@ -130,6 +130,128 @@
   letter-spacing: 0.2px;
 }
 
+.profile-instructions {
+  background: linear-gradient(135deg, #fdfaf0 0%, #f8f2df 100%);
+  border: 1px solid #e5d9b0;
+  border-left: 5px solid #D5CBA0;
+  border-radius: 14px;
+  padding: 1.35rem 1.4rem;
+  margin-bottom: 1.6rem;
+}
+
+.profile-instructions h3 {
+  margin: 0 0 0.7rem 0;
+  color: #7A1117;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.12rem;
+}
+
+.profile-steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #5d0d12;
+  line-height: 1.55;
+}
+
+.profile-steps li {
+  margin-bottom: 0.45rem;
+}
+
+.profile-steps a {
+  color: #7A1117;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.profile-steps a:hover {
+  text-decoration: underline;
+}
+
+.profile-email-warning {
+  margin: 0.9rem 0 0 0;
+  padding: 0.75rem 0.85rem;
+  border-left: 4px solid #7A1117;
+  border-radius: 8px;
+  background: #fdecec;
+  color: #7A1117;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.profile-upload-panel {
+  background: #fff;
+  border: 1px solid #eadfcd;
+  border-radius: 14px;
+  padding: 1.2rem;
+  margin-bottom: 1.6rem;
+  box-shadow: 0 4px 14px rgba(93, 13, 18, 0.06);
+}
+
+.profile-group input[type="file"] {
+  padding: 0.8rem;
+  border: 2px dashed #7A1117;
+  background: #fcf9f8;
+}
+
+.profile-selected-file {
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  background: #f7f2e4;
+  color: #5d0d12;
+  font-size: 0.95rem;
+}
+
+.profile-current-data {
+  background: #fff;
+  border: 1px solid #eadfcd;
+  border-radius: 14px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 14px rgba(93, 13, 18, 0.06);
+  margin-bottom: 1.4rem;
+}
+
+.profile-current-data h3 {
+  margin: 0 0 1rem 0;
+  color: #7A1117;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.1rem;
+}
+
+.profile-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.8rem;
+}
+
+.profile-data-item {
+  border: 1px solid #efe6dc;
+  border-radius: 10px;
+  padding: 0.8rem;
+  background: #fffdfa;
+}
+
+.profile-data-label {
+  display: block;
+  color: #7A1117;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  margin-bottom: 0.2rem;
+  font-weight: 700;
+}
+
+.profile-data-value {
+  display: block;
+  color: #5d0d12;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.profile-current-data.extraction-result {
+  border-left: 5px solid #D5CBA0;
+}
+
 /* ========================================
    ADVERTENCIAS Y MENSAJES
    ======================================== */
@@ -807,6 +929,12 @@
 
   .profile-group label {
     font-size: 0.9rem;
+  }
+
+  .profile-instructions,
+  .profile-upload-panel,
+  .profile-current-data {
+    padding: 1rem;
   }
 
   .profile-group input,

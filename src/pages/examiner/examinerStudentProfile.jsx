@@ -126,6 +126,13 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
       prototypeSoftware: "",
       prototypeDeviceSoftware: "",
     },
+    practicaFinalEvaluation: {
+      generalObjective: "",
+      activitiesObjectiveCoherence: "",
+      criticalActivitiesDescription: "",
+      practiceComplianceEvidence: "",
+      organizationAndWriting: "",
+    },
   });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [loadingDocId, setLoadingDocId] = useState(null);
@@ -344,6 +351,22 @@ const fetchExaminerRole = async () => {
     { key: "prototypeSoftware", label: "Prototipo, dispositivo o software (Si aplica)", description: "Es funcional y cumple con los objetivos del proyecto de grado." },
   ];
 
+  const PRACTICA_FINAL_DOCUMENT_ASPECTS = [
+    { key: "generalObjective", label: "Objetivo general", description: "El informe cumple con el objetivo general planteado para la práctica profesional, evidenciando resultados concretos y coherentes con las metas definidas al inicio del proceso." },
+    { key: "activitiesObjectiveCoherence", label: "Coherencia actividades-objetivo", description: "Las actividades desarrolladas guardan consistencia directa con los objetivos propuestos. Se evidencia una relación lógica entre las tareas ejecutadas y los resultados obtenidos." },
+    { key: "criticalActivitiesDescription", label: "Descripción de actividades críticas", description: "El informe describe de manera clara y detallada las actividades más relevantes o de mayor complejidad realizadas durante la práctica, destacando los aprendizajes derivados." },
+    { key: "practiceComplianceEvidence", label: "Evidencia de cumplimiento de la práctica", description: "Se presentan evidencias suficientes y verificables del cumplimiento de las actividades y compromisos establecidos durante la práctica profesional." },
+    { key: "organizationAndWriting", label: "Organización y redacción", description: "El informe presenta una estructura coherente, con redacción clara, manejo adecuado del lenguaje técnico, ortografía correcta y formato acorde a los lineamientos del programa." },
+  ];
+
+  const isPracticaModality = () => {
+    const normalizedName = normalizeModalityName(profile?.modalityName);
+    return normalizedName.includes("practica profesional") || normalizedName.includes("práctica profesional");
+  };
+
+  const getActiveFinalDocumentAspects = () =>
+    isPracticaModality() ? PRACTICA_FINAL_DOCUMENT_ASPECTS : FINAL_DOCUMENT_ASPECTS;
+
   const isFinalDocumentForExaminer = (doc) => {
     const name = (doc?.documentName || "").toLowerCase();
     return doc?.documentType === "SECONDARY" && (
@@ -546,6 +569,13 @@ const fetchExaminerRole = async () => {
         prototypeSoftware: "",
         prototypeDeviceSoftware: "",
       },
+      practicaFinalEvaluation: {
+        generalObjective: "",
+        activitiesObjectiveCoherence: "",
+        criticalActivitiesDescription: "",
+        practiceComplianceEvidence: "",
+        organizationAndWriting: "",
+      },
     });
   };
 
@@ -582,16 +612,25 @@ const fetchExaminerRole = async () => {
 
     // Validar rúbrica solo para Documento Final (SECONDARY que requiere evaluación)
     if (isFinalDocument) {
-      const eval_ = reviewData.finalEvaluation;
-      const requiredFinalKeys = FINAL_DOCUMENT_ASPECTS
-        .filter(a => a.key !== "prototypeSoftware")
-        .map(a => a.key);
-
-      const allFilled = requiredFinalKeys.every((key) => eval_[key] && eval_[key] !== "");
-      if (!allFilled) {
-        setMessage("Debes calificar todos los aspectos obligatorios de la evaluación del documento final");
-        setMessageType("error");
-        return;
+      if (isPracticaModality()) {
+        const eval_ = reviewData.practicaFinalEvaluation;
+        const allFilled = PRACTICA_FINAL_DOCUMENT_ASPECTS.every(a => eval_[a.key] && eval_[a.key] !== "");
+        if (!allFilled) {
+          setMessage("Debes calificar todos los aspectos de la evaluación del informe de práctica profesional");
+          setMessageType("error");
+          return;
+        }
+      } else {
+        const eval_ = reviewData.finalEvaluation;
+        const requiredFinalKeys = FINAL_DOCUMENT_ASPECTS
+          .filter(a => a.key !== "prototypeSoftware")
+          .map(a => a.key);
+        const allFilled = requiredFinalKeys.every((key) => eval_[key] && eval_[key] !== "");
+        if (!allFilled) {
+          setMessage("Debes calificar todos los aspectos obligatorios de la evaluación del documento final");
+          setMessageType("error");
+          return;
+        }
       }
     }
 
@@ -609,7 +648,9 @@ const fetchExaminerRole = async () => {
       }
 
       if (isFinalDocument) {
-        payload.finalEvaluation = reviewData.finalEvaluation;
+        payload.finalEvaluation = isPracticaModality()
+          ? reviewData.practicaFinalEvaluation
+          : reviewData.finalEvaluation;
       }
 
       const response = isFinalDocument
@@ -1361,22 +1402,28 @@ const fetchExaminerRole = async () => {
                         </div>
                       )}
 
-                      {doc.documentType === "SECONDARY" && myEvaluation.finalEvaluation && (
-                        <div className="examiner-my-verdict-rubric-block">
-                          <strong>Rúbrica de documento final:</strong>
-                          <ul className="examiner-my-verdict-rubric-list">
-                            {FINAL_DOCUMENT_ASPECTS.map((aspect) => {
-                              const value = getFinalEvaluationValue(myEvaluation.finalEvaluation, aspect.key);
-                              if (!value) return null;
-                              return (
-                                <li key={aspect.key} className="examiner-my-verdict-rubric-item">
-                                  <span>{aspect.label}:</span> <strong>{getGradeLabel(value)}</strong>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      )}
+                      {doc.documentType === "SECONDARY" && myEvaluation.finalEvaluation && (() => {
+                        const isPractica = isPracticaModality();
+                        const summaryAspects = isPractica ? PRACTICA_FINAL_DOCUMENT_ASPECTS : FINAL_DOCUMENT_ASPECTS;
+                        const summaryLabel = isPractica ? 'Rúbrica de informe de práctica:' : 'Rúbrica de documento final:';
+                        return (
+                          <div className="examiner-my-verdict-rubric-block">
+                            <strong>{summaryLabel}</strong>
+                            <ul className="examiner-my-verdict-rubric-list">
+                              {summaryAspects.map((aspect) => {
+                                const value = myEvaluation.finalEvaluation[aspect.key]
+                                  || getFinalEvaluationValue(myEvaluation.finalEvaluation, aspect.key);
+                                if (!value) return null;
+                                return (
+                                  <li key={aspect.key} className="examiner-my-verdict-rubric-item">
+                                    <span>{aspect.label}:</span> <strong>{getGradeLabel(value)}</strong>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
@@ -1456,47 +1503,62 @@ const fetchExaminerRole = async () => {
                   )}
 
                   {/* Rúbrica de evaluación de documento final */}
-                  {isFinalDocumentForExaminer(doc) && (
-                    <div className="examiner-rubric-section">
-                      <h5 className="examiner-rubric-title">Rúbrica de Documento Final</h5>
-                      <p className="examiner-rubric-subtitle">Califique cada aspecto de mala a buena: Deficiente, Aceptable, Bueno y Excelente.</p>
+                  {isFinalDocumentForExaminer(doc) && (() => {
+                    const isPractica = isPracticaModality();
+                    const activeAspects = getActiveFinalDocumentAspects();
+                    const activeValues = isPractica
+                      ? reviewData.practicaFinalEvaluation
+                      : reviewData.finalEvaluation;
+                    const changeHandler = isPractica
+                      ? (key, val) => setReviewData(prev => ({
+                          ...prev,
+                          practicaFinalEvaluation: { ...prev.practicaFinalEvaluation, [key]: val },
+                        }))
+                      : handleFinalEvalChange;
+                    return (
+                      <div className="examiner-rubric-section">
+                        <h5 className="examiner-rubric-title">
+                          {isPractica ? 'Rúbrica de Informe de Práctica Profesional' : 'Rúbrica de Documento Final'}
+                        </h5>
+                        <p className="examiner-rubric-subtitle">Califique cada aspecto de mala a buena: Deficiente, Aceptable, Bueno y Excelente.</p>
 
-                      <div className="examiner-rubric-table">
-                        <div className="examiner-rubric-header">
-                          <div className="examiner-rubric-col-aspect">Aspecto</div>
-                          {EVALUATION_GRADES.map(g => (
-                            <div key={g} className="examiner-rubric-col-grade">{EVALUATION_GRADE_LABELS[g]}</div>
-                          ))}
-                        </div>
-
-                        {FINAL_DOCUMENT_ASPECTS.map(aspect => (
-                          <div key={aspect.key} className="examiner-rubric-row">
-                            <div className="examiner-rubric-col-aspect">
-                              <div className="examiner-rubric-aspect-label">{aspect.label}</div>
-                              <div className="examiner-rubric-aspect-desc">{aspect.description}</div>
-                            </div>
+                        <div className="examiner-rubric-table">
+                          <div className="examiner-rubric-header">
+                            <div className="examiner-rubric-col-aspect">Aspecto</div>
                             {EVALUATION_GRADES.map(g => (
-                              <div key={g} className="examiner-rubric-col-grade">
-                                <label className="examiner-rubric-radio-label">
-                                  <input
-                                    type="radio"
-                                    name={`final-rubric-${aspect.key}`}
-                                    value={g}
-                                    checked={reviewData.finalEvaluation[aspect.key] === g}
-                                    onChange={() => handleFinalEvalChange(aspect.key, g)}
-                                    disabled={submittingReview}
-                                    className="examiner-rubric-radio"
-                                  />
-                                  <span className="examiner-rubric-radio-custom"></span>
-                                  <span className="examiner-rubric-grade-mobile">{EVALUATION_GRADE_LABELS[g]}</span>
-                                </label>
-                              </div>
+                              <div key={g} className="examiner-rubric-col-grade">{EVALUATION_GRADE_LABELS[g]}</div>
                             ))}
                           </div>
-                        ))}
+
+                          {activeAspects.map(aspect => (
+                            <div key={aspect.key} className="examiner-rubric-row">
+                              <div className="examiner-rubric-col-aspect">
+                                <div className="examiner-rubric-aspect-label">{aspect.label}</div>
+                                <div className="examiner-rubric-aspect-desc">{aspect.description}</div>
+                              </div>
+                              {EVALUATION_GRADES.map(g => (
+                                <div key={g} className="examiner-rubric-col-grade">
+                                  <label className="examiner-rubric-radio-label">
+                                    <input
+                                      type="radio"
+                                      name={`final-rubric-${aspect.key}`}
+                                      value={g}
+                                      checked={activeValues[aspect.key] === g}
+                                      onChange={() => changeHandler(aspect.key, g)}
+                                      disabled={submittingReview}
+                                      className="examiner-rubric-radio"
+                                    />
+                                    <span className="examiner-rubric-radio-custom"></span>
+                                    <span className="examiner-rubric-grade-mobile">{EVALUATION_GRADE_LABELS[g]}</span>
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Decisión */}
                   <div className="examiner-form-group">
