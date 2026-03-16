@@ -1,0 +1,18 @@
+.admin-message,
+.alert-message,
+.profile-message,
+.examiner-profile-message,
+.director-profile-message,
+.documents-message,
+.students-pending-message,
+.status-message,
+.modalities-message,
+.modality-specific-message,
+.notifications-alert,
+.cancellation-message,
+.reports-alert,
+.director-success-message,
+.director-propose-defense-message,
+[role="alert"] {
+  scroll-margin-top: 110px;
+}

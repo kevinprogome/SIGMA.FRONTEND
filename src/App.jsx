@@ -1,7 +1,13 @@
 import AppRoutes from "./routes/AppRoutes";
+import ActionMessageViewportGuard from "./components/ActionMessageViewportGuard";
 
 function App() {
-  return <AppRoutes />;
+  return (
+    <>
+      <ActionMessageViewportGuard />
+      <AppRoutes />
+    </>
+  );
   
 }
 
