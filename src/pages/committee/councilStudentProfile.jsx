@@ -368,30 +368,16 @@ export default function CommitteeStudentProfile() {
   const step1Ok = isModalityApprovedByCommittee ? allMandatoryAcceptedForChecklist : allMandatoryAcceptedForApproval;
   const step2Ok = !!profile.projectDirectorName;
 
-  // Jurado: usar datos explícitos y también inferencia por avance de flujo
-  // para casos donde el backend no retorna la lista de jurados en el perfil.
+  // Jurado: marcar como completado solo con evidencia real.
+  // No usar inferencia por estado de flujo porque genera falsos positivos
+  // (por ejemplo, tras aprobar modalidad sin haber asignado jurados).
   const hasExplicitExaminersData = assignedExaminers.length > 0 || (profile && Array.isArray(profile.examiners) && profile.examiners.length > 0);
   const hasExaminerReviewedDocs = uploadedDocs.some((d) => [
     "ACCEPTED_FOR_EXAMINER_REVIEW",
     "REJECTED_FOR_EXAMINER_REVIEW",
     "CORRECTIONS_REQUESTED_BY_EXAMINER",
   ].includes(d.status));
-  const examinerWorkflowStatuses = [
-    "EXAMINERS_ASSIGNED",
-    "READY_FOR_EXAMINERS",
-    "DOCUMENTS_APPROVED_BY_EXAMINERS",
-    "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS",
-    "DEFENSE_SCHEDULED",
-    "DEFENSE_COMPLETED",
-    "GRADED_APPROVED",
-    "GRADED_FAILED",
-    "MODALITY_APPROVED_BY_COMMITTEE",
-    "MODALITY_FAILED_BY_COMMITTEE",
-    "APPROVED_BY_COMMITTEE",
-    "REJECTED_BY_COMMITTEE",
-  ];
-  const hasExaminerWorkflowProgress = examinerWorkflowStatuses.includes(profile.currentStatus);
-  const hasExaminersData = hasExplicitExaminersData || hasExaminerReviewedDocs || hasExaminerWorkflowProgress;
+  const hasExaminersData = hasExplicitExaminersData || hasExaminerReviewedDocs;
   const examinersToDisplay = assignedExaminers.length > 0 ? assignedExaminers : (profile?.examiners || []);
   const step3Ok_examiners = hasExaminersData;
 
