@@ -169,7 +169,8 @@ export default function Modalities() {
       "GRADED_FAILED",
       "CANCELLATION_REQUESTED",
       "CANCELLATION_REJECTED",
-      "CANCELLED_WITHOUT_REPROVAL"
+      "CANCELLED_WITHOUT_REPROVAL",
+      "CORRECTIONS_REJECTED_FINAL"
     ];
 
     return !finalStates.includes(modalityStatus);
@@ -221,6 +222,14 @@ if (status === "GRADED_FAILED") {
     canStart: true,
     canRestart: true,
     message: "No aprobaste esta modalidad. Puedes reiniciarla o iniciar otra modalidad disponible para cumplir con los requisitos de tu plan académico."
+  };
+}
+
+if (status === "CORRECTIONS_REJECTED_FINAL") {
+  return {
+    canStart: true,
+    canRestart: true,
+    message: "Tu proceso anterior finalizó con correcciones rechazadas. Puedes iniciar nuevamente esta modalidad o seleccionar otra modalidad disponible."
   };
 }
 

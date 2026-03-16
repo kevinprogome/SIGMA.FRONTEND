@@ -88,6 +88,72 @@
 }
 
 /* ========================================
+   MODALITY HISTORY SECTION
+   ======================================== */
+
+.modality-history-section {
+  background: #fff;
+}
+
+.modality-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.modality-history-item {
+  background: #f8f6ef;
+  border-left: 4px solid #7A1117;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(122, 17, 23, 0.12);
+}
+
+.modality-history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+
+.modality-history-status-badge {
+  display: inline-block;
+  background: #5d0d12;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.modality-history-date {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.modality-history-description,
+.modality-history-responsible,
+.modality-history-observations {
+  margin: 0.35rem 0;
+  color: #1a1a2e;
+  line-height: 1.45;
+}
+
+.modality-history-empty {
+  background: #f8f6ef;
+  border-left: 4px solid #D5CBA0;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #5d0d12;
+  font-weight: 600;
+}
+
+/* ========================================
    DOCUMENTS SECTION
    ======================================== */
 

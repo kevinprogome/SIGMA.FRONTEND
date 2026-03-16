@@ -318,6 +318,7 @@ export default function StudentProfileProgramHead() {
     "CORRECTIONS_APPROVED",
   ];
   const canShowSendToCommitteeButton = COMMITTEE_SEND_ALLOWED_STATUSES.includes(profile.currentStatus);
+  const modalityHistory = Array.isArray(profile.history) ? profile.history : [];
 
   return (
     <div className="student-profile-container">
@@ -852,6 +853,58 @@ export default function StudentProfileProgramHead() {
         <button onClick={() => navigate("/jefeprograma")} className="back-btn">
           ← Volver al listado
         </button>
+      </div>
+
+      <div className="student-info-card modality-history-section">
+        <h3 className="card-section-title"> Historial de Estados</h3>
+
+        {modalityHistory.length > 0 ? (
+          <ul className="modality-history-list">
+            {modalityHistory.map((item, index) => {
+              const status = item.status || item.currentStatus;
+              const changeDate = item.changeDate || item.updatedAt || item.lastUpdatedAt || item.createdAt;
+              const responsible = item.responsible || item.actorName || item.userName || "Sistema";
+              const description = item.description || item.currentStatusDescription || "Sin descripción";
+
+              return (
+                <li
+                  key={`${status || "STATUS"}-${changeDate || "DATE"}-${index}`}
+                  className="modality-history-item"
+                >
+                  <div className="modality-history-item-header">
+                    <span className="modality-history-status-badge">
+                      {getStatusLabel(status)}
+                    </span>
+                    <span className="modality-history-date">
+                      {changeDate
+                        ? new Date(changeDate).toLocaleString("es-CO", {
+                            dateStyle: "long",
+                            timeStyle: "short",
+                          })
+                        : "Fecha no disponible"}
+                    </span>
+                  </div>
+
+                  <p className="modality-history-description">{description}</p>
+
+                  <p className="modality-history-responsible">
+                    <strong>Responsable:</strong> {responsible}
+                  </p>
+
+                  {item.observations && (
+                    <p className="modality-history-observations">
+                      <strong>Observaciones:</strong> {item.observations}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="modality-history-empty">
+            No hay historial disponible para esta modalidad.
+          </div>
+        )}
       </div>
 
       <ConfirmModal

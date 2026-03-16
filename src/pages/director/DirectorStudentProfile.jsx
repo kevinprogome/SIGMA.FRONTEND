@@ -950,8 +950,13 @@ export default function DirectorStudentProfile() {
           </div>
         </div>
       )}
-
-     
+        <button
+            onClick={() => navigate('/project-director')}
+            className="director-btn-cancel"
+            style={{ marginBottom: "1rem" }}
+          >
+            ← Volver al Dashboard
+          </button>
 
       {/* Historial de Cambios */}
       {student.history && student.history.length > 0 && (
@@ -999,14 +1004,6 @@ export default function DirectorStudentProfile() {
           </div>
         </div>
       )}
-
-        <button
-            onClick={() => navigate('/project-director')}
-            className="director-btn-cancel"
-            style={{ marginBottom: "1rem" }}
-          >
-            ← Volver al Dashboard
-          </button>
       {/* Modal Proponer Sustentación */}
       {showDefenseModal && (
         <div className="director-modal-overlay" onClick={() => !submitting && setShowDefenseModal(false)}>

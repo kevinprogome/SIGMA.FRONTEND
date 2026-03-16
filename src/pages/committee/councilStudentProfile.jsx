@@ -251,6 +251,53 @@ export default function CommitteeStudentProfile() {
       "EDIT_REQUESTED": "Edición solicitada por estudiante",
       "EDIT_REQUEST_APPROVED": "Solicitud de edición aprobada",
       "EDIT_REQUEST_REJECTED": "Solicitud de edición rechazada",
+      "MODALITY_SELECTED": "Modalidad seleccionada",
+      "UNDER_REVIEW_PROGRAM_HEAD": "En revisión por Jefe de Programa",
+      "CORRECTIONS_REQUESTED_PROGRAM_HEAD": "Correcciones solicitadas por Jefe",
+      "CORRECTIONS_SUBMITTED": "Correcciones enviadas",
+      "CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD": "Correcciones enviadas a Jefe de Programa",
+      "CORRECTIONS_SUBMITTED_TO_COMMITTEE": "Correcciones enviadas a Comité",
+      "CORRECTIONS_SUBMITTED_TO_EXAMINERS": "Correcciones enviadas a Jurado",
+      "CORRECTIONS_APPROVED": "Correcciones aprobadas",
+      "CORRECTIONS_REJECTED_FINAL": "Correcciones rechazadas (final)",
+      "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE": "Pendiente Comité de Currículo",
+      "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE": "En revisión por Comité de Currículo",
+      "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité",
+      "READY_FOR_DIRECTOR_ASSIGNMENT": "Listo para asignación de Director",
+      "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Listo para aprobación por Comité",
+      "APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Aprobado por Comité de Currículo",
+      "PROPOSAL_APPROVED": "Propuesta aprobada",
+      "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR": "Sustentación propuesta por Director",
+      "DEFENSE_SCHEDULED": "Sustentación programada",
+      "EXAMINERS_ASSIGNED": "Jurado asignado",
+      "READY_FOR_EXAMINERS": "Listo para jurado",
+      "PENDING_PROGRAM_HEAD_FINAL_REVIEW": "Pendiente de revisión final por jefatura",
+      "APPROVED_BY_PROGRAM_HEAD_FINAL_REVIEW": "Aprobado por revisión final de jefatura",
+      "DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos aprobados por jurado",
+      "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos secundarios aprobados por jurado",
+      "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED": "Revisión de documento requiere desempate",
+      "CORRECTIONS_REQUESTED_EXAMINERS": "Correcciones solicitadas por jurado",
+      "READY_FOR_DEFENSE": "Listo para sustentación",
+      "READY_FOR_DEFENCE": "Listo para sustentación",
+      "FINAL_REVIEW_COMPLETED": "Revisión final completada",
+      "DEFENSE_COMPLETED": "Sustentación completada",
+      "UNDER_EVALUATION_PRIMARY_EXAMINERS": "En evaluación por jurado principal",
+      "DISAGREEMENT_REQUIRES_TIEBREAKER": "Desacuerdo - requiere tercer jurado",
+      "UNDER_EVALUATION_TIEBREAKER": "En evaluación por tercer jurado",
+      "EVALUATION_COMPLETED": "Evaluación completada",
+      "PENDING_DISTINCTION_COMMITTEE_REVIEW": "Pendiente de revisión de distinción",
+      "GRADED_APPROVED": "Aprobado",
+      "GRADED_FAILED": "Reprobado",
+      "CANCELLATION_REQUESTED": "Cancelación solicitada",
+      "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR": "Cancelación aprobada por Director",
+      "CANCELLATION_REJECTED_BY_PROJECT_DIRECTOR": "Cancelación rechazada por Director",
+      "CANCELLED_WITHOUT_REPROVAL": "Cancelada sin calificación",
+      "CANCELLATION_REJECTED": "Cancelación rechazada",
+      "CANCELLED_BY_CORRECTION_TIMEOUT": "Cancelada por timeout de correcciones",
+      "MODALITY_CANCELLED": "Modalidad cancelada",
+      "MODALITY_CLOSED": "Modalidad cerrada",
+      "SEMINAR_CANCELED": "Diplomado cancelado",
+      "EDIT_REQUESTED_BY_STUDENT": "Edición solicitada por estudiante",
     };
     return labels[status] || status;
   };
@@ -357,6 +404,7 @@ export default function CommitteeStudentProfile() {
   ];
   const isInValidStatusForApproval = validStatusesForApproval.includes(profile.currentStatus);
   const canApproveModality = allMandatoryAcceptedForApproval && step2Ok && !isModalityApprovedByCommittee && isInValidStatusForApproval;
+  const modalityHistory = Array.isArray(profile.history) ? profile.history : [];
 
   return (
     <div className="student-profile-container">
@@ -1164,6 +1212,58 @@ export default function CommitteeStudentProfile() {
       {/* Back */}
       <div className="back-button-section">
         <button onClick={() => navigate("/comite")} className="back-btn">← Volver al listado</button>
+      </div>
+
+      <div className="student-info-card" style={{ marginTop: "1.5rem" }}>
+        <h3 className="card-section-title"> Historial de Estados</h3>
+
+        {modalityHistory.length > 0 ? (
+          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "1rem" }}>
+            {modalityHistory.map((item, index) => {
+              const status = item.status || item.currentStatus || "Estado no disponible";
+              const changeDate = item.changeDate || item.updatedAt || item.lastUpdatedAt || item.createdAt;
+              const responsible = item.responsible || item.actorName || item.userName || "Sistema";
+              const description = item.description || item.currentStatusDescription || "Sin descripción";
+
+              return (
+                <li
+                  key={`${status}-${changeDate || "DATE"}-${index}`}
+                  style={{
+                    background: "#f8f6ef",
+                    borderLeft: "4px solid #7A1117",
+                    borderRadius: "12px",
+                    padding: "1rem",
+                    boxShadow: "0 2px 8px rgba(122, 17, 23, 0.12)",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "0.6rem" }}>
+                    <span style={{ display: "inline-block", background: "#5d0d12", color: "#fff", borderRadius: "999px", padding: "0.35rem 0.85rem", fontSize: "0.85rem", fontWeight: 800 }}>
+                      {getStatusLabel(status)}
+                    </span>
+                    <span style={{ color: "#666", fontSize: "0.9rem", fontWeight: 600 }}>
+                      {changeDate ? new Date(changeDate).toLocaleString("es-CO", { dateStyle: "long", timeStyle: "short" }) : "Fecha no disponible"}
+                    </span>
+                  </div>
+
+                  <p style={{ margin: "0.35rem 0", color: "#1a1a2e", lineHeight: 1.45 }}>{description}</p>
+                  <p style={{ margin: "0.35rem 0", color: "#1a1a2e", lineHeight: 1.45 }}>
+                    <strong>Responsable:</strong> {responsible}
+                  </p>
+
+                  {item.observations && (
+                    <p style={{ margin: "0.35rem 0", color: "#1a1a2e", lineHeight: 1.45 }}>
+                      <strong>Observaciones:</strong> {item.observations}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div style={{ background: "#f8f6ef", borderLeft: "4px solid #D5CBA0", borderRadius: "12px", padding: "1rem", color: "#5d0d12", fontWeight: 600 }}>
+            No hay historial disponible para esta modalidad.
+          </div>
+        )}
       </div>
 
       {/* ======= MODALES ======= */}

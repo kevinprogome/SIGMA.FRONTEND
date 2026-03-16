@@ -66,7 +66,7 @@ export default function StudentsPending() {
   const [message, setMessage] = useState("");
 
   /* Filtros */
-  const [selectedStatuses, setSelectedStatuses] = useState(["UNDER_REVIEW_PROGRAM_HEAD"]);
+  const [selectedStatuses, setSelectedStatuses] = useState([]);
   const [searchName, setSearchName] = useState("");
   const [searchInput, setSearchInput] = useState("");
   // Estado temporal para el dropdown
