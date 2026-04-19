@@ -25,6 +25,7 @@ export default function Programs() {
     description: "",
     code: "",
     facultyId: "",
+    totalCredits: "",
   });
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export default function Programs() {
       description: "",
       code: "",
       facultyId: selectedFacultyId || "",
+      totalCredits: "",
     });
     setShowModal(true);
   };
@@ -70,6 +72,7 @@ export default function Programs() {
       description: program.description,
       code: program.code,
       facultyId: program.facultyId,
+      totalCredits: program.totalCredits || "",
     });
     setShowModal(true);
   };
@@ -77,11 +80,19 @@ export default function Programs() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+        ...formData,
+        facultyId: formData.facultyId ? parseInt(formData.facultyId) : null,
+        totalCredits: formData.totalCredits ? parseInt(formData.totalCredits) : null,
+      };
+
+      console.log("📦 Payload enviado al backend:", JSON.stringify(payload, null, 2));
+
       if (editingProgram) {
-        await updateAcademicProgram(editingProgram.id, formData);
+        await updateAcademicProgram(editingProgram.id, payload);
         setMessage("Programa académico actualizado exitosamente");
       } else {
-        await createAcademicProgram(formData);
+        await createAcademicProgram(payload);
         setMessage("Programa académico creado exitosamente");
       }
       setShowModal(false);
@@ -89,7 +100,9 @@ export default function Programs() {
       
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      setMessage(err.response?.data || "Error al procesar la solicitud");
+      const errData = err.response?.data;
+      const errMsg = typeof errData === "object" ? (errData.error || JSON.stringify(errData)) : errData;
+      setMessage(errMsg || "Error al procesar la solicitud");
     }
   };
 
@@ -119,8 +132,8 @@ export default function Programs() {
       </div>
 
       {message && (
-        <div className={`admin-message ${message.includes("Error") || message.includes("error") ? "error" : "success"}`}>
-          {message}
+        <div className={`admin-message ${String(message).includes("Error") || String(message).includes("error") ? "error" : "success"}`}>
+          {typeof message === "string" ? message : JSON.stringify(message)}
           <button onClick={() => setMessage("")} style={{ marginLeft: "1rem" }}>✕</button>
         </div>
       )}
@@ -168,6 +181,10 @@ export default function Programs() {
                 <div className="admin-card-meta-item">
                   <strong>Código:</strong>
                   <span className="admin-tag">{program.code}</span>
+                </div>
+                <div className="admin-card-meta-item">
+                  <strong>Total Créditos:</strong>
+                  <span className="admin-tag">{program.totalCredits ?? "N/A"}</span>
                 </div>
               </div>
 
@@ -256,6 +273,19 @@ export default function Programs() {
                 <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
                   Usa el formato: TIPO_NOMBRE (se convertirá a mayúsculas)
                 </small>
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">Total de Créditos *</label>
+                <input
+                  type="number"
+                  value={formData.totalCredits}
+                  onChange={(e) => setFormData({ ...formData, totalCredits: e.target.value ? parseInt(e.target.value) : "" })}
+                  className="admin-input"
+                  placeholder="Ej: 160"
+                  min="1"
+                  required
+                />
               </div>
 
               <div className="admin-modal-actions">

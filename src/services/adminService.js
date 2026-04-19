@@ -11,12 +11,12 @@ const PROGRAM_DEGREE_URL = "http://localhost:8080/program-degree-modalities";
 // Función helper para extraer datos de respuestas del backend
 const extractData = (response, fallback = []) => {
   const data = response.data;
-  
+
   // Si ya es un array, retornarlo directamente
   if (Array.isArray(data)) {
     return data;
   }
-  
+
   // Si es un objeto, buscar el array en propiedades comunes
   if (typeof data === 'object' && data !== null) {
     // Intentar propiedades comunes
@@ -29,14 +29,14 @@ const extractData = (response, fallback = []) => {
     if (Array.isArray(data.users)) return data.users;
     if (Array.isArray(data.roles)) return data.roles;
     if (Array.isArray(data.permissions)) return data.permissions;
-    
+
     // Si tiene solo una propiedad y es un array, retornarla
     const keys = Object.keys(data);
     if (keys.length === 1 && Array.isArray(data[keys[0]])) {
       return data[keys[0]];
     }
   }
-  
+
   console.warn("No se pudo extraer array de la respuesta:", data);
   return fallback;
 };
@@ -95,16 +95,16 @@ export const createPermission = async (permissionData) => {
 export const getAllUsers = async (filters = {}) => {
   const token = localStorage.getItem("token");
   const params = new URLSearchParams();
-  
+
   if (filters.status) params.append('status', filters.status);
   if (filters.role) params.append('role', filters.role);
   if (filters.facultyId) params.append('facultyId', filters.facultyId);
   if (filters.programId) params.append('programId', filters.programId);
-  
-  const url = params.toString() 
+
+  const url = params.toString()
     ? `${API_URL}/getUsers?${params.toString()}`
     : `${API_URL}/getUsers`;
-  
+
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -213,12 +213,12 @@ export const updateAcademicProgram = async (programId, programData) => {
 export const getProgramDegreeModalities = async (filters = {}) => {
   const token = localStorage.getItem("token");
   const params = new URLSearchParams();
-  
+
   if (filters.active !== undefined) params.append('active', filters.active);
   if (filters.degreeModalityId) params.append('degreeModalityId', filters.degreeModalityId);
   if (filters.facultyId) params.append('facultyId', filters.facultyId);
   if (filters.academicProgramId) params.append('academicProgramId', filters.academicProgramId);
-  
+
   const response = await axios.get(`${PROGRAM_DEGREE_URL}/all?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -292,7 +292,7 @@ export const getProgramHeads = async () => {
 export const getCommitteeMembers = async (filters = {}) => {
   const token = localStorage.getItem("token");
   const params = new URLSearchParams();
-  
+
   // Solo agregar parámetros si tienen valor
   if (filters.academicProgramId) {
     params.append('academicProgramId', parseInt(filters.academicProgramId));
@@ -300,20 +300,20 @@ export const getCommitteeMembers = async (filters = {}) => {
   if (filters.facultyId) {
     params.append('facultyId', parseInt(filters.facultyId));
   }
-  
+
   // ✅ CORRECTO: /modalities/committee
   const url = params.toString()
     ? `http://localhost:8080/modalities/committee?${params.toString()}`
     : `http://localhost:8080/modalities/committee`;
-  
+
   console.log("🔍 Fetching committee members from:", url);
-  
+
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  
+
   console.log("✅ Committee members response:", response.data);
-  
+
   return extractData(response);
 };
 // ==================== MODALITIES ====================
@@ -328,11 +328,11 @@ export const getAllModalities = async () => {
 export const getModalitiesAdmin = async (status = null) => {
   const token = localStorage.getItem("token");
   let url = `${API_URL}/modalities`;
-  
+
   if (status) {
     url += `?status=${status}`;
   }
-  
+
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -366,11 +366,11 @@ export const deleteModality = async (modalityId) => {
 export const getModalityRequirements = async (modalityId, active = null) => {
   const token = localStorage.getItem("token");
   let url = `${MODALITY_URL}/${modalityId}/requirements`;
-  
+
   if (active !== null) {
     url += `?active=${active}`;
   }
-  
+
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -399,8 +399,19 @@ export const updateModalityRequirements = async (modalityId, requirements) => {
 
 export const deleteModalityRequirement = async (requirementId) => {
   const token = localStorage.getItem("token");
-  const response = await axios.delete(
+  const response = await axios.put(
     `${MODALITY_URL}/requirements/delete/${requirementId}`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const activateModalityRequirement = async (requirementId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.put(
+    `${MODALITY_URL}/requirements/active/${requirementId}`,
+    {},
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return response.data;
@@ -434,11 +445,11 @@ export const viewRequiredDocuments = async (modalityId) => {
 export const getRequiredDocumentsByModalityAndStatus = async (modalityId, active = null) => {
   const token = localStorage.getItem("token");
   let url = `${DOCUMENT_URL}/modality/${modalityId}`;
-  
+
   if (active !== null) {
     url += `/filter?active=${active}`;
   }
-  
+
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -533,19 +544,19 @@ export const rejectCancellation = async (studentModalityId, reason) => {
 // ==================== SECRETARY - FILTERS ====================
 export const getStudentsByFilters = async (statuses = [], searchName = "") => {
   const token = localStorage.getItem("token");
-  
+
   let url = `${MODALITY_URL}/students?`;
-  
+
   if (statuses.length > 0) {
     url += `statuses=${statuses.join(",")}&`;
   }
-  
+
   if (searchName) {
     url += `name=${encodeURIComponent(searchName)}&`;
   }
-  
+
   url = url.replace(/[&?]$/, "");
-  
+
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
   });

@@ -6,11 +6,18 @@ import {
   createModalityRequirements,
   updateModalityRequirement,
   deleteModalityRequirement,
+  activateModalityRequirement,
 } from "../../services/adminService";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/admin/Roles.css";
 
-const RULE_TYPES = ["NUMERIC", "BOOLEAN", "DOCUMENT", "TEXT", "CONDITION"];
+const RULE_TYPES = ["NUMERIC", "BOOLEAN", "DOCUMENT"];
+
+const RULE_TYPE_LABELS = {
+  NUMERIC: "Numérico",
+  BOOLEAN: "Booleano",
+  DOCUMENT: "Documento",
+};
 
 export default function Requirements() {
   const [searchParams] = useSearchParams();
@@ -25,6 +32,7 @@ export default function Requirements() {
   const [showModal, setShowModal] = useState(false);
   const [editingRequirement, setEditingRequirement] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [confirmActivateId, setConfirmActivateId] = useState(null);
 
   const [formData, setFormData] = useState({
     requirementName: "",
@@ -125,10 +133,26 @@ export default function Requirements() {
     setConfirmDeleteId(null);
     try {
       await deleteModalityRequirement(reqId);
-      setMessage("Requerimiento eliminado exitosamente");
+      setMessage("Requerimiento desactivado exitosamente");
       await fetchRequirements();
     } catch (err) {
-      setMessage("Error al eliminar requerimiento");
+      setMessage("Error al desactivar requerimiento");
+    }
+  };
+
+  const handleActivate = (requirementId) => {
+    setConfirmActivateId(requirementId);
+  };
+
+  const executeActivate = async () => {
+    const reqId = confirmActivateId;
+    setConfirmActivateId(null);
+    try {
+      await activateModalityRequirement(reqId);
+      setMessage("Requerimiento activado exitosamente");
+      await fetchRequirements();
+    } catch (err) {
+      setMessage("Error al activar requerimiento");
     }
   };
 
@@ -206,7 +230,7 @@ export default function Requirements() {
                       </td>
                       <td>{req.description}</td>
                       <td>
-                        <span className="admin-tag">{req.ruleType}</span>
+                        <span className="admin-tag">{RULE_TYPE_LABELS[req.ruleType] || req.ruleType}</span>
                       </td>
                       <td>{req.expectedValue}</td>
                       <td>
@@ -219,9 +243,16 @@ export default function Requirements() {
                           <button onClick={() => handleOpenEdit(req)} className="admin-btn-edit">
                             Editar
                           </button>
-                          <button onClick={() => handleDelete(req.id)} className="admin-btn-delete">
-                            Eliminar
-                          </button>
+                          {!req.active && (
+                            <button onClick={() => handleActivate(req.id)} className="admin-btn-primary" style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}>
+                              Activar
+                            </button>
+                          )}
+                          {req.active && (
+                            <button onClick={() => handleDelete(req.id)} className="admin-btn-delete">
+                              Eliminar
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -283,7 +314,7 @@ export default function Requirements() {
                   <option value="">-- Selecciona un tipo --</option>
                   {RULE_TYPES.map((type) => (
                     <option key={type} value={type}>
-                      {type}
+                      {RULE_TYPE_LABELS[type]}
                     </option>
                   ))}
                 </select>
@@ -330,13 +361,24 @@ export default function Requirements() {
 
       <ConfirmModal
         isOpen={!!confirmDeleteId}
-        title="Eliminar Requerimiento"
-        message="¿Estás seguro de eliminar este requerimiento?"
-        confirmText="Sí, eliminar"
+        title="Desactivar Requerimiento"
+        message="¿Estás seguro de desactivar este requerimiento?"
+        confirmText="Sí, desactivar"
         cancelText="Cancelar"
         variant="danger"
         onConfirm={executeDelete}
         onCancel={() => setConfirmDeleteId(null)}
+      />
+
+      <ConfirmModal
+        isOpen={!!confirmActivateId}
+        title="Activar Requerimiento"
+        message="¿Estás seguro de activar este requerimiento?"
+        confirmText="Sí, activar"
+        cancelText="Cancelar"
+        variant="primary"
+        onConfirm={executeActivate}
+        onCancel={() => setConfirmActivateId(null)}
       />
     </div>
   );

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   getAllUsers,
   changeUserStatus,
-  assignRoleToUser,
   getAllRoles,
   registerUserByAdmin,
   getAllAcademicPrograms,
@@ -39,10 +38,7 @@ export default function Users() {
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [showRoleModal, setShowRoleModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedRoleId, setSelectedRoleId] = useState("");
   
   // Filtros
   const [searchName, setSearchName] = useState("");
@@ -136,11 +132,7 @@ export default function Users() {
     }
   };
 
-  const handleOpenRoleModal = (user) => {
-    setSelectedUser(user);
-    setSelectedRoleId("");
-    setShowRoleModal(true);
-  };
+
 
   const handleOpenCreateModal = () => {
     setCreateFormData({
@@ -154,29 +146,7 @@ export default function Users() {
     setShowCreateModal(true);
   };
 
-  const handleAssignRole = async (e) => {
-    e.preventDefault();
-    
-    console.log("Asignando rol:", {
-      userId: selectedUser.id,
-      roleId: parseInt(selectedRoleId)
-    });
-    
-    try {
-      await assignRoleToUser({
-        userId: selectedUser.id,
-        roleId: parseInt(selectedRoleId),
-      });
-      setMessage("Rol asignado exitosamente");
-      setShowRoleModal(false);
-      fetchData();
-      
-      setTimeout(() => setMessage(""), 3000);
-    } catch (err) {
-      console.error("Error al asignar rol:", err);
-      setMessage("Error al asignar rol: " + (err.response?.data || err.message));
-    }
-  };
+
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -260,6 +230,11 @@ export default function Users() {
     const firstName = user.firstName || '';
     const lastName = user.lastName || '';
     return `${firstName} ${lastName}`.trim() || 'Sin nombre';
+  };
+
+  const getProfileName = (user) => {
+    if (user.name) return user.name;
+    return `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Sin nombre';
   };
 
   if (loading) {
@@ -380,12 +355,6 @@ export default function Users() {
                         className={user.status === "ACTIVE" ? "admin-btn-delete" : "admin-btn-edit"}
                       >
                         {user.status === "ACTIVE" ? "Desactivar" : "Activar"}
-                      </button>
-                      <button
-                        onClick={() => handleOpenRoleModal(user)}
-                        className="admin-btn-action"
-                      >
-                        Asignar Rol
                       </button>
                     </div>
                   </td>
@@ -541,67 +510,7 @@ export default function Users() {
         </div>
       )}
 
-      {/* Assign Role Modal */}
-      {showRoleModal && (
-        <div className="admin-modal-overlay" onClick={() => setShowRoleModal(false)}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h2>Asignar Rol a Usuario</h2>
-              <button onClick={() => setShowRoleModal(false)} className="admin-modal-close">
-                ✕
-              </button>
-            </div>
 
-            <form onSubmit={handleAssignRole} className="admin-form">
-              <div className="admin-form-group">
-                <label className="admin-label">Usuario</label>
-                <input
-                  type="text"
-                  value={getFullName(selectedUser)}
-                  className="admin-input"
-                  disabled
-                />
-              </div>
-
-              <div className="admin-form-group">
-                <label className="admin-label">Email</label>
-                <input
-                  type="text"
-                  value={selectedUser.email}
-                  className="admin-input"
-                  disabled
-                />
-              </div>
-
-              <div className="admin-form-group">
-                <label className="admin-label">Seleccionar Rol</label>
-                <select
-                  value={selectedRoleId}
-                  onChange={(e) => setSelectedRoleId(e.target.value)}
-                  className="admin-select"
-                  required
-                >
-                  <option value="">-- Selecciona un rol --</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="admin-modal-actions">
-                <button type="button" onClick={() => setShowRoleModal(false)} className="admin-btn-secondary">
-                  Cancelar
-                </button>
-                <button type="submit" className="admin-btn-primary" disabled={!selectedRoleId}>
-                  Asignar Rol
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -329,15 +329,23 @@ export default function Documents() {
                   required
                 >
                   <option value="">-- Selecciona el tipo --</option>
-                  {DOCUMENT_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type === "MANDATORY" ? "📋 Obligatorio (al inicio)" : "📎 Secundario (durante la modalidad)"}
-                    </option>
-                  ))}
+                  {DOCUMENT_TYPES.map((type) => {
+                    const labels = {
+                      MANDATORY: "📋 Obligatorio (al inicio)",
+                      SECONDARY: "📎 Secundario (durante la modalidad)",
+                      CANCELLATION: "🚫 Cancelación",
+                    };
+                    return (
+                      <option key={type} value={type}>
+                        {labels[type] || type}
+                      </option>
+                    );
+                  })}
                 </select>
                 <small style={{ color: "#666", marginTop: "0.5rem", display: "block" }}>
                   <strong>Obligatorio:</strong> Documentos que el estudiante debe subir al iniciar la modalidad.<br/>
-                  <strong>Secundario:</strong> Documentos que se suben durante el desarrollo de la modalidad.
+                  <strong>Secundario:</strong> Documentos que se suben durante el desarrollo de la modalidad.<br/>
+                  <strong>Cancelación:</strong> Documentos requeridos para cancelar la modalidad.
                 </small>
               </div>
 
